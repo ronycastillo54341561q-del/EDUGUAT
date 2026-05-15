@@ -1,8 +1,15 @@
 import axios from 'axios';
 
-// En dev usa localhost; en build (servido por el backend) usa rutas relativas.
+// URL del backend.
+//   - VITE_API_URL (definida en .env / panel de Vercel) tiene prioridad.
+//   - Sin esa variable: en dev apunta a localhost:5000; en build servido
+//     por el backend usa rutas relativas (/api).
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:5000' : '');
+
 const API = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:5000/api' : '/api',
+  baseURL: `${API_URL}/api`,
 });
 
 API.interceptors.request.use((config) => {

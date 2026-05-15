@@ -14,7 +14,8 @@ import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import './admin.css';
 
-const API = 'http://localhost:5000/api/backups';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API = `${API_URL}/api/backups`;
 
 // Cabecera Authorization estándar — el patrón que usa Bitacora.jsx y
 // el resto del panel admin.
