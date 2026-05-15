@@ -1,0 +1,114 @@
+.manual-content {
+  max-width: 1100px;
+}
+
+.manual-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.manual-toc {
+  background: #f5f7fb;
+  border: 1px solid #e0e3eb;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+}
+.manual-toc strong {
+  color: #1a237e;
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+.manual-toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.2rem 1rem;
+}
+.manual-toc button {
+  background: none;
+  border: none;
+  color: #283593;
+  cursor: pointer;
+  text-align: left;
+  padding: 0.25rem 0;
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+.manual-toc button:hover {
+  color: #1a237e;
+  text-decoration: underline;
+}
+
+.manual-doc {
+  background: #fff;
+  border: 1px solid #e0e3eb;
+  border-radius: 10px;
+  padding: 1.6rem 2rem;
+  line-height: 1.55;
+  color: #222;
+}
+.manual-doc h2 {
+  color: #1a237e;
+  margin: 1.6rem 0 0.7rem 0;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid #e8eaf6;
+  font-size: 1.25rem;
+}
+.manual-doc section:first-child > h2 { margin-top: 0; }
+.manual-doc h3 {
+  color: #283593;
+  margin: 1rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+.manual-doc p { margin: 0.5rem 0; }
+.manual-doc ul, .manual-doc ol { margin: 0.4rem 0 0.7rem 1.4rem; }
+.manual-doc li { margin: 0.15rem 0; }
+.manual-doc .tip {
+  background: #fff8e1;
+  border-left: 4px solid #fbc02d;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  margin: 0.7rem 0;
+}
+
+.manual-cover {
+  display: none;
+}
+
+/* Estilos específicos para impresión / PDF */
+.print-only { display: none; }
+
+@media print {
+  body { background: #fff; }
+  .no-print, .sidebar, .mobile-topbar { display: none !important; }
+  .manual-content { max-width: 100%; padding: 0; }
+  .manual-doc {
+    border: none;
+    padding: 0;
+    color: #000;
+  }
+  .manual-doc h2 {
+    page-break-after: avoid;
+    border-bottom: 1px solid #ccc;
+  }
+  .manual-doc section { page-break-inside: avoid; }
+  .print-only { display: block; }
+  .manual-cover {
+    display: block;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding: 3rem 0;
+    border-bottom: 2px solid #1a237e;
+  }
+  .manual-cover h1 { font-size: 3rem; color: #1a237e; margin: 0; }
+  .manual-cover h2 { font-size: 1.4rem; color: #555; border: none; margin: 0.5rem 0; }
+  .manual-cover p  { color: #777; }
+}

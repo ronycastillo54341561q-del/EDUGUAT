@@ -1,0 +1,60 @@
+.sede-selector-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a237e, #283593);
+  padding: 1rem;
+}
+
+.sede-selector-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.sede-selector-header { text-align: center; margin-bottom: 1.8rem; }
+.sede-selector-header h1 { color: #1a237e; font-size: 2rem; font-weight: 700; }
+.sede-selector-header p  { color: #666; margin-top: 4px; font-size: 0.95rem; }
+
+.sede-msg         { text-align: center; color: #555; padding: 1rem 0; }
+.sede-msg.error   { color: #e53935; }
+
+.sede-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.sede-card {
+  background: #f5f6fb;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 1.4rem 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.sede-card:hover {
+  border-color: #1a237e;
+  background: #eceefc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26,35,126,0.15);
+}
+
+.sede-icono  { font-size: 2.2rem; }
+.sede-nombre { font-weight: 700; color: #1a237e; font-size: 1rem; text-align: center; }
+.sede-id     { color: #888; font-size: 0.75rem; font-family: monospace; }
+
+@media (max-width: 480px) {
+  .sede-selector-card { padding: 1.8rem 1.2rem; }
+  .sede-selector-header h1 { font-size: 1.6rem; }
+}

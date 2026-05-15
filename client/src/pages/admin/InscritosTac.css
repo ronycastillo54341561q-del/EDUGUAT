@@ -1,0 +1,184 @@
+/* InscritosTac.css — gestión de inscripciones TAC por año y nivel */
+
+.itac-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.itac-toolbar label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.itac-toolbar select,
+.itac-toolbar input[type='number'] {
+  padding: 0.45rem 0.65rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  background: #fff;
+}
+
+.itac-tabs {
+  display: flex;
+  gap: 0.4rem;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.itac-tab {
+  background: transparent;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s ease;
+  margin-bottom: -2px;
+}
+
+.itac-tab:hover {
+  color: #1a237e;
+  background: #f5f5f5;
+}
+
+.itac-tab.active {
+  color: #1a237e;
+  border-bottom-color: #1a237e;
+  background: #f8f9ff;
+}
+
+.itac-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.itac-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #ccc;
+}
+
+.itac-card.total      { border-left-color: #1a237e; }
+.itac-card.inscrito   { border-left-color: #2e7d32; }
+.itac-card.pendiente  { border-left-color: #f9a825; }
+.itac-card.no_inscrito{ border-left-color: #c62828; }
+
+.itac-card h4 {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+.itac-card p {
+  margin: 0.25rem 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.itac-table-wrap {
+  background: #fff;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 65vh;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.itac-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+
+.itac-table th,
+.itac-table td {
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.itac-table th {
+  background: #f8f9ff;
+  color: #1a237e;
+  font-weight: 700;
+  font-size: 0.78rem;
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.itac-table tr.bad td {
+  background: #fff;
+}
+
+.itac-table .clave {
+  font-family: monospace;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.itac-table .codigo {
+  font-family: monospace;
+  font-size: 0.78rem;
+}
+
+.itac-state-select {
+  padding: 0.32rem 0.5rem;
+  border-radius: 6px;
+  border: 1.5px solid #e0e0e0;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  background: #fff;
+}
+
+.itac-state-select.inscrito    { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+.itac-state-select.pendiente   { background: #fff8e1; color: #ef6c00; border-color: #ffe082; }
+.itac-state-select.no_inscrito { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+
+.itac-obs {
+  width: 100%;
+  min-width: 180px;
+  padding: 0.32rem 0.5rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+.itac-fecha {
+  font-size: 0.78rem;
+  color: #666;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.itac-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+}
+
+.itac-saving {
+  font-size: 0.75rem;
+  color: #888;
+  margin-left: 0.5rem;
+}
+
+.itac-saving.ok  { color: #2e7d32; }
+.itac-saving.err { color: #c62828; }

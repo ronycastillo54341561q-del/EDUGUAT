@@ -1,0 +1,393 @@
+/* ─── Gestión de Diplomados ─────────────────────────────────────────────────── */
+
+.dip-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+.dip-empty p { font-size: 1.1rem; margin-bottom: 1rem; }
+
+/* Card grid */
+.dip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.dip-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  transition: box-shadow .2s;
+}
+.dip-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+
+.dip-card-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+.dip-card-header h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.1rem;
+  color: #1a237e;
+}
+.dip-badge {
+  display: inline-block;
+  background: #e8eaf6;
+  color: #3949ab;
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.dip-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-edit {
+  padding: 4px 12px;
+  border: 1px solid #1976d2;
+  background: #fff;
+  color: #1976d2;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-edit:hover { background: #e3f2fd; }
+
+.btn-danger-sm {
+  padding: 4px 12px;
+  border: 1px solid #d32f2f;
+  background: #fff;
+  color: #d32f2f;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-danger-sm:hover { background: #ffebee; }
+
+/* Sections inside card */
+.dip-section {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: #444;
+}
+.dip-section strong { color: #333; display: block; margin-bottom: 0.2rem; }
+.dip-section p { margin: 0; line-height: 1.5; }
+
+.dip-comp-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.4rem;
+  list-style: disc;
+}
+.dip-comp-list li { margin-bottom: 0.15rem; line-height: 1.4; }
+
+.dip-semanas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+.dip-semana-chip {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  font-size: 0.82rem;
+}
+.dip-semana-num {
+  background: #3949ab;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ─── Modal ─────────────────────────────────────────────────────────────────── */
+.dip-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 700px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,.18);
+}
+.dip-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+.dip-modal-header h2 { margin: 0; font-size: 1.15rem; color: #1a237e; }
+
+.dip-modal-body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dip-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: #555;
+  margin-bottom: 0.35rem;
+}
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color .15s;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3949ab;
+  box-shadow: 0 0 0 2px #e8eaf6;
+}
+
+.dip-row2 {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Competencias específicas */
+.dip-add-btn {
+  background: #e8eaf6;
+  color: #3949ab;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dip-add-btn:hover { background: #c5cae9; }
+
+.dip-comp-inputs { display: flex; flex-direction: column; gap: 0.4rem; }
+.dip-comp-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dip-comp-num {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 700;
+  width: 18px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.dip-comp-row input { flex: 1; }
+.dip-remove-btn {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* Contenido semanal */
+.dip-contenido-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+.dip-contenido-item { display: flex; flex-direction: column; gap: 0.25rem; }
+.dip-semana-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dip-examen-badge {
+  background: #d32f2f;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+/* Confirm modal */
+.modal-confirm {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.75rem;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,.18);
+}
+.modal-confirm h3 { margin: 0 0 0.75rem; color: #c62828; }
+.modal-confirm p { margin: 0.3rem 0; }
+
+.btn-danger {
+  padding: 0.5rem 1.25rem;
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-danger:hover { background: #b71c1c; }
+
+/* Panel de programas dentro del card */
+.dip-card-open {
+  grid-column: 1 / -1;
+  border-color: #3949ab;
+  box-shadow: 0 4px 16px rgba(57,73,171,.15);
+}
+
+.dip-prog-chips {
+  display: flex;
+  justify-content: left;
+  
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+.dip-prog-chip {
+  display: inline-flex;
+  width: 45%;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 5px 12px 5px 8px;
+  font-size: 0.78rem;
+}
+.dip-prog-chip-sem {
+  font-size: 0.7rem;
+  color: #888;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+.dip-prog-panel {
+  margin-top: 0.5rem;
+  background: #fafafa;
+  border: 1px dashed #d0d4e8;
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.dip-prog-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+}
+.dip-prog-orden {
+  background: #3949ab;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.dip-prog-info { flex: 1; min-width: 0; }
+.dip-prog-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #333;
+}
+.dip-prog-meta {
+  font-size: 0.74rem;
+  color: #888;
+  margin-top: 1px;
+}
+.dip-prog-acts { display: flex; gap: 0.25rem; align-items: center; flex-shrink: 0; }
+
+/* Filas de programas en el form de Diplomado */
+.dip-prog-form-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dip-prog-form-row input[type="number"] { padding: 0.35rem 0.4rem; }
+.dip-mat-num {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 700;
+  width: 18px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.dip-mat-btn {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  color: #555;
+}
+.dip-mat-btn:hover:not(:disabled) { background: #eef0fa; border-color: #3949ab; color: #3949ab; }
+.dip-mat-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.dip-mat-btn.del { color: #d32f2f; border-color: #f4b8b8; }
+.dip-mat-btn.del:hover { background: #ffebee; }
+
+@media (max-width: 600px) {
+  .dip-grid { grid-template-columns: 1fr; }
+  .dip-row2 { flex-direction: column; }
+  .dip-contenido-grid { grid-template-columns: 1fr; }
+  .dip-card-open { grid-column: auto; }
+}

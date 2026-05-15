@@ -1,0 +1,162 @@
+/* Configuracion.css — panel de catálogos administrativos */
+
+.cfg-tabs {
+  display: flex;
+  gap: 0.4rem;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #f0f2f5;
+  padding-top: 0.25rem;
+}
+
+.cfg-tab {
+  background: transparent;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s ease;
+  margin-bottom: -2px;
+}
+
+.cfg-tab:hover {
+  color: #1a237e;
+  background: #f5f5f5;
+}
+
+.cfg-tab.active {
+  color: #1a237e;
+  border-bottom-color: #1a237e;
+  background: #f8f9ff;
+}
+
+.cfg-panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.cfg-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 56px;
+  z-index: 25;
+  background: #f0f2f5;
+  padding: 0.5rem 0;
+}
+
+.cfg-toolbar h2 {
+  font-size: 1.05rem;
+  color: #1a237e;
+  font-weight: 700;
+  margin: 0;
+}
+
+.cfg-hint {
+  color: #777;
+  font-size: 0.82rem;
+  margin-bottom: 1.1rem;
+}
+
+.cfg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.cfg-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  background: #fafafa;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.cfg-card.inactivo { opacity: 0.55; background: #f3f3f3; }
+
+.cfg-card-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.cfg-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.cfg-badge-off {
+  background: #ffe0b2;
+  color: #b71c1c;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.cfg-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Editor de materias dentro de GestionDiplomados */
+.dip-mat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.dip-mat-num {
+  font-weight: 700;
+  color: #1a237e;
+  width: 24px;
+  text-align: center;
+}
+
+.dip-mat-row input {
+  flex: 1;
+}
+
+.dip-mat-btn {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dip-mat-btn:hover { background: #e0e0e0; }
+
+.dip-mat-btn.del { color: #c62828; }

@@ -1,0 +1,378 @@
+/* ───── Sidebar ───── */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a237e, #283593);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 200;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.sidebar-header h2 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sidebar-header p {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.rol-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-top: 6px;
+}
+
+.sede-badge {
+  display: block;
+  margin-top: 10px;
+  background: rgba(144,202,249,0.25);
+  color: #e3f2fd;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(144,202,249,0.3);
+}
+
+.cambiar-sede-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  border: 1px dashed rgba(255,255,255,0.3);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cambiar-sede-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border-color: rgba(255,255,255,0.5);
+}
+
+.sidebar.collapsed .sede-badge,
+.sidebar.collapsed .cambiar-sede-btn { display: none; }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.nav-section {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.8rem 1.5rem 0.3rem;
+  margin: 0;
+}
+
+/* ───── Sección colapsable (acordeón / menú espagueti) ───── */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-section-btn {
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: inherit;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-section-btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
+}
+
+.nav-section-caret {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.45);
+  transition: transform 0.2s ease;
+  margin-left: 8px;
+}
+
+/* Animación de despliegue */
+.nav-group-items {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 1500px;
+  opacity: 1;
+  transition: max-height 0.28s ease, opacity 0.18s ease;
+}
+
+.nav-group.closed .nav-group-items {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* En modo colapsado (sidebar mini) ocultamos el botón de sección y dejamos
+   los íconos siempre visibles para no perder navegación. */
+.sidebar.collapsed .nav-section-btn { display: none; }
+.sidebar.collapsed .nav-group.closed .nav-group-items {
+  max-height: 1500px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.7rem 1.5rem;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border-left: 3px solid #90caf9;
+}
+
+.logout-btn {
+  margin: 1rem;
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(220, 53, 69, 0.6);
+}
+
+/* ───── Botón cerrar dentro del sidebar (solo móvil) ───── */
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ───── Barra superior móvil ───── */
+.mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: linear-gradient(90deg, #1a237e, #283593);
+  z-index: 150;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.mobile-topbar h2 {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.hamburger-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-logout-btn {
+  display: none;
+  background: rgba(220, 53, 69, 0.85);
+  border: none;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  height: 38px;
+  padding: 0 12px;
+  gap: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.mobile-logout-btn:hover {
+  background: rgba(220, 53, 69, 1);
+}
+.mobile-logout-btn svg {
+  flex-shrink: 0;
+}
+.mobile-logout-label {
+  white-space: nowrap;
+}
+/* Pantallas muy angostas: ocultamos el texto y dejamos solo el ícono. */
+@media (max-width: 380px) {
+  .mobile-logout-label { display: none; }
+  .mobile-logout-btn { padding: 0; width: 38px; }
+}
+
+/* ───── Overlay oscuro al abrir sidebar en móvil ───── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 190;
+}
+
+.sidebar-overlay.activo {
+  display: block;
+}
+
+/* ───── Collapse toggle button ───── */
+.collapse-btn {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  font-size: 0.85rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.collapse-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ───── Collapsed state ───── */
+.sidebar.collapsed {
+  width: 64px;
+  overflow: visible;
+}
+
+.sidebar.collapsed .nav-text {
+  display: none;
+}
+
+.sidebar.collapsed .nav-section {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-header p,
+.sidebar.collapsed .sidebar-header .rol-badge {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-header h2 {
+  font-size: 0.85rem;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 0.7rem 0;
+}
+
+.sidebar.collapsed .nav-icon {
+  font-size: 1.3rem;
+}
+
+.sidebar.collapsed .logout-btn {
+  padding: 0.75rem 0;
+  justify-content: center;
+}
+
+/* ───── Responsive ───── */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-260px);
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+  }
+
+  .sidebar.abierta {
+    transform: translateX(0);
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  .mobile-topbar {
+    display: flex;
+  }
+
+  .mobile-logout-btn {
+    display: flex;
+  }
+}

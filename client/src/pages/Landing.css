@@ -1,0 +1,20 @@
+.lp-page {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  color: #2a2f45;
+  background: #ffffff;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.lp-page *,
+.lp-page *::before,
+.lp-page *::after {
+  box-sizing: border-box;
+}
+
+.lp-page main {
+  display: block;
+}
