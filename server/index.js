@@ -2,29 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
-const db = require('./config/db');
-const { SEDES } = db;
-const { bootstrapSede } = require('./utils/sedeBootstrap');
-const { bootstrapMeta, cargarSedes } = require('./utils/sedeRegistry');
+require('./config/db');
+const { bootstrapTodasLasSedes } = require('./utils/sedeRegistry');
 
+// Asegura la base meta, carga TODAS las sedes desde `eduguat_meta.sedes`
+// y bootstrappea cada una (BD + esquema + admin).  Errores aislados por
+// sede; nunca detiene el arranque del servidor.
 (async () => {
-  // 1) Asegura que la base meta y su tabla `sedes` existan.
-  try { await bootstrapMeta(); }
-  catch (err) { console.error('bootstrapMeta error:', err.message); }
-
-  // 2) Carga la lista persistida de sedes y la registra en memoria.
-  try { await cargarSedes(); }
-  catch (err) { console.error('cargarSedes error:', err.message); }
-
-  // 3) Para cada sede registrada, asegura su BD, esquema, admin por
-  //    defecto, mensualidades y catálogos.
-  for (const { id } of SEDES) {
-    try {
-      await bootstrapSede(id);
-    } catch (err) {
-      console.error(`Error al inicializar sede ${id}:`, err.message);
-    }
-  }
+  await bootstrapTodasLasSedes();
 })();
 
 const authRoutes          = require('./routes/authRoutes');

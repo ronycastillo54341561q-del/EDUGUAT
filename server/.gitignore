@@ -1,0 +1,11 @@
+node_modules
+.env
+.env.*
+!.env.example
+
+# Volcados de base de datos (contienen datos reales — no commitear)
+sql/dump/
+
+# Respaldos generados en runtime
+backups/
+*.log

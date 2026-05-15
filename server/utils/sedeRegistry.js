@@ -7,19 +7,28 @@
 //   - modulos      JSON con la lista de módulos habilitados (null = todos)
 //   - email_admin  email del admin principal (informativo / recuperación)
 //
-// Las tres sedes "semilla" (sistec_flores, m_lozano, sistec_jutiapa) se
-// registran automáticamente la primera vez que arranca el servidor para
-// no romper instalaciones existentes.
+// Las sedes "semilla" se registran automáticamente la primera vez que
+// arranca el servidor (INSERT IGNORE) para no romper instalaciones
+// existentes y para garantizar que una base meta fresca quede poblada
+// con las 8 sedes operativas.  A partir de ahí la lista es 100% dinámica:
+// el servidor lee SIEMPRE `eduguat_meta.sedes` y bootstrappea lo que
+// encuentre allí (incluidas sedes creadas después desde la UI).
 
 const mysql = require('mysql2/promise');
 const {
   META_DB, getMetaPool, registerSede, SEDES, sedesMeta,
 } = require('../config/db');
+const { bootstrapSede } = require('./sedeBootstrap');
 
 const SEMILLAS = [
-  { id: 'sistema_escolar', nombre: 'Sistec Flores' },
-  { id: 'm_lozano',        nombre: 'M Lozano' },
-  { id: 'sistec_jutiapa',  nombre: 'Sistec Jutiapa' },
+  { id: 'm_lozano',             nombre: 'M Lozano' },
+  { id: 'sistec_jutiapa',       nombre: 'Sistec Jutiapa' },
+  { id: 'sistema_escolar',      nombre: 'Sistec Flores' },
+  { id: 'sistec_flores_oficial', nombre: 'Sistec Flores Oficial' },
+  { id: 'm_lozano_genova',      nombre: 'M Lozano Génova' },
+  { id: 'testimport1',          nombre: 'Test Import 1' },
+  { id: 'sistec_xela',          nombre: 'Sistec Xela' },
+  { id: 'sistec_jalapa',        nombre: 'Sistec Jalapa' },
 ];
 
 const bootstrapMeta = async () => {
@@ -145,9 +154,44 @@ const actualizarSede = async (id, { nombre, info, modulos, email_admin }) => {
   }
 };
 
+// Orquestador completo que se ejecuta al arrancar el servidor:
+//   1) asegura la base meta y su tabla `sedes` (con las 8 semillas)
+//   2) lee TODAS las sedes desde `eduguat_meta.sedes` y las registra
+//      en memoria (cada una obtiene su pool vía registerSede→ensurePool)
+//   3) para CADA sede crea su BD/esquema si no existen e inicializa el
+//      admin por defecto.
+//
+// Los errores se loguean por sede pero nunca detienen el arranque: si
+// una sede falla (BD caída, credenciales, etc.) las demás siguen.
+const bootstrapTodasLasSedes = async () => {
+  try {
+    await bootstrapMeta();
+  } catch (err) {
+    console.error('bootstrapMeta error:', err.message);
+  }
+
+  let rows = [];
+  try {
+    rows = await cargarSedes();
+  } catch (err) {
+    console.error('cargarSedes error:', err.message);
+  }
+
+  for (const { id } of rows) {
+    try {
+      await bootstrapSede(id);
+      console.log(`  [${id}] sede inicializada`);
+    } catch (err) {
+      console.error(`Error al inicializar sede ${id}:`, err.message);
+    }
+  }
+  return rows;
+};
+
 module.exports = {
   bootstrapMeta,
   cargarSedes,
+  bootstrapTodasLasSedes,
   insertarSede,
   actualizarActivo,
   actualizarSede,

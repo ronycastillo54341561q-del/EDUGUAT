@@ -895,7 +895,11 @@ const asegurarAdmin = async (pool, sedeId, override = null) => {
 const bootstrapSede = async (id, adminOverride = null) => {
   await crearDatabaseSiNoExiste(id);
   const pool = ensurePool(id);
-  await initDb(pool);
+  try {
+    await initDb(pool);
+  } catch (err) {
+    console.error(`  [${id}] initDb error:`, err.message);
+  }
   await asegurarAdmin(pool, id, adminOverride);
   await sincronizarCatalogosConAlumnos(pool, id);
   await inicializarMensualidades(pool, id);
