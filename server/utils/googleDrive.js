@@ -28,7 +28,7 @@
 // ╚═══════════════════════════════════════════════════════════════════════╝
 
 const fs = require('fs');
-const { google } = require('googleapis');
+const { google } = require('googleapis/build/src/index.js');
 
 // Cliente cacheado — se inicializa una sola vez al primer uso.
 // El OAuth2Client maneja la rotación del access_token internamente:
