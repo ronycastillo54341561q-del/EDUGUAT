@@ -26,6 +26,7 @@ const bootstrapMeta = async () => {
   // Crea la base meta si no existe (sin usar el pool — éste apunta a META_DB).
   const admin = await mysql.createConnection({
     host:     process.env.DB_HOST,
+    port:     Number(process.env.DB_PORT) || 3306,
     user:     process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   });
