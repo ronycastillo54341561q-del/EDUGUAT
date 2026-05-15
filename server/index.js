@@ -47,7 +47,33 @@ const relacionesRoutes    = require('./routes/relacionesRoutes');
 
 const app = express();
 
-app.use(cors());
+// Orígenes permitidos para el frontend (Vercel/dominios) que llama al
+// backend en Railway.  Las peticiones sin cabecera `Origin` (el propio
+// SPA servido desde client/dist, health-checks de Railway, curl,
+// server-to-server) se dejan pasar: no son CORS y bloquearlas rompería
+// el self-hosting del frontend y los chequeos de salud.
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://eduguat.com',
+  'https://www.eduguat.com',
+  'https://eduguat-landing.vercel.app',
+  'https://eduguat.vercel.app',
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origen no permitido por CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '20mb' }));
 
 app.use('/api/auth',             authRoutes);
