@@ -1,3 +1,4 @@
+import Reveal from './Reveal';
 import './Features.css';
 
 const caracteristicas = [
@@ -32,21 +33,21 @@ const Features = () => {
   return (
     <section id="features" className="lp-features">
       <div className="lp-features__inner">
-        <div className="lp-section__header">
+        <Reveal className="lp-section__header">
           <span className="lp-section__pill">Características</span>
           <h2 className="lp-section__titulo">Todo lo que necesita tu institución</h2>
           <p className="lp-section__descripcion">
             Un sistema completo que cubre todas las áreas críticas de la administración educativa.
           </p>
-        </div>
+        </Reveal>
 
         <div className="lp-features__grid">
-          {caracteristicas.map((c) => (
-            <article className="lp-feature" key={c.titulo}>
+          {caracteristicas.map((c, i) => (
+            <Reveal as="article" className="lp-feature" delay={i * 90} key={c.titulo}>
               <div className="lp-feature__icono" aria-hidden="true">{c.icono}</div>
               <h3 className="lp-feature__titulo">{c.titulo}</h3>
               <p className="lp-feature__descripcion">{c.descripcion}</p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </div>

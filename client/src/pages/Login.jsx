@@ -3,16 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import { defaultRoute } from '../lib/permissions';
+import usePageTitle from '../hooks/usePageTitle';
 import './Login.css';
 
 const Login = () => {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [verPass, setVerPass]   = useState(false);
   const [error, setError]       = useState('');
   const [aviso, setAviso]       = useState('');
   const [cargando, setCargando] = useState(false);
   const { login, sede }         = useAuth();
   const navigate = useNavigate();
+
+  usePageTitle(sede ? `Iniciar sesión · ${sede.nombre}` : 'Iniciar sesión');
 
   // Si no hay sede elegida, no tiene sentido estar aquí.
   useEffect(() => {
@@ -76,26 +80,46 @@ const Login = () => {
           </div>
           <div className="form-group">
             <label>Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
+            <div className="password-wrap">
+              <input
+                type={verPass ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setVerPass(v => !v)}
+                aria-label={verPass ? 'Ocultar contraseña' : 'Ver contraseña'}
+                title={verPass ? 'Ocultar contraseña' : 'Ver contraseña'}
+              >
+                {verPass ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
           {aviso && <p className="info-msg">{aviso}</p>}
           {error && <p className="error-msg">{error}</p>}
           <button type="submit" disabled={cargando}>
             {cargando ? 'Ingresando...' : 'Ingresar'}
           </button>
-          <button
-            type="button"
-            className="link-cambiar-sede"
-            onClick={() => navigate('/seleccionar', { replace: true })}
-          >
-            Cambiar sede
-          </button>
+          <div className="login-acciones">
+            <button
+              type="button"
+              className="link-secundario"
+              onClick={() => navigate('/', { replace: true })}
+            >
+              ← Regresar
+            </button>
+            <button
+              type="button"
+              className="link-secundario"
+              onClick={() => navigate('/seleccionar', { replace: true })}
+            >
+              Cambiar sede
+            </button>
+          </div>
         </form>
       </div>
     </div>

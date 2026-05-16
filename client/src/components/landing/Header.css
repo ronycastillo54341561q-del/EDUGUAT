@@ -102,6 +102,20 @@
   color: #ffffff;
 }
 
+.lp-nav__acceder {
+  margin-left: 8px;
+  padding: 10px 20px !important;
+  font-size: 0.95rem !important;
+}
+
+@media (max-width: 900px) {
+  .lp-nav__acceder {
+    margin-left: 0;
+    margin-top: 8px;
+    width: 100%;
+  }
+}
+
 .lp-hamburguesa {
   display: none;
   flex-direction: column;

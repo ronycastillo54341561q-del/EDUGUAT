@@ -1,0 +1,141 @@
+.lp-comofunciona {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #3949ab 100%);
+  color: #ffffff;
+  padding: 90px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-comofunciona::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  top: -180px;
+  left: -150px;
+}
+
+.lp-comofunciona__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.lp-section__pill--claro {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+.lp-section__titulo--claro { color: #ffffff; }
+.lp-section__descripcion--claro { color: rgba(255, 255, 255, 0.85); }
+
+.lp-pasos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-top: 48px;
+}
+
+.lp-paso {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 28px 22px;
+  position: relative;
+  backdrop-filter: blur(4px);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.lp-paso:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.lp-paso__num {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #ffd54f;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.lp-paso__icono { font-size: 2rem; margin: 14px 0 10px; }
+
+.lp-paso__titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.lp-paso__texto {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+}
+
+.lp-paso__flecha {
+  position: absolute;
+  right: -19px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+  color: #ffd54f;
+  z-index: 2;
+}
+
+.lp-comofunciona__cta {
+  text-align: center;
+  margin-top: 56px;
+}
+
+/* Botón Acceder destacado — reutilizable en Header/Hero */
+.lp-btn-acceder {
+  background: #ffd54f;
+  color: #1a237e;
+  border: none;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 14px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 8px 22px rgba(255, 213, 79, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.lp-btn-acceder:hover {
+  background: #ffc107;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(255, 193, 7, 0.45);
+}
+
+.lp-btn-acceder--xl {
+  font-size: 1.15rem;
+  padding: 18px 40px;
+  animation: lp-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes lp-pulse {
+  0%, 100% { box-shadow: 0 8px 22px rgba(255, 213, 79, 0.35); }
+  50% { box-shadow: 0 8px 34px rgba(255, 213, 79, 0.65); }
+}
+
+.lp-comofunciona__nota {
+  margin-top: 14px;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 980px) {
+  .lp-pasos { grid-template-columns: repeat(2, 1fr); }
+  .lp-paso__flecha { display: none; }
+}
+
+@media (max-width: 560px) {
+  .lp-comofunciona { padding: 64px 18px; }
+  .lp-pasos { grid-template-columns: 1fr; }
+  .lp-btn-acceder--xl { font-size: 1rem; padding: 16px 28px; width: 100%; }
+}

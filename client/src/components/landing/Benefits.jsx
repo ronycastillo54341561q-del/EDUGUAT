@@ -1,3 +1,4 @@
+import Reveal from './Reveal';
 import './Benefits.css';
 
 const beneficiarios = [
@@ -51,17 +52,17 @@ const Benefits = () => {
   return (
     <section id="benefits" className="lp-benefits">
       <div className="lp-benefits__inner">
-        <div className="lp-section__header">
+        <Reveal className="lp-section__header">
           <span className="lp-section__pill">Beneficios</span>
           <h2 className="lp-section__titulo">Diseñado para toda la comunidad educativa</h2>
           <p className="lp-section__descripcion">
             Cada usuario tiene acceso exactamente a la información que necesita, ni más ni menos.
           </p>
-        </div>
+        </Reveal>
 
         <div className="lp-benefits__grid">
-          {beneficiarios.map((b) => (
-            <article className="lp-benefit" key={b.titulo}>
+          {beneficiarios.map((b, i) => (
+            <Reveal as="article" className="lp-benefit" delay={i * 90} key={b.titulo}>
               <div className="lp-benefit__header">
                 <span className="lp-benefit__icono" aria-hidden="true">{b.icono}</span>
                 <h3 className="lp-benefit__titulo">{b.titulo}</h3>
@@ -75,7 +76,7 @@ const Benefits = () => {
                   </li>
                 ))}
               </ul>
-            </article>
+            </Reveal>
           ))}
         </div>
       </div>

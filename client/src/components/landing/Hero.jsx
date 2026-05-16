@@ -24,14 +24,11 @@ const Hero = () => {
           </p>
 
           <div className="lp-hero__botones">
-            <button className="lp-btn lp-btn--primario" onClick={() => scrollA('features')}>
-              Ver Características
-            </button>
-            <button className="lp-btn lp-btn--secundario" onClick={() => scrollA('contact')}>
-              Contactar
-            </button>
-            <button className="lp-btn lp-btn--enlace" onClick={() => navigate('/seleccionar')}>
+            <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/seleccionar')}>
               Acceder al sistema →
+            </button>
+            <button className="lp-btn lp-btn--secundario" onClick={() => scrollA('showcase')}>
+              Ver el sistema
             </button>
           </div>
 

@@ -34,10 +34,12 @@ const Header = () => {
 
         <nav className={`lp-nav ${menuAbierto ? 'lp-nav--abierto' : ''}`}>
           <button className="lp-nav__link" onClick={() => scrollA('features')}>Características</button>
+          <button className="lp-nav__link" onClick={() => scrollA('showcase')}>Módulos</button>
+          <button className="lp-nav__link" onClick={() => scrollA('como-funciona')}>Cómo funciona</button>
           <button className="lp-nav__link" onClick={() => scrollA('benefits')}>Beneficios</button>
           <button className="lp-nav__link" onClick={() => scrollA('contact')}>Contacto</button>
-          <button className="lp-nav__cta lp-nav__cta--ghost" onClick={irAlSistema}>Acceder</button>
-          <button className="lp-nav__cta" onClick={() => scrollA('contact')}>Solicitar Demo</button>
+          <button className="lp-nav__cta lp-nav__cta--ghost" onClick={() => scrollA('contact')}>Solicitar Demo</button>
+          <button className="lp-btn-acceder lp-nav__acceder" onClick={irAlSistema}>Acceder al sistema →</button>
         </nav>
 
         <button
