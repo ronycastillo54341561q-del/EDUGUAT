@@ -109,6 +109,13 @@ app.use('/api/backups',          backupsRoutes);
 app.use('/api/roles',            rolesRoutes);
 app.use('/api/relaciones',       relacionesRoutes);
 
+// Healthcheck para Railway. Debe ir ANTES de express.static y del
+// catch-all del SPA: ambos capturan "/" y, como en Railway no existe
+// client/dist (el frontend vive en Vercel), "/" devolvería un error.
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date() });
+});
+
 // Sirve el frontend buildeado (client/dist) — para que un solo túnel
 // (cloudflared al puerto 5000) exponga app + API.
 const clientDist = path.resolve(__dirname, '..', 'client', 'dist');
