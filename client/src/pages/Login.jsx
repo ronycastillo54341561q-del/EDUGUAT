@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import { defaultRoute } from '../lib/permissions';
 import usePageTitle from '../hooks/usePageTitle';
-import './Login.css';
+import logo from '../assets/eduguat-logo.png';
+import './auth.css';
 
 const Login = () => {
   const [email, setEmail]       = useState('');
@@ -56,65 +57,75 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-logo">
-          <h1>EduGuat</h1>
-          <p>Sistema de Gestión Estudiantil</p>
+    <div className="auth-screen">
+      <div className="auth-card">
+        <img src={logo} alt="EduGuat" className="auth-logo" />
+
+        <div className="auth-head">
+          <h1>Bienvenido de nuevo</h1>
+          <p>Ingresa tus credenciales para continuar</p>
           {sede && (
-            <p className="login-sede">
-              Iniciando sesión en <strong>{sede.nombre}</strong>
-            </p>
+            <span className="auth-sede-chip">
+              <span className="auth-sede-dot" />
+              {sede.nombre}
+            </span>
           )}
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Usuario</label>
+
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-field">
+            <label htmlFor="usuario">Usuario</label>
             <input
+              id="usuario"
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="usuario o correo"
+              autoComplete="username"
               required
             />
           </div>
-          <div className="form-group">
-            <label>Contraseña</label>
-            <div className="password-wrap">
-              <input
-                type={verPass ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setVerPass(v => !v)}
-                aria-label={verPass ? 'Ocultar contraseña' : 'Ver contraseña'}
-                title={verPass ? 'Ocultar contraseña' : 'Ver contraseña'}
-              >
-                {verPass ? '🙈' : '👁️'}
-              </button>
-            </div>
+
+          <div className="auth-field">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type={verPass ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Tu contraseña"
+              autoComplete="current-password"
+              required
+            />
           </div>
-          {aviso && <p className="info-msg">{aviso}</p>}
-          {error && <p className="error-msg">{error}</p>}
-          <button type="submit" disabled={cargando}>
-            {cargando ? 'Ingresando...' : 'Ingresar'}
+
+          <label className="auth-check">
+            <input
+              type="checkbox"
+              checked={verPass}
+              onChange={(e) => setVerPass(e.target.checked)}
+            />
+            <span>Mostrar contraseña</span>
+          </label>
+
+          {aviso && <p className="auth-msg auth-msg--info">{aviso}</p>}
+          {error && <p className="auth-msg auth-msg--error">{error}</p>}
+
+          <button type="submit" className="auth-btn auth-btn--primary" disabled={cargando}>
+            {cargando ? 'Ingresando…' : 'Ingresar'}
           </button>
-          <div className="login-acciones">
+
+          <div className="auth-actions">
             <button
               type="button"
-              className="link-secundario"
+              className="auth-btn auth-btn--ghost"
               onClick={() => navigate('/', { replace: true })}
             >
               ← Regresar
             </button>
             <button
               type="button"
-              className="link-secundario"
+              className="auth-btn auth-btn--ghost"
               onClick={() => navigate('/seleccionar', { replace: true })}
             >
               Cambiar sede

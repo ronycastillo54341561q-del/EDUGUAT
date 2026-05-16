@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/eduguat-logo.png';
 import './Sidebar.css';
 
 const AlumnoSidebar = () => {
@@ -16,7 +17,7 @@ const AlumnoSidebar = () => {
     <>
       <div className="mobile-topbar">
         <button className="hamburger-btn" onClick={() => setAbierta(true)}>☰</button>
-        <h2>EduGuat</h2>
+        <img src={logo} alt="EduGuat" className="sidebar-logo sidebar-logo--mobile" />
         <button
           className="mobile-logout-btn"
           onClick={handleLogout}
@@ -33,7 +34,7 @@ const AlumnoSidebar = () => {
         <button className="sidebar-close-btn" onClick={cerrar}>✕</button>
 
         <div className="sidebar-header">
-          <h2>EduGuat</h2>
+          <img src={logo} alt="EduGuat" className="sidebar-logo" />
           <p>{usuario?.nombre}</p>
           <span className="rol-badge" style={{ background: '#43a047' }}>Alumno</span>
           {sede && <span className="sede-badge" title={sede.id}>📍 {sede.nombre}</span>}

@@ -1,3 +1,4 @@
+import logo from '../../assets/eduguat-logo.png';
 import './Footer.css';
 
 const Footer = () => {
@@ -12,7 +13,7 @@ const Footer = () => {
     <footer className="lp-footer">
       <div className="lp-footer__inner">
         <div className="lp-footer__columna">
-          <div className="lp-footer__logo">EDUGUAT</div>
+          <img src={logo} alt="EduGuat" className="lp-footer__logo-img" />
           <p className="lp-footer__descripcion">
             Sistema de gestión de información educativa diseñado para transformar la administración
             de instituciones en Guatemala.

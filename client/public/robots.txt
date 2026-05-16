@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /$
+Allow: /assets/
+Disallow: /admin/
+Disallow: /alumno/
+Disallow: /login
+Disallow: /seleccionar
+
+Sitemap: https://eduguat.com/sitemap.xml

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import usePageTitle from '../hooks/usePageTitle';
-import './SedeSelector.css';
+import logo from '../assets/eduguat-logo.png';
+import './auth.css';
 
 const normaliza = (s) =>
   (s || '')
@@ -52,23 +53,24 @@ const SedeSelector = () => {
   };
 
   return (
-    <div className="sede-selector-container">
-      <div className="sede-selector-card">
-        <div className="sede-selector-header">
-          <h1>EduGuat</h1>
-          <p>Selecciona tu sede para continuar</p>
+    <div className="auth-screen">
+      <div className="auth-card auth-card--wide">
+        <img src={logo} alt="EduGuat" className="auth-logo" />
+
+        <div className="auth-head">
+          <h1>Selecciona tu sede</h1>
+          <p>Elige la academia a la que quieres ingresar</p>
         </div>
 
-        {cargando && <p className="sede-msg">Cargando sedes…</p>}
-        {error    && <p className="sede-msg error">{error}</p>}
+        {cargando && <p className="auth-empty">Cargando sedes…</p>}
+        {error    && <p className="auth-msg auth-msg--error">{error}</p>}
 
         {!cargando && !error && (
           <>
-            <div className="sede-buscador">
-              <span className="sede-buscador__icono" aria-hidden="true">🔎</span>
+            <div className="auth-buscador">
+              <span className="auth-buscador__icono" aria-hidden="true">🔎</span>
               <input
                 type="text"
-                className="sede-buscador__input"
                 placeholder="Busca tu academia o sede…"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
@@ -77,7 +79,7 @@ const SedeSelector = () => {
               {busqueda && (
                 <button
                   type="button"
-                  className="sede-buscador__limpiar"
+                  className="auth-buscador__limpiar"
                   onClick={() => setBusqueda('')}
                   aria-label="Limpiar búsqueda"
                 >
@@ -86,41 +88,41 @@ const SedeSelector = () => {
               )}
             </div>
 
-            <div className="sede-conteo">
+            <div className="auth-conteo">
               {filtradas.length === sedes.length
                 ? `${sedes.length} sede${sedes.length === 1 ? '' : 's'} disponible${sedes.length === 1 ? '' : 's'}`
                 : `${filtradas.length} de ${sedes.length} sedes`}
             </div>
 
             {filtradas.length === 0 ? (
-              <p className="sede-msg">
-                No se encontró ninguna sede para “{busqueda}”.
-              </p>
+              <p className="auth-empty">No se encontró ninguna sede para “{busqueda}”.</p>
             ) : (
-              <div className="sede-grid">
+              <div className="auth-sedes">
                 {filtradas.map((s) => (
                   <button
                     key={s.id}
-                    className="sede-card"
+                    className="auth-sede"
                     onClick={() => elegir(s)}
                     type="button"
                   >
-                    <span className="sede-icono">🏫</span>
-                    <span className="sede-nombre">{s.nombre}</span>
-                    {s.info && <span className="sede-info">{s.info}</span>}
-                    <span className="sede-id">{s.id}</span>
+                    <span className="auth-sede__icono" aria-hidden="true">🏫</span>
+                    <span className="auth-sede__nombre">{s.nombre}</span>
+                    {s.info && <span className="auth-sede__info">{s.info}</span>}
+                    <span className="auth-sede__id">{s.id}</span>
                   </button>
                 ))}
               </div>
             )}
 
-            <button
-              type="button"
-              className="sede-volver"
-              onClick={() => navigate('/', { replace: true })}
-            >
-              ← Regresar
-            </button>
+            <div className="auth-actions">
+              <button
+                type="button"
+                className="auth-btn auth-btn--ghost"
+                onClick={() => navigate('/', { replace: true })}
+              >
+                ← Regresar al inicio
+              </button>
+            </div>
           </>
         )}
       </div>

@@ -23,7 +23,7 @@ const { bootstrapSede } = require('./sedeBootstrap');
 const SEMILLAS = [
   { id: 'm_lozano',             nombre: 'M Lozano' },
   { id: 'sistec_jutiapa',       nombre: 'Sistec Jutiapa' },
-  { id: 'sistema_escolar',      nombre: 'Sistec Flores' },
+  { id: 'sistema_escolar',      nombre: 'Sistema' },
   { id: 'sistec_flores_oficial', nombre: 'Sistec Flores Oficial' },
   { id: 'm_lozano_genova',      nombre: 'M Lozano Génova' },
   { id: 'testimport1',          nombre: 'Test Import 1' },
@@ -98,6 +98,17 @@ const bootstrapMeta = async () => {
       'INSERT IGNORE INTO sedes (id, nombre, activo, modulos) VALUES (?,?,1,NULL)',
       [id, nombre]
     );
+  }
+
+  // La sede `sistema_escolar` es la del super-admin: se usa para pruebas
+  // y para dar de alta nuevas academias.  Debe mostrarse como "Sistema"
+  // en el login y estar siempre activa.  Idempotente.
+  try {
+    await pool.query(
+      "UPDATE sedes SET nombre = 'Sistema', activo = 1 WHERE id = 'sistema_escolar'"
+    );
+  } catch (err) {
+    console.error('rename sistema_escolar → Sistema:', err.message);
   }
 };
 

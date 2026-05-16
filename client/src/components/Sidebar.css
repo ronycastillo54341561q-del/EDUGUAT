@@ -27,6 +27,35 @@
   font-weight: 700;
 }
 
+.sidebar-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 7px;
+  margin: 0 auto 6px;
+  display: block;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: width 0.2s ease, height 0.2s ease;
+}
+
+.sidebar.collapsed .sidebar-logo {
+  width: 40px;
+  height: 40px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.sidebar-logo--mobile {
+  width: 38px;
+  height: 38px;
+  padding: 4px;
+  border-radius: 9px;
+  margin: 0;
+  box-shadow: none;
+}
+
 .sidebar-header p {
   color: rgba(255,255,255,0.8);
   font-size: 0.85rem;

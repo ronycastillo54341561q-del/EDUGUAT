@@ -19,6 +19,16 @@
   letter-spacing: -0.5px;
 }
 
+.lp-footer__logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 6px;
+  margin-bottom: 14px;
+}
+
 .lp-footer__descripcion {
   color: rgba(255, 255, 255, 0.78);
   font-size: 0.95rem;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../../assets/eduguat-logo.png';
 import './Header.css';
 
 const Header = () => {
@@ -28,8 +29,8 @@ const Header = () => {
     <header className={`lp-header ${scrolled ? 'lp-header--scrolled' : ''}`}>
       <div className="lp-header__inner">
         <div className="lp-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <span className="lp-logo__main">eduGuat</span>
-          <span className="lp-logo__sub">Sistema Educativo</span>
+          <img src={logo} alt="EduGuat" className="lp-logo__img" />
+          <span className="lp-logo__sub">Sistema de Gestión Educativa</span>
         </div>
 
         <nav className={`lp-nav ${menuAbierto ? 'lp-nav--abierto' : ''}`}>

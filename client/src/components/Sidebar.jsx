@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { can, ROLE_LABEL, isSuperAdmin } from '../lib/permissions';
+import logo from '../assets/eduguat-logo.png';
 import './Sidebar.css';
 
 // Icono inline de "cerrar sesión" (flecha saliendo de un rectángulo).
@@ -153,7 +154,7 @@ const Sidebar = () => {
     <>
       <div className="mobile-topbar">
         <button className="hamburger-btn" onClick={() => setAbierta(true)}>☰</button>
-        <h2>EduGuat</h2>
+        <img src={logo} alt="EduGuat" className="sidebar-logo sidebar-logo--mobile" />
         <button
           className="mobile-logout-btn"
           onClick={handleLogout}
@@ -179,7 +180,7 @@ const Sidebar = () => {
         </button>
 
         <div className="sidebar-header">
-          <h2>EduGuat</h2>
+          <img src={logo} alt="EduGuat" className="sidebar-logo" />
           <p className="nav-text">{usuario?.nombre}</p>
           <span className="rol-badge nav-text">{ROLE_LABEL[rol] || rol}</span>
           {sede && (
