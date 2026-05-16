@@ -1,4 +1,4 @@
-import logo from '../../assets/eduguat-logo.png';
+import logo from '../../assets/eduguat-logo-blanco-transparente.png';
 import './Footer.css';
 
 const Footer = () => {

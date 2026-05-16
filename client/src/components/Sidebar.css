@@ -28,26 +28,16 @@
 }
 
 .sidebar-logo {
-  width: 96px;
-  height: 96px;
+  width: 130px;
+  height: auto;
   object-fit: contain;
-  background: #ffffff;
-  border-radius: 50%;
-  padding: 12px;
-  margin: 0 auto 10px;
+  margin: 0 auto 12px;
   display: block;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-  border: 3px solid rgba(255, 255, 255, 0.18);
 }
 
 .sidebar-logo--mobile {
-  width: 40px;
-  height: 40px;
-  padding: 5px;
-  border-radius: 50%;
+  width: 64px;
   margin: 0;
-  border-width: 2px;
-  box-shadow: none;
 }
 
 .sidebar-header p {

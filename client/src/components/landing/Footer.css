@@ -20,12 +20,9 @@
 }
 
 .lp-footer__logo-img {
-  width: 64px;
-  height: 64px;
+  width: 150px;
+  height: auto;
   object-fit: contain;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 6px;
   margin-bottom: 14px;
 }
 
