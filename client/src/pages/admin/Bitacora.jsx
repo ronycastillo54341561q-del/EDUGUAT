@@ -4,7 +4,11 @@ import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import './admin.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? 'http://localhost:5000'
+    : 'https://eduguat-production.up.railway.app');
 const API = `${API_URL}/api/bitacora`;
 
 const ACCIONES = ['crear','editar','eliminar','guardar','pago','anular','descuento','revertir'];
