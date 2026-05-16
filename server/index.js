@@ -124,7 +124,11 @@ app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(clientDist, 'index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
+// Railway inyecta PORT = el "target port" del dominio público (8080).
+// Si por algún motivo no viene, caemos a 8080 (no 5000) para seguir
+// alineados con el proxy de Railway y evitar "Application failed to
+// respond".  En local, exporta PORT si quieres otro puerto.
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log(`Servidor corriendo en puerto ${PORT} (process.env.PORT=${process.env.PORT ?? 'undefined'})`);
 });
