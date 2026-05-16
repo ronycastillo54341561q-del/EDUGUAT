@@ -163,18 +163,33 @@ const actualizarSede = async (id, { nombre, info, modulos, email_admin }) => {
 //
 // Los errores se loguean por sede pero nunca detienen el arranque: si
 // una sede falla (BD caída, credenciales, etc.) las demás siguen.
+// Loguea TODO lo relevante de un error.  Para errores de mysql2 el
+// `.message` suele venir vacío y la causa real está en code/errno/
+// sqlMessage — por eso volcamos el error completo y sus campos SQL.
+const logError = (label, err) => {
+  console.error(`${label}:`, {
+    message:    err && err.message,
+    code:       err && err.code,
+    errno:      err && err.errno,
+    sqlState:   err && err.sqlState,
+    sqlMessage: err && err.sqlMessage,
+    stack:      err && err.stack,
+  });
+  console.error(`${label} (raw):`, err);
+};
+
 const bootstrapTodasLasSedes = async () => {
   try {
     await bootstrapMeta();
   } catch (err) {
-    console.error('bootstrapMeta error:', err.message);
+    logError('bootstrapMeta error', err);
   }
 
   let rows = [];
   try {
     rows = await cargarSedes();
   } catch (err) {
-    console.error('cargarSedes error:', err.message);
+    logError('cargarSedes error', err);
   }
 
   for (const { id } of rows) {
@@ -182,7 +197,7 @@ const bootstrapTodasLasSedes = async () => {
       await bootstrapSede(id);
       console.log(`  [${id}] sede inicializada`);
     } catch (err) {
-      console.error(`Error al inicializar sede ${id}:`, err.message);
+      logError(`Error al inicializar sede ${id}`, err);
     }
   }
   return rows;
