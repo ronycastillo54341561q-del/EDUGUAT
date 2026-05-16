@@ -174,9 +174,10 @@ const Sidebar = () => {
         <button
           className="collapse-btn"
           onClick={() => setCollapsed(c => !c)}
-          title={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+          title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+          aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
         >
-          {collapsed ? '▶' : '◀'}
+          {collapsed ? '☰' : '◀'}
         </button>
 
         <div className="sidebar-header">

@@ -2,8 +2,11 @@
   box-sizing: border-box;
 }
 
+/* overflow-x: clip (no 'hidden') evita scroll horizontal SIN crear un
+   contenedor de scroll, que es lo que rompía position: sticky en la
+   navbar de la landing. */
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -11,7 +14,7 @@ body {
   padding: 0;
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: #f0f2f5;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 #root {
