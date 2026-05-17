@@ -2,9 +2,9 @@
 // ║  backupRunner.js                                                      ║
 // ║                                                                       ║
 // ║  Orquesta la creación de un backup completo del sistema:              ║
-// ║   1) Lanza `mysqldump` para volcar TODAS las bases de datos del       ║
-// ║      sistema (todas las sedes registradas + eduguat_meta) a un        ║
-// ║      único stream SQL.                                                ║
+// ║   1) Genera (en JS, sin binarios externos) un volcado SQL de TODAS    ║
+// ║      las bases del sistema (sedes registradas + eduguat_meta) a un    ║
+// ║      único stream.                                                    ║
 // ║   2) Comprime ese stream "al vuelo" con gzip para ahorrar espacio     ║
 // ║      (un dump SQL plano puede ser 5–10× más grande que el .gz).       ║
 // ║   3) Guarda el archivo en /server/backups/.                           ║
@@ -16,14 +16,15 @@
 // ║     // r = { id, filename, size, ok: true }                           ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 
-const { spawn }       = require('child_process');
+const mysql           = require('mysql2');
 const fs              = require('fs');
 const fsp             = require('fs/promises');
 const path            = require('path');
 const zlib            = require('zlib');
+const { Readable }    = require('stream');
 const { pipeline }    = require('stream/promises');
 
-const { getMetaPool, SEDES, META_DB } = require('../config/db');
+const { getMetaPool, SEDES, META_DB, ensurePool } = require('../config/db');
 const { limpiarBackupsAntiguos }      = require('./backupCleanup');
 const googleDrive                     = require('./googleDrive');
 
@@ -34,32 +35,19 @@ const BACKUPS_DIR = path.resolve(__dirname, '..', 'backups');
 // Extension única para que sea fácil identificar/listar.
 const EXT = '.sql.gz';
 
+// Cuántas filas traemos por lote al volcar una tabla.  Evita cargar tablas
+// enormes completas en memoria; cada lote se serializa y libera enseguida.
+const BATCH_ROWS = 1000;
+
 /**
- * Resuelve la ruta efectiva al binario `mysqldump`.  Esta función existe
- * porque es muy fácil que un estudiante (¡o cualquiera!) ponga en .env la
- * ruta a la CARPETA `bin` en vez de al .exe — y `spawn` no expande eso,
- * tira ENOENT.  Detectamos el caso y completamos la ruta.
- *
- * Casos:
- *   1) MYSQLDUMP_PATH no seteado     → 'mysqldump' (busca en PATH)
- *   2) Es un archivo existente       → tal cual
- *   3) Es una carpeta existente      → carpeta + 'mysqldump[.exe]'
- *   4) No existe (ruta inválida)     → tal cual (spawn dará ENOENT claro)
+ * Devuelve el pool mysql2 (modo promise) correcto para una base:
+ *   - eduguat_meta → el pool meta dedicado.
+ *   - cualquier sede → su pool (lo crea si aún no existía).
+ * Reutilizamos los pools que ya mantiene config/db.js para no abrir
+ * conexiones nuevas en cada backup.
  */
-const resolveMysqldumpCmd = () => {
-  const raw = process.env.MYSQLDUMP_PATH;
-  if (!raw) return 'mysqldump';
-  try {
-    const stat = fs.statSync(raw);
-    if (stat.isDirectory()) {
-      const bin = process.platform === 'win32' ? 'mysqldump.exe' : 'mysqldump';
-      return path.join(raw, bin);
-    }
-    return raw;
-  } catch {
-    return raw;
-  }
-};
+const poolDe = (dbName) =>
+  (dbName === META_DB ? getMetaPool() : ensurePool(dbName));
 
 /**
  * Devuelve la lista de bases de datos que entran en cada backup:
@@ -101,84 +89,127 @@ const asegurarCarpeta = async () => {
 };
 
 /**
- * Corre mysqldump y conecta su stdout a un archivo .gz.
+ * Generador asíncrono que va produciendo el texto SQL del backup completo,
+ * base por base.  Al ser un generador, nunca tenemos todo el dump en
+ * memoria: cada `yield` se comprime y escribe a disco antes de seguir.
  *
- * Detalles importantes:
- *   - El password se pasa por la variable de entorno MYSQL_PWD del proceso
- *     hijo, NO como argumento (-p<pwd>).  Si lo ponemos en argv, queda
- *     visible en `ps`/Task Manager para cualquier usuario del sistema.
- *   - --single-transaction abre una transacción consistente sin
- *     bloquear escrituras (ideal para InnoDB, que es el motor por
- *     defecto de MySQL 8).
- *   - --routines, --triggers, --events incluyen procedimientos,
- *     triggers y eventos; sin estos flags el backup quedaría incompleto.
- *   - --databases <a> <b>  vuelca varias BDs en el mismo archivo
- *     incluyendo los CREATE DATABASE — esencial para restaurar todo
- *     el sistema desde cero.
+ * Por cada base de datos emite, en orden:
+ *   1) CREATE DATABASE IF NOT EXISTS + USE  (restaurar desde cero).
+ *   2) Por cada tabla base: DROP + CREATE TABLE (vía SHOW CREATE TABLE,
+ *      idéntico a lo que haría mysqldump) y sus filas en INSERTs por lotes.
+ *   3) Vistas, procedimientos/funciones y triggers.
+ *
+ * Equivale a `mysqldump --databases --routines --triggers` pero usando
+ * la conexión mysql2 que ya tenemos — sin depender de ningún binario
+ * externo (Railway no trae el cliente de MySQL).
+ *
+ * @param {string[]} databases  bases a volcar
+ */
+async function* generarSQL(databases) {
+  const ts = new Date().toISOString();
+  yield `-- EduGuat backup (generador JS) — ${ts}\n`;
+  yield `-- Bases: ${databases.join(', ')}\n`;
+  yield `SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS = 0;\nSET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';\n`;
+
+  for (const db of databases) {
+    const pool = poolDe(db);
+    yield `\n\n-- ╔══════════════════════════════════════════════════╗\n`;
+    yield `-- ║  Base de datos: ${db}\n`;
+    yield `-- ╚══════════════════════════════════════════════════╝\n`;
+    yield `CREATE DATABASE IF NOT EXISTS \`${db}\` `
+        + `/*!40100 DEFAULT CHARACTER SET utf8mb4 */;\n`;
+    yield `USE \`${db}\`;\n`;
+
+    // --- Tablas base: esquema + datos -----------------------------------
+    const [tablas] = await pool.query(
+      "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'"
+    );
+    for (const fila of tablas) {
+      const tabla = Object.values(fila)[0]; // 1ª col = Tables_in_<db>
+
+      const [[crt]] = await pool.query(`SHOW CREATE TABLE \`${tabla}\``);
+      yield `\nDROP TABLE IF EXISTS \`${tabla}\`;\n`;
+      yield `${crt['Create Table']};\n`;
+
+      const [[{ n }]] = await pool.query(
+        `SELECT COUNT(*) AS n FROM \`${tabla}\``
+      );
+      for (let off = 0; off < n; off += BATCH_ROWS) {
+        const [rows] = await pool.query(
+          `SELECT * FROM \`${tabla}\` LIMIT ${BATCH_ROWS} OFFSET ${off}`
+        );
+        if (!rows.length) break;
+        const cols = Object.keys(rows[0])
+          .map((c) => `\`${c}\``)
+          .join(', ');
+        const tuplas = rows
+          .map(
+            (r) =>
+              '(' +
+              Object.values(r)
+                .map((v) => mysql.escape(v)) // escapa null/fechas/blobs OK
+                .join(', ') +
+              ')'
+          )
+          .join(',\n');
+        yield `INSERT INTO \`${tabla}\` (${cols}) VALUES\n${tuplas};\n`;
+      }
+    }
+
+    // --- Vistas ----------------------------------------------------------
+    const [vistas] = await pool.query(
+      "SHOW FULL TABLES WHERE Table_type = 'VIEW'"
+    );
+    for (const fila of vistas) {
+      const vista = Object.values(fila)[0];
+      const [[cv]] = await pool.query(`SHOW CREATE VIEW \`${vista}\``);
+      yield `\nDROP VIEW IF EXISTS \`${vista}\`;\n${cv['Create View']};\n`;
+    }
+
+    // --- Procedimientos y funciones -------------------------------------
+    for (const tipo of ['PROCEDURE', 'FUNCTION']) {
+      const [rutinas] = await pool.query(
+        `SHOW ${tipo} STATUS WHERE Db = ?`,
+        [db]
+      );
+      for (const rut of rutinas) {
+        const [[cr]] = await pool.query(
+          `SHOW CREATE ${tipo} \`${rut.Name}\``
+        );
+        const clave = tipo === 'PROCEDURE' ? 'Create Procedure' : 'Create Function';
+        const cuerpo = cr[clave];
+        if (!cuerpo) continue;
+        yield `\nDROP ${tipo} IF EXISTS \`${rut.Name}\`;\n`;
+        yield `DELIMITER ;;\n${cuerpo} ;;\nDELIMITER ;\n`;
+      }
+    }
+
+    // --- Triggers --------------------------------------------------------
+    const [triggers] = await pool.query('SHOW TRIGGERS');
+    for (const tg of triggers) {
+      yield `\nDROP TRIGGER IF EXISTS \`${tg.Trigger}\`;\n`;
+      yield `DELIMITER ;;\n`;
+      yield `CREATE TRIGGER \`${tg.Trigger}\` ${tg.Timing} ${tg.Event} `
+          + `ON \`${tg.Table}\` FOR EACH ROW ${tg.Statement} ;;\n`;
+      yield `DELIMITER ;\n`;
+    }
+  }
+
+  yield `\nSET FOREIGN_KEY_CHECKS = 1;\n-- Fin del backup\n`;
+}
+
+/**
+ * Genera el dump en JS y lo escribe comprimido a disco:
+ *   generador SQL → gzip → archivo .sql.gz
+ * `pipeline` cierra y limpia todos los streams aunque alguno falle.
  *
  * @param {string} filepath  ruta destino del .sql.gz
  * @param {string[]} databases  bases a volcar
  */
 const ejecutarDump = (filepath, databases) => {
-  // Resuelve dónde está mysqldump.  Toleramos tres formatos en .env:
-  //   - Sin variable        → confiamos en el PATH del sistema.
-  //   - Ruta a un archivo   → la usamos tal cual (ej: ...\bin\mysqldump.exe).
-  //   - Ruta a una carpeta  → le agregamos el binario al final.  En
-  //     Windows el ejecutable se llama mysqldump.exe; en Linux/Mac es
-  //     simplemente mysqldump.
-  // Si la ruta no existe, devolvemos el string igual y dejamos que
-  // spawn falle con ENOENT — el mensaje queda claro en la tabla.
-  const cmd = resolveMysqldumpCmd();
-
-  const args = [
-    '-h', process.env.DB_HOST || 'localhost',
-    '-u', process.env.DB_USER || 'root',
-    '--single-transaction',
-    '--routines',
-    '--triggers',
-    '--events',
-    '--default-character-set=utf8mb4',
-    '--databases', ...databases,
-  ];
-
-  const child = spawn(cmd, args, {
-    env: {
-      ...process.env,
-      // mysqldump lee MYSQL_PWD si no se le pasa -p.  Es la forma
-      // recomendada por la documentación oficial para no exponer la clave.
-      MYSQL_PWD: process.env.DB_PASSWORD || '',
-    },
-    // En Windows necesitamos shell=false (default) para que spawn no
-    // interprete caracteres especiales del password.
-    windowsHide: true,
-  });
-
-  // Acumula stderr — lo usamos como mensaje de error si el proceso falla.
-  let stderr = '';
-  child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
-
   const archivo = fs.createWriteStream(filepath);
   const gzip    = zlib.createGzip({ level: 6 }); // 6 = balance velocidad/ratio
-
-  // Pipeline: stdout(mysqldump) → gzip → archivo en disco.
-  // `pipeline` cierra todos los streams correctamente si alguno falla.
-  const pipelinePromise = pipeline(child.stdout, gzip, archivo);
-
-  // Promesa que se resuelve cuando el proceso hijo termina con código 0
-  // o se rechaza con el stderr capturado.
-  const procesoPromise = new Promise((resolve, reject) => {
-    child.on('error', reject);
-    child.on('close', (code) => {
-      if (code === 0) return resolve();
-      reject(new Error(
-        `mysqldump terminó con código ${code}. ` +
-        (stderr.trim() || 'Sin detalle de error en stderr.')
-      ));
-    });
-  });
-
-  // Esperamos AMBAS: la descarga completa y el cierre limpio del proceso.
-  return Promise.all([pipelinePromise, procesoPromise]);
+  return pipeline(Readable.from(generarSQL(databases)), gzip, archivo);
 };
 
 /**
