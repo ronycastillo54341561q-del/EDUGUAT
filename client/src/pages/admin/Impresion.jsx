@@ -135,7 +135,12 @@ export default function Impresion() {
       const pdf    = new jsPDF({ orientation: 'l', unit: 'mm', format: 'legal' });
       const pageW  = pdf.internal.pageSize.getWidth();
       const pageH  = pdf.internal.pageSize.getHeight();
-      const margin = 8;                       // márgenes estrechos (sin cortar)
+      const margin  = 8;                      // referencia vertical (borde superior)
+      // Márgenes horizontales asimétricos: las impresoras suelen recortar más
+      // por la izquierda en hoja oficio. Damos más aire a la izquierda y lo
+      // compensamos quitándoselo a la derecha (la tabla queda igual de ancha).
+      const marginL = 18;
+      const marginR = 6;
       const esMec  = tab === 'mec';
       const fechaG = new Date().toLocaleDateString('es-GT');
 
@@ -162,13 +167,13 @@ export default function Impresion() {
       // Regla institucional
       pdf.setDrawColor(...EDU_AZUL);
       pdf.setLineWidth(0.8);
-      pdf.line(margin, margin + 16, pageW - margin, margin + 16);
+      pdf.line(marginL, margin + 16, pageW - marginR, margin + 16);
 
       let startY = margin + 20;
 
       // ── Leyenda de colores (solo asistencia) ───────────────────────────
       if (!esMec) {
-        let lx = margin + 1;
+        let lx = marginL;
         const ly = margin + 19.5, chW = 7, chH = 5;
         pdf.setFontSize(8);
         for (const [letra, etiqueta, k] of ASIST_LEYENDA) {
@@ -193,9 +198,9 @@ export default function Impresion() {
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(7);
         pdf.setTextColor(140);
-        pdf.text(`EDUGUAT · Generado ${fechaG}`, margin, pageH - 4);
+        pdf.text(`EDUGUAT · Generado ${fechaG}`, marginL, pageH - 4);
         const pg = `Página ${data.pageNumber}`;
-        pdf.text(pg, pageW - margin - pdf.getTextWidth(pg), pageH - 4);
+        pdf.text(pg, pageW - marginR - pdf.getTextWidth(pg), pageH - 4);
         pdf.setTextColor(0);
       };
 
@@ -210,7 +215,7 @@ export default function Impresion() {
         ]);
         autoTable(pdf, {
           head, body, startY,
-          margin: { left: margin, right: margin, bottom: 8 },
+          margin: { left: marginL, right: marginR, bottom: 8 },
           theme: 'grid',
           tableLineColor: EDU_AZUL,
           tableLineWidth: 0.3,
@@ -261,7 +266,7 @@ export default function Impresion() {
         ]);
         autoTable(pdf, {
           head, body, startY,
-          margin: { left: margin, right: margin, bottom: 8 },
+          margin: { left: marginL, right: marginR, bottom: 8 },
           theme: 'grid',
           tableLineColor: EDU_AZUL,
           tableLineWidth: 0.3,
