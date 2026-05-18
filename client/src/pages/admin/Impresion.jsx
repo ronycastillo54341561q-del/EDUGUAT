@@ -266,12 +266,13 @@ export default function Impresion() {
           tableLineColor: EDU_AZUL,
           tableLineWidth: 0.3,
           styles: {
-            fontSize: 7.5, cellPadding: { top: 2.2, bottom: 2.2, left: 0.3, right: 0.3 },
-            halign: 'center', valign: 'middle',
+            fontSize: 7.5, cellPadding: { top: 0.9, bottom: 0.9, left: 0.3, right: 0.3 },
+            minCellHeight: 0, halign: 'center', valign: 'middle',
             lineColor: [205, 210, 230], lineWidth: 0.12, textColor: [33, 33, 40],
           },
           headStyles: {
             fillColor: EDU_AZUL, textColor: 255, fontStyle: 'bold', fontSize: 8,
+            cellPadding: { top: 1.4, bottom: 1.4, left: 0.3, right: 0.3 },
             lineColor: EDU_AZUL_2, lineWidth: 0.15,
           },
           alternateRowStyles: { fillColor: EDU_FILA_AL },
