@@ -16,7 +16,27 @@ const MESES  = [
   { num: 10, s: 'OCT' }, { num: 11, s: 'NOV' }, { num: 12, s: 'DIC' },
 ];
 const SEMS = [1, 2, 3, 4, 5];
-const ASIST_COL = { x: '#c8e6c9', e: '#fff9c4', p: '#bbdefb', f: '#ffcdd2' };
+const ASIST_COL = { x: '#c8e6c9', e: '#fff9c4', p: '#bbdefb', f: '#ffcdd2', r: '#d1c4e9' };
+
+// ── Paleta institucional EDUGUAT ──────────────────────────────────────────────
+const EDU_AZUL    = [26, 35, 126];   // #1a237e  (azul fuerte — encabezados)
+const EDU_AZUL_2  = [40, 53, 147];   // #283593  (banda de meses alterna)
+const EDU_FILA_AL = [240, 242, 250]; // fila alterna muy suave
+const EDU_MES_TIN = [247, 248, 253]; // tinte de mes par (agrupación visual)
+
+// Colores de estado de asistencia (fondo + texto), tomados de Asistencia.jsx
+const ASIST_RGB = {
+  x: [200, 230, 201], e: [255, 249, 196], p: [187, 222, 251],
+  f: [255, 205, 210], r: [209, 196, 233],
+};
+const ASIST_TXT = {
+  x: [27, 94, 32], e: [230, 81, 0], p: [13, 71, 161],
+  f: [183, 28, 28], r: [69, 39, 160],
+};
+const ASIST_LEYENDA = [
+  ['X', 'Asistió', 'x'], ['E', 'Enfermo', 'e'], ['P', 'Permiso', 'p'],
+  ['F', 'Falta', 'f'], ['R', 'Recuperó', 'r'],
+];
 
 export default function Impresion() {
   const { anios: ANIOS } = useAniosFiltros();
@@ -114,27 +134,72 @@ export default function Impresion() {
     try {
       const pdf    = new jsPDF({ orientation: 'l', unit: 'mm', format: 'legal' });
       const pageW  = pdf.internal.pageSize.getWidth();
-      const margin = 12;
+      const pageH  = pdf.internal.pageSize.getHeight();
+      const margin = 8;                       // márgenes estrechos (sin cortar)
+      const esMec  = tab === 'mec';
+      const fechaG = new Date().toLocaleDateString('es-GT');
 
-      // Cabecera
+      // ── Cabecera institucional ──────────────────────────────────────────
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(15);
-      pdf.text(tab === 'mec' ? 'MECANOGRAFÍA' : 'ASISTENCIA', pageW / 2, margin + 4, { align: 'center' });
+      pdf.setFontSize(24);                    // título más grande
+      pdf.setTextColor(...EDU_AZUL);
+      pdf.text(esMec ? 'MECANOGRAFÍA' : 'ASISTENCIA', pageW / 2, margin + 7, { align: 'center' });
 
+      // Línea 1: año / estado / día / horario / laboratorio
+      const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+      const sub = [
+        `Año ${anio}`,
+        estado ? `${cap(estado)}s` : 'Todos',
+        `Día: ${dia || 'Todos'}`,
+        `Horario: ${horario || 'Todos'}`,
+        `Laboratorio: ${laboratorio || 'Todos'}`,
+      ].join('   ·   ') + (!esMec && modoAsist === 'vacio' ? '   ·   (Vacío para llenar)' : '');
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(9);
-      const sub = `Año ${anio}`
-        + (estado ? ` · ${estado.charAt(0).toUpperCase() + estado.slice(1)}s` : '')
-        + (horario ? ` · Horario: ${horario}` : '')
-        + (laboratorio ? ` · Laboratorio: ${laboratorio}` : '')
-        + (tab === 'asist' && modoAsist === 'vacio' ? ' · (Vacío)' : '');
-      pdf.text(sub, pageW / 2, margin + 9, { align: 'center' });
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, margin + 11, pageW - margin, margin + 11);
+      pdf.setFontSize(10);
+      pdf.setTextColor(70, 70, 80);
+      pdf.text(sub, pageW / 2, margin + 13, { align: 'center' });
 
-      const startY = margin + 14;
+      // Regla institucional
+      pdf.setDrawColor(...EDU_AZUL);
+      pdf.setLineWidth(0.8);
+      pdf.line(margin, margin + 16, pageW - margin, margin + 16);
 
-      if (tab === 'mec') {
+      let startY = margin + 20;
+
+      // ── Leyenda de colores (solo asistencia) ───────────────────────────
+      if (!esMec) {
+        let lx = margin + 1;
+        const ly = margin + 19.5, chW = 7, chH = 5;
+        pdf.setFontSize(8);
+        for (const [letra, etiqueta, k] of ASIST_LEYENDA) {
+          pdf.setFillColor(...ASIST_RGB[k]);
+          pdf.setDrawColor(160);
+          pdf.setLineWidth(0.2);
+          pdf.roundedRect(lx, ly, chW, chH, 0.8, 0.8, 'FD');
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(...ASIST_TXT[k]);
+          pdf.text(letra, lx + chW / 2, ly + chH / 2 + 1.2, { align: 'center' });
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(60, 60, 70);
+          pdf.text(etiqueta, lx + chW + 1.5, ly + chH / 2 + 1.2);
+          lx += chW + 2 + pdf.getTextWidth(etiqueta) + 6;
+        }
+        pdf.setTextColor(0);
+        startY = margin + 27;
+      }
+
+      // Pie de página común
+      const pie = (data) => {
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(7);
+        pdf.setTextColor(140);
+        pdf.text(`EDUGUAT · Generado ${fechaG}`, margin, pageH - 4);
+        const pg = `Página ${data.pageNumber}`;
+        pdf.text(pg, pageW - margin - pdf.getTextWidth(pg), pageH - 4);
+        pdf.setTextColor(0);
+      };
+
+      if (esMec) {
         const head = [['No.', 'Clave', 'Alumno', ...LECS.map(l => l.label), 'Exam.']];
         const body = alumnos.map((a, i) => [
           i + 1,
@@ -145,23 +210,32 @@ export default function Impresion() {
         ]);
         autoTable(pdf, {
           head, body, startY,
-          margin: { left: margin, right: margin },
+          margin: { left: margin, right: margin, bottom: 8 },
           theme: 'grid',
+          tableLineColor: EDU_AZUL,
+          tableLineWidth: 0.3,
           styles: {
-            fontSize: 7, cellPadding: 1.2, halign: 'center', valign: 'middle',
-            overflow: 'linebreak',
-            lineColor: [80, 80, 80], lineWidth: 0.15,
+            fontSize: 9, cellPadding: { top: 3, bottom: 3, left: 1, right: 1 },
+            halign: 'center', valign: 'middle', overflow: 'linebreak',
+            lineColor: [205, 210, 230], lineWidth: 0.15, textColor: [33, 33, 40],
           },
           headStyles: {
-            fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold',
-            lineColor: [80, 80, 80], lineWidth: 0.15,
+            fillColor: EDU_AZUL, textColor: 255, fontStyle: 'bold', fontSize: 9.5,
+            lineColor: EDU_AZUL_2, lineWidth: 0.15, cellPadding: { top: 3, bottom: 3 },
           },
-          alternateRowStyles: { fillColor: [245, 245, 245] },
+          alternateRowStyles: { fillColor: EDU_FILA_AL },
           columnStyles: {
-            0: { cellWidth: 7 },
-            1: { cellWidth: 15 },
-            2: { cellWidth: 42, halign: 'left' },
+            0: { cellWidth: 7, textColor: [120, 120, 130] },
+            1: { cellWidth: 14, fontStyle: 'bold' },
+            2: { cellWidth: 60, halign: 'left', fontSize: 10 },     // nombres más grandes
+            23: { fillColor: [232, 234, 246], fontStyle: 'bold' },  // columna Examen destacada
           },
+          didParseCell: (d) => {
+            if (d.section === 'head' && d.column.index === 23) {
+              d.cell.styles.fillColor = EDU_AZUL_2;
+            }
+          },
+          didDrawPage: pie,
         });
       } else {
         // Asistencia: dos filas de header (meses + semanas)
@@ -185,33 +259,49 @@ export default function Impresion() {
             })
           ),
         ]);
-        const colStyles = {
-          0: { cellWidth: 7 },
-          1: { cellWidth: 15 },
-          2: { cellWidth: 38, halign: 'left' },
-        };
         autoTable(pdf, {
           head, body, startY,
-          margin: { left: margin, right: margin },
+          margin: { left: margin, right: margin, bottom: 8 },
           theme: 'grid',
+          tableLineColor: EDU_AZUL,
+          tableLineWidth: 0.3,
           styles: {
-            fontSize: 6.5, cellPadding: 0.8, halign: 'center', valign: 'middle',
-            lineColor: [80, 80, 80], lineWidth: 0.15,
+            fontSize: 7.5, cellPadding: { top: 2.2, bottom: 2.2, left: 0.3, right: 0.3 },
+            halign: 'center', valign: 'middle',
+            lineColor: [205, 210, 230], lineWidth: 0.12, textColor: [33, 33, 40],
           },
           headStyles: {
-            fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold', fontSize: 7,
-            lineColor: [80, 80, 80], lineWidth: 0.15,
+            fillColor: EDU_AZUL, textColor: 255, fontStyle: 'bold', fontSize: 8,
+            lineColor: EDU_AZUL_2, lineWidth: 0.15,
           },
-          alternateRowStyles: { fillColor: [245, 245, 245] },
-          columnStyles: colStyles,
+          alternateRowStyles: { fillColor: EDU_FILA_AL },
+          columnStyles: {
+            0: { cellWidth: 6, textColor: [120, 120, 130] },
+            1: { cellWidth: 12, fontStyle: 'bold' },
+            2: { cellWidth: 40, halign: 'left', fontSize: 8.5 },    // nombres más grandes
+          },
           didParseCell: (d) => {
-            if (d.section !== 'body' || d.column.index < 3) return;
+            if (d.column.index < 3) return;
+            const mesIdx = Math.floor((d.column.index - 3) / 5);
+
+            // Encabezado de meses: bandas alternas para agrupar visualmente
+            if (d.section === 'head' && d.row.index === 0) {
+              d.cell.styles.fillColor = mesIdx % 2 === 0 ? EDU_AZUL : EDU_AZUL_2;
+              return;
+            }
+            if (d.section !== 'body') return;
+
+            // Cuerpo: tinte de mes par para separar grupos sin líneas duras
+            if (mesIdx % 2 === 0) d.cell.styles.fillColor = EDU_MES_TIN;
+
             const v = String(d.cell.raw || '').toLowerCase();
-            if (v === 'x') d.cell.styles.fillColor = [200, 230, 201];
-            else if (v === 'e') d.cell.styles.fillColor = [255, 249, 196];
-            else if (v === 'p') d.cell.styles.fillColor = [187, 222, 251];
-            else if (v === 'f') d.cell.styles.fillColor = [255, 205, 210];
+            if (ASIST_RGB[v]) {
+              d.cell.styles.fillColor = ASIST_RGB[v];
+              d.cell.styles.textColor = ASIST_TXT[v];
+              d.cell.styles.fontStyle = 'bold';
+            }
           },
+          didDrawPage: pie,
         });
       }
 
