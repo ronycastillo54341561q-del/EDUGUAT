@@ -220,13 +220,14 @@ export default function Impresion() {
           tableLineColor: EDU_AZUL,
           tableLineWidth: 0.3,
           styles: {
-            fontSize: 9, cellPadding: { top: 3, bottom: 3, left: 1, right: 1 },
-            halign: 'center', valign: 'middle', overflow: 'linebreak',
+            fontSize: 9, cellPadding: { top: 0.9, bottom: 0.9, left: 0.3, right: 0.3 },
+            minCellHeight: 0, halign: 'center', valign: 'middle', overflow: 'linebreak',
             lineColor: [205, 210, 230], lineWidth: 0.15, textColor: [33, 33, 40],
           },
           headStyles: {
             fillColor: EDU_AZUL, textColor: 255, fontStyle: 'bold', fontSize: 9.5,
-            lineColor: EDU_AZUL_2, lineWidth: 0.15, cellPadding: { top: 3, bottom: 3 },
+            cellPadding: { top: 1.4, bottom: 1.4, left: 0.3, right: 0.3 },
+            lineColor: EDU_AZUL_2, lineWidth: 0.15,
           },
           alternateRowStyles: { fillColor: EDU_FILA_AL },
           columnStyles: {
