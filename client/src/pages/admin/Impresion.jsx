@@ -139,7 +139,7 @@ export default function Impresion() {
       // Márgenes horizontales asimétricos: las impresoras suelen recortar más
       // por la izquierda en hoja oficio. Damos más aire a la izquierda y lo
       // compensamos quitándoselo a la derecha (la tabla queda igual de ancha).
-      const marginL = 18;
+      const marginL = 22;
       const marginR = 6;
       const esMec  = tab === 'mec';
       const fechaG = new Date().toLocaleDateString('es-GT');
