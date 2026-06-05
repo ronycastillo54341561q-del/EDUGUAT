@@ -593,6 +593,34 @@ td.wrap {
   .dash-grid-2-1, .dash-grid-1-1 { grid-template-columns: 1fr !important; }
 }
 
+/* ───── Gráficos de barras: scroll horizontal en móvil ─────
+   En desktop el lienzo ocupa el 100% del card (sin scroll). En móvil,
+   cuando hay muchas barras (hasta 30 días o 12 meses), el lienzo toma
+   un ancho mínimo por barra para que no se aplasten ni se enciman las
+   etiquetas; el contenedor se vuelve desplazable horizontalmente. */
+.chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.chart-canvas {
+  width: 100%;
+  min-width: 0;
+}
+.chart-scroll::-webkit-scrollbar { height: 6px; }
+.chart-scroll::-webkit-scrollbar-thumb {
+  background: #d4d8e4;
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .chart-canvas {
+    /* ~42px por barra: suficiente para la etiqueta de valor sin solaparse */
+    min-width: calc(var(--bars, 6) * 42px);
+  }
+}
+
 /* ═══════════════════════════════════════
    ASISTENCIA — FILTROS
    ═══════════════════════════════════════ */

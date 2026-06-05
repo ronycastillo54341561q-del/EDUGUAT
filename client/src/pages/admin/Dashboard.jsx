@@ -117,29 +117,31 @@ const BarChart = ({ data, x, y, color = '#5c6bc0', height = 200, fmt = fmtQ0, ba
   const vals = data.map(d => Number(d[y]) || 0);
   const max = niceCeil(Math.max(...vals, 1));
   return (
-    <div>
-      <div style={{ display:'flex', alignItems:'flex-end', gap:4, height, padding:'4px 4px 0' }}>
-        {data.map((d, i) => {
-          const v = Number(d[y]) || 0;
-          const h = max > 0 ? Math.round((v / max) * (height - 26)) : 0;
-          return (
-            <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
-              <div style={{ fontSize:'0.62rem', color:'#666', marginBottom:2, whiteSpace:'nowrap' }}>{fmt(v)}</div>
-              <div style={{
-                width:'82%', height:h, background:color, borderRadius:'4px 4px 0 0',
-                boxShadow:'inset 0 -2px 0 rgba(0,0,0,0.07)', transition:'height 0.4s',
-              }} title={`${d[x]}: ${fmt(v)}`} />
-              <div style={{
-                width:'82%', height:2, background:baseColor, borderRadius:'0 0 4px 4px',
-              }} />
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display:'flex', gap:4, padding:'4px' }}>
-        {data.map((d, i) => (
-          <span key={i} style={{ flex:1, textAlign:'center', fontSize:'0.66rem', color:'#777', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{d[x]}</span>
-        ))}
+    <div className="chart-scroll">
+      <div className="chart-canvas" style={{ '--bars': data.length }}>
+        <div style={{ display:'flex', alignItems:'flex-end', gap:4, height, padding:'4px 4px 0' }}>
+          {data.map((d, i) => {
+            const v = Number(d[y]) || 0;
+            const h = max > 0 ? Math.round((v / max) * (height - 26)) : 0;
+            return (
+              <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
+                <div style={{ fontSize:'0.62rem', color:'#666', marginBottom:2, whiteSpace:'nowrap' }}>{fmt(v)}</div>
+                <div style={{
+                  width:'82%', height:h, background:color, borderRadius:'4px 4px 0 0',
+                  boxShadow:'inset 0 -2px 0 rgba(0,0,0,0.07)', transition:'height 0.4s',
+                }} title={`${d[x]}: ${fmt(v)}`} />
+                <div style={{
+                  width:'82%', height:2, background:baseColor, borderRadius:'0 0 4px 4px',
+                }} />
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display:'flex', gap:4, padding:'4px' }}>
+          {data.map((d, i) => (
+            <span key={i} style={{ flex:1, textAlign:'center', fontSize:'0.66rem', color:'#777', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{d[x]}</span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -151,29 +153,33 @@ const StackedBarChart = ({ data, x, stacks, height = 220 }) => {
   const max = niceCeil(Math.max(...totals, 1));
   return (
     <div>
-      <div style={{ display:'flex', alignItems:'flex-end', gap:4, height, padding:'4px 4px 0' }}>
-        {data.map((d, i) => {
-          const total = totals[i];
-          const h = max > 0 ? Math.round((total / max) * (height - 20)) : 0;
-          return (
-            <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
-              <div style={{ fontSize:'0.6rem', color:'#666', marginBottom:2 }}>{fmtN(total)}</div>
-              <div style={{ width:'80%', height:h, display:'flex', flexDirection:'column-reverse', borderRadius:'4px 4px 0 0', overflow:'hidden' }}>
-                {stacks.map(k => {
-                  const v = Number(d[k.key]) || 0;
-                  if (total === 0) return null;
-                  const seg = Math.round((v / total) * h);
-                  return seg > 0 ? <div key={k.key} title={`${k.label}: ${v}`} style={{ height:seg, background:k.color }} /> : null;
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display:'flex', gap:4, padding:'2px 4px' }}>
-        {data.map((d, i) => (
-          <span key={i} style={{ flex:1, textAlign:'center', fontSize:'0.66rem', color:'#777' }}>{d[x]}</span>
-        ))}
+      <div className="chart-scroll">
+        <div className="chart-canvas" style={{ '--bars': data.length }}>
+          <div style={{ display:'flex', alignItems:'flex-end', gap:4, height, padding:'4px 4px 0' }}>
+            {data.map((d, i) => {
+              const total = totals[i];
+              const h = max > 0 ? Math.round((total / max) * (height - 20)) : 0;
+              return (
+                <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
+                  <div style={{ fontSize:'0.6rem', color:'#666', marginBottom:2 }}>{fmtN(total)}</div>
+                  <div style={{ width:'80%', height:h, display:'flex', flexDirection:'column-reverse', borderRadius:'4px 4px 0 0', overflow:'hidden' }}>
+                    {stacks.map(k => {
+                      const v = Number(d[k.key]) || 0;
+                      if (total === 0) return null;
+                      const seg = Math.round((v / total) * h);
+                      return seg > 0 ? <div key={k.key} title={`${k.label}: ${v}`} style={{ height:seg, background:k.color }} /> : null;
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display:'flex', gap:4, padding:'2px 4px' }}>
+            {data.map((d, i) => (
+              <span key={i} style={{ flex:1, textAlign:'center', fontSize:'0.66rem', color:'#777' }}>{d[x]}</span>
+            ))}
+          </div>
+        </div>
       </div>
       <div style={{ display:'flex', gap:12, justifyContent:'center', marginTop:6, flexWrap:'wrap' }}>
         {stacks.map(k => (
