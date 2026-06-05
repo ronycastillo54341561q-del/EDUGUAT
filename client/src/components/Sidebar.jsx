@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { can, ROLE_LABEL, isSuperAdmin } from '../lib/permissions';
+import InstallAppButton from './InstallAppButton';
 import logo from '../assets/eduguat-logo-blanco-transparente.png';
 import './Sidebar.css';
 
@@ -229,6 +230,8 @@ const Sidebar = () => {
             );
           })}
         </nav>
+
+        <InstallAppButton />
 
         <button className="logout-btn" onClick={handleLogout}>
           <span className="nav-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>

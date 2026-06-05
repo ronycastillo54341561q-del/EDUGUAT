@@ -1,0 +1,48 @@
+/* Botón "Instalar App" — encaja con el tema azul del sidebar EDUGUAT. */
+.install-app-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0 1rem;
+  padding: 0.7rem;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.install-app-btn:hover {
+  background: #1557b0;
+  transform: translateY(-1px);
+}
+
+.install-app-btn:active {
+  transform: translateY(0);
+}
+
+/* Mensaje "App instalada ✓" */
+.install-app-installed {
+  display: block;
+  margin: 0 1rem;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #b9f6ca;
+  opacity: 0.9;
+}
+
+/* En modo colapsado mostramos sólo el ícono. */
+.sidebar.collapsed .install-app-btn {
+  margin: 0 auto;
+  padding: 0.6rem;
+  width: 42px;
+}
+
+.sidebar.collapsed .install-app-installed {
+  display: none;
+}
