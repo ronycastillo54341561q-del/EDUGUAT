@@ -22,7 +22,7 @@ const Header = () => {
 
   const irAlSistema = () => {
     setMenuAbierto(false);
-    navigate('/seleccionar');
+    navigate('/acceder');
   };
 
   return (

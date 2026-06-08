@@ -53,7 +53,7 @@ const getMetaPool = () => {
 
 // Registra una sede nueva en memoria.  El que llame se encarga de crear
 // la base de datos, su esquema y la fila en la tabla meta.
-const registerSede = ({ id, nombre, info = null, activo = 1, modulos = null, email_admin = null }) => {
+const registerSede = ({ id, nombre, info = null, activo = 1, modulos = null, email_admin = null, tipo = 'academia' }) => {
   if (!SEDES.find(s => s.id === id)) {
     SEDES.push({ id, nombre });
   } else {
@@ -64,6 +64,7 @@ const registerSede = ({ id, nombre, info = null, activo = 1, modulos = null, ema
     id, nombre, info: info || null, activo: !!activo,
     modulos: Array.isArray(modulos) ? modulos : (modulos ? safeParseModulos(modulos) : null),
     email_admin: email_admin || null,
+    tipo: tipo === 'institucion' ? 'institucion' : 'academia',
   };
   ensurePool(id);
   return sedesMeta[id];

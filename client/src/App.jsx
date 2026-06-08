@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import SedeSelector from './pages/SedeSelector';
+import InstitucionSelector from './pages/InstitucionSelector';
+import Acceder from './pages/Acceder';
 import Landing from './pages/Landing';
 import { defaultRoute } from './lib/permissions';
 // Admin
@@ -64,7 +66,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/"            element={<Landing />} />
+          <Route path="/acceder"     element={<Acceder />} />
           <Route path="/seleccionar" element={<RootGate />} />
+          <Route path="/instituciones" element={<InstitucionSelector />} />
           <Route path="/login"       element={<Login />} />
 
           {/* Admin */}

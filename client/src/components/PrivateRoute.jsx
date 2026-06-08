@@ -10,11 +10,21 @@ const PrivateRoute = ({ children, rol, roles, modulo }) => {
 
   if (cargando) return <div>Cargando...</div>;
 
-  // Sin sede: volver al selector.
-  if (!sede) return <Navigate to="/seleccionar" replace />;
+  // Sin sede/institución: volver a la puerta de entrada (academias o instituciones).
+  if (!sede) return <Navigate to="/acceder" replace />;
 
   // Con sede pero sin sesión: ir al login (mantiene la sede).
   if (!usuario) return <Navigate to="/login" replace />;
+
+  // Módulos habilitados para este inquilino (null = todos).  Si el inquilino
+  // tiene lista de módulos y la ruta pide uno que no está incluido, se
+  // bloquea por URL (no sólo se oculta en el Sidebar).  Una institución, por
+  // ejemplo, sólo permite dashboard+alumnos.  Las sedes con modulos=null no
+  // se ven afectadas.
+  const sedeModulos = Array.isArray(sede?.modulos) && sede.modulos.length ? sede.modulos : null;
+  if (modulo && sedeModulos && !sedeModulos.includes(modulo) && !SUPER_ADMIN_MODULES.has(modulo)) {
+    return <Navigate to={defaultRoute(usuario.rol)} replace />;
+  }
 
   // Validación por rol simple (compat con uso anterior `rol="admin"`).
   if (rol && usuario.rol !== rol) {

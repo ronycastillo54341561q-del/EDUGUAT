@@ -123,8 +123,12 @@ const Sidebar = () => {
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
+  const esInstitucion = sede?.tipo === 'institucion';
   const handleLogout = () => { logout(); navigate('/login'); };
-  const handleCambiarSede = () => { cambiarSede(); navigate('/seleccionar', { replace: true }); };
+  const handleCambiarSede = () => {
+    cambiarSede();
+    navigate(esInstitucion ? '/instituciones' : '/seleccionar', { replace: true });
+  };
   const cerrar = () => setAbierta(false);
 
   const rol = usuario?.rol;
@@ -193,7 +197,7 @@ const Sidebar = () => {
             className="cambiar-sede-btn nav-text"
             onClick={handleCambiarSede}
           >
-            Cambiar sede
+            {esInstitucion ? 'Cambiar institución' : 'Cambiar sede'}
           </button>
         </div>
 

@@ -56,7 +56,7 @@ const ComoFunciona = () => {
         </div>
 
         <Reveal className="lp-comofunciona__cta">
-          <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/seleccionar')}>
+          <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/acceder')}>
             Acceder al sistema →
           </button>
           <p className="lp-comofunciona__nota">Sin instalaciones. Funciona en cualquier navegador.</p>

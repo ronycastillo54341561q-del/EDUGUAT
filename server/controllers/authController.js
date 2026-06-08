@@ -241,10 +241,16 @@ const logout = async (req, res) => {
 // Las inactivas no se exponen para que no aparezcan antes del login.
 // Se incluyen los módulos habilitados para que el Sidebar pueda filtrar
 // la navegación según lo configurado por el super-admin.
-const listSedes = (_req, res) => {
+const listSedes = (req, res) => {
+  // Filtra por tipo de inquilino.  Sin parámetro (o cualquier valor que no
+  // sea 'institucion') devuelve sólo academias, así el SedeSelector de
+  // siempre (`GET /sedes`) no cambia.  El selector de instituciones llama
+  // `GET /sedes?tipo=institucion`.
+  const tipo = req.query.tipo === 'institucion' ? 'institucion' : 'academia';
   const activas = SEDES.filter(s => {
     const meta = sedesMeta[s.id];
-    return !meta || meta.activo !== false;
+    if (meta && meta.activo === false) return false;
+    return (meta?.tipo || 'academia') === tipo;
   }).map(s => {
     const meta = sedesMeta[s.id] || {};
     return {
@@ -252,6 +258,7 @@ const listSedes = (_req, res) => {
       nombre: s.nombre,
       info: meta.info || null,
       modulos: Array.isArray(meta.modulos) ? meta.modulos : null,
+      tipo: meta.tipo || 'academia',
     };
   });
   res.json(activas);

@@ -24,7 +24,7 @@ const Hero = () => {
           </p>
 
           <div className="lp-hero__botones">
-            <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/seleccionar')}>
+            <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/acceder')}>
               Acceder al sistema →
             </button>
             <button className="lp-btn lp-btn--secundario" onClick={() => scrollA('showcase')}>

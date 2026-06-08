@@ -19,9 +19,9 @@ const Login = () => {
 
   usePageTitle(sede ? `Iniciar sesión · ${sede.nombre}` : 'Iniciar sesión');
 
-  // Si no hay sede elegida, no tiene sentido estar aquí.
+  // Si no hay sede/institución elegida, no tiene sentido estar aquí.
   useEffect(() => {
-    if (!sede) navigate('/seleccionar', { replace: true });
+    if (!sede) navigate('/acceder', { replace: true });
   }, [sede, navigate]);
 
   // Mensaje pasado por el interceptor cuando la sesión cae por timeout
@@ -126,9 +126,9 @@ const Login = () => {
             <button
               type="button"
               className="auth-btn auth-btn--ghost"
-              onClick={() => navigate('/seleccionar', { replace: true })}
+              onClick={() => navigate(sede?.tipo === 'institucion' ? '/instituciones' : '/seleccionar', { replace: true })}
             >
-              Cambiar sede
+              {sede?.tipo === 'institucion' ? 'Cambiar institución' : 'Cambiar sede'}
             </button>
           </div>
         </form>

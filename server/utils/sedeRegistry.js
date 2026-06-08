@@ -53,6 +53,7 @@ const bootstrapMeta = async () => {
     CREATE TABLE IF NOT EXISTS sedes (
       id           VARCHAR(80) PRIMARY KEY,
       nombre       VARCHAR(150) NOT NULL,
+      tipo         VARCHAR(20)  NOT NULL DEFAULT 'academia',
       info         TEXT NULL,
       activo       TINYINT(1)   NOT NULL DEFAULT 1,
       modulos      LONGTEXT NULL,
@@ -64,6 +65,12 @@ const bootstrapMeta = async () => {
 
   // Migración para instalaciones previas sin la columna `info`.
   try { await pool.query('ALTER TABLE sedes ADD COLUMN info TEXT NULL AFTER nombre'); }
+  catch (_) { /* ya existe */ }
+
+  // Migración para instalaciones previas sin la columna `tipo`.  Las filas
+  // existentes quedan como 'academia' por defecto — las academias actuales
+  // no se ven afectadas.  'institucion' marca el nuevo tipo de inquilino.
+  try { await pool.query("ALTER TABLE sedes ADD COLUMN tipo VARCHAR(20) NOT NULL DEFAULT 'academia' AFTER nombre"); }
   catch (_) { /* ya existe */ }
 
   // ─────────────────────────────────────────────────────────────────────
@@ -110,12 +117,24 @@ const bootstrapMeta = async () => {
   } catch (err) {
     console.error('rename sistema_escolar → Sistema:', err.message);
   }
+
+  // Institución demo (nuevo tipo de inquilino).  INSERT IGNORE para crearla
+  // una sola vez; el loop de bootstrap creará su BD/esquema/admin igual que
+  // cualquier sede.  Limitada a Dashboard + Alumnos vía `modulos`.
+  try {
+    await pool.query(
+      "INSERT IGNORE INTO sedes (id, nombre, tipo, activo, modulos) VALUES ('inst_demo','Institución Demo','institucion',1,?)",
+      [JSON.stringify(['dashboard', 'alumnos'])]
+    );
+  } catch (err) {
+    console.error('seed institución demo:', err.message);
+  }
 };
 
 const cargarSedes = async () => {
   const pool = getMetaPool();
   const [rows] = await pool.query(
-    'SELECT id, nombre, info, activo, modulos, email_admin FROM sedes ORDER BY created_at ASC'
+    'SELECT id, nombre, tipo, info, activo, modulos, email_admin FROM sedes ORDER BY created_at ASC'
   );
   // Limpia el array global y vuelve a poblarlo con los datos del registro.
   SEDES.length = 0;
@@ -123,19 +142,20 @@ const cargarSedes = async () => {
     registerSede({
       id: r.id, nombre: r.nombre, info: r.info,
       activo: r.activo, modulos: r.modulos,
-      email_admin: r.email_admin,
+      email_admin: r.email_admin, tipo: r.tipo,
     });
   }
   return rows;
 };
 
-const insertarSede = async ({ id, nombre, info, modulos, email_admin }) => {
+const insertarSede = async ({ id, nombre, info, modulos, email_admin, tipo = 'academia' }) => {
+  const tipoLimpio = tipo === 'institucion' ? 'institucion' : 'academia';
   const pool = getMetaPool();
   await pool.query(
-    'INSERT INTO sedes (id, nombre, info, activo, modulos, email_admin) VALUES (?,?,?,1,?,?)',
-    [id, nombre, info || null, modulos ? JSON.stringify(modulos) : null, email_admin || null]
+    'INSERT INTO sedes (id, nombre, tipo, info, activo, modulos, email_admin) VALUES (?,?,?,?,1,?,?)',
+    [id, nombre, tipoLimpio, info || null, modulos ? JSON.stringify(modulos) : null, email_admin || null]
   );
-  registerSede({ id, nombre, info: info || null, activo: 1, modulos: modulos || null, email_admin });
+  registerSede({ id, nombre, info: info || null, activo: 1, modulos: modulos || null, email_admin, tipo: tipoLimpio });
 };
 
 const actualizarActivo = async (id, activo) => {

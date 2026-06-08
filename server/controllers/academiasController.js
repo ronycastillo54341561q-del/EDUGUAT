@@ -64,8 +64,9 @@ const listModulos = (_req, res) => {
 };
 
 // Lista TODAS las academias (activas + inactivas) para el panel admin.
+// Excluye los inquilinos de tipo 'institucion' — esos se gestionan aparte.
 const listAcademias = (_req, res) => {
-  const out = SEDES.map(s => {
+  const out = SEDES.filter(s => (sedesMeta[s.id]?.tipo || 'academia') !== 'institucion').map(s => {
     const m = sedesMeta[s.id] || {};
     return {
       id: s.id,
