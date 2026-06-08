@@ -49,7 +49,9 @@ const crearAlumno = async (req, res) => {
     codigo_estudiante, nombre, apellido, fecha_inicio, fecha_nacimiento,
     encargado, telefono, diplomado, tac, asesor, direccion, establecimiento,
     observaciones, dia_clases1, dia_clases2, horario, laboratorio,
-    estado, cuota_mensual
+    estado, cuota_mensual,
+    // Campos de instituciones (nullables; las academias no los envían)
+    grado, seccion, maestro_guia, plan_clases, dias_clase
   } = req.body;
 
   const codigoEst = (codigo_estudiante || '').trim().toUpperCase() || null;
@@ -80,12 +82,14 @@ const crearAlumno = async (req, res) => {
       (clave, codigo_estudiante, nombre, apellido, fecha_inicio, fecha_nacimiento,
        encargado, telefono, diplomado, tac, asesor, direccion, establecimiento,
        observaciones, dia_clases1, dia_clases2, horario, laboratorio,
+       grado, seccion, maestro_guia, plan_clases, dias_clase,
        estado, cuota_mensual, usuario_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       clave, codigoEst, nombre, apellido, fecha_inicio || null, fecha_nacimiento || null,
       encargado, telefono, diplomado, tac, asesor || null, direccion, establecimiento,
       observaciones, dia_clases1, dia_clases2 || null, horario, laboratorio,
+      grado || null, seccion || null, maestro_guia || null, plan_clases || null, dias_clase || null,
       estado || 'activo', cuota_mensual, usuario_id
     ]);
 
@@ -143,7 +147,9 @@ const editarAlumno = async (req, res) => {
     codigo_estudiante, nombre, apellido, fecha_inicio, fecha_nacimiento,
     encargado, telefono, diplomado, tac, asesor, direccion, establecimiento,
     observaciones, dia_clases1, dia_clases2, horario, laboratorio,
-    estado, cuota_mensual
+    estado, cuota_mensual,
+    // Campos de instituciones (nullables; las academias no los envían)
+    grado, seccion, maestro_guia, plan_clases, dias_clase
   } = req.body;
 
   const codigoEst = (codigo_estudiante || '').trim().toUpperCase() || null;
@@ -157,12 +163,14 @@ const editarAlumno = async (req, res) => {
         codigo_estudiante=?, nombre=?, apellido=?, fecha_inicio=?, fecha_nacimiento=?,
         encargado=?, telefono=?, diplomado=?, tac=?, asesor=?, direccion=?, establecimiento=?,
         observaciones=?, dia_clases1=?, dia_clases2=?, horario=?, laboratorio=?,
+        grado=?, seccion=?, maestro_guia=?, plan_clases=?, dias_clase=?,
         estado=?, cuota_mensual=?
       WHERE id=?
     `, [
       codigoEst, nombre, apellido, fecha_inicio || null, fecha_nacimiento || null,
       encargado, telefono, diplomado, tac, asesor || null, direccion, establecimiento,
       observaciones, dia_clases1, dia_clases2 || null, horario, laboratorio,
+      grado || null, seccion || null, maestro_guia || null, plan_clases || null, dias_clase || null,
       estado, cuota_mensual, req.params.id
     ]);
 

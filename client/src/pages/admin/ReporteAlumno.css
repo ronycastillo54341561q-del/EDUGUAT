@@ -700,3 +700,80 @@
   padding: 1rem 1.25rem 1.25rem;
 }
 
+/* ── Cursos del grado (instituciones) ── */
+.rpt-cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+.rpt-curso-card {
+  border: 1.5px solid #e8eaf6;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  background: #f8f9ff;
+}
+.rpt-curso-nombre {
+  font-weight: 800;
+  color: #1a237e;
+  margin-bottom: 4px;
+}
+.rpt-curso-info {
+  font-size: 0.8rem;
+  color: #555;
+  margin-top: 2px;
+}
+
+/* ── Lista de meses colapsables (asistencia institución) ── */
+.rpt-meses-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.rpt-mes-card {
+  border: 1px solid #ececf3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ── Calendario mensual de asistencia ── */
+.rpt-cal {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 460px;
+  table-layout: fixed;
+}
+.rpt-cal th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #888;
+  text-align: center;
+  padding: 4px 0;
+  background: #f5f5f5;
+}
+.rpt-cal td {
+  border: 1px solid #eee;
+  height: 38px;
+  text-align: center;
+  vertical-align: middle;
+}
+.rpt-cal-empty {
+  background: #fafafa;
+}
+.rpt-cal-num {
+  display: block;
+  font-size: 0.7rem;
+  color: #999;
+  line-height: 1;
+  padding-top: 2px;
+}
+.rpt-cal-day[style*="background"] .rpt-cal-num {
+  color: inherit;
+  opacity: 0.7;
+}
+.rpt-cal-mark {
+  display: block;
+  font-weight: 800;
+  font-size: 0.82rem;
+  line-height: 1.1;
+}
+

@@ -25,6 +25,10 @@ const getReporteFinanciero = async (req, res) => {
   const horario     = req.query.horario    || '';
   const laboratorio = req.query.laboratorio|| '';
   const dia         = req.query.dia        || '';
+  // Filtros de instituciones (aditivos; las academias no los envían).
+  const grado       = req.query.grado      || '';
+  const seccion     = req.query.seccion    || '';
+  const plan        = req.query.plan       || '';
 
   const aConds  = ["al.estado='activo'"];
   const aParams = [];
@@ -32,6 +36,9 @@ const getReporteFinanciero = async (req, res) => {
   if (horario)     { aConds.push('al.horario=?');      aParams.push(horario); }
   if (laboratorio) { aConds.push('al.laboratorio=?');  aParams.push(laboratorio); }
   if (dia)         { aConds.push('(al.dia_clases1=? OR al.dia_clases2=?)'); aParams.push(dia, dia); }
+  if (grado)       { aConds.push('al.grado=?');        aParams.push(grado); }
+  if (seccion)     { aConds.push('al.seccion=?');      aParams.push(seccion); }
+  if (plan)        { aConds.push('al.plan_clases=?');  aParams.push(plan); }
 
   // FIELD() devuelve 1-12 según posición en MESES_ORD (0 si no está).
   // Usamos LOWER(TRIM()) para tolerar casing/espacios distintos en datos
@@ -46,6 +53,7 @@ const getReporteFinanciero = async (req, res) => {
         al.id, al.clave, al.codigo_estudiante, al.nombre, al.apellido,
         al.telefono, al.encargado, al.establecimiento, al.tac,
         al.dia_clases1, al.dia_clases2, al.horario, al.laboratorio, al.cuota_mensual,
+        al.grado, al.seccion, al.plan_clases, al.maestro_guia,
         GROUP_CONCAT(
           CASE WHEN (m.pagado=1 OR m.acreditado=1) AND m.anulado=0 AND ${fieldExpr} > 0
           THEN ${fieldExpr} END
@@ -56,7 +64,8 @@ const getReporteFinanciero = async (req, res) => {
       WHERE ${aConds.join(' AND ')}
       GROUP BY al.id, al.clave, al.codigo_estudiante, al.nombre, al.apellido,
                al.telefono, al.encargado, al.establecimiento, al.tac,
-               al.dia_clases1, al.dia_clases2, al.horario, al.laboratorio, al.cuota_mensual
+               al.dia_clases1, al.dia_clases2, al.horario, al.laboratorio, al.cuota_mensual,
+               al.grado, al.seccion, al.plan_clases, al.maestro_guia
       ORDER BY al.apellido, al.nombre
     `, [anio, ...aParams]);
 
@@ -131,6 +140,8 @@ const getReporteFinanciero = async (req, res) => {
       establecimiento: a.establecimiento, tac: a.tac,
       dia_clases1: a.dia_clases1, dia_clases2: a.dia_clases2,
       horario: a.horario, laboratorio: a.laboratorio,
+      grado: a.grado, seccion: a.seccion,
+      plan_clases: a.plan_clases, maestro_guia: a.maestro_guia,
       cuota_mensual: parseFloat(a.cuota_mensual),
       pagados_rango: Number(a.pagados_rango),
       pendientes_rango: Number(a.pendientes_rango),
@@ -222,6 +233,38 @@ const getReporteAlumno = async (req, res) => {
       [id, anio]
     );
 
+    // Asistencia DIARIA del año (instituciones). Tolerante a sedes donde la
+    // tabla aún no exista. El frontend arma el calendario por mes.
+    let asistenciaDiaria = [];
+    try {
+      const [filas] = await db.query(
+        `SELECT DATE_FORMAT(fecha,'%Y-%m-%d') AS fecha, estado
+           FROM asistencia_diaria
+          WHERE alumno_id = ? AND YEAR(fecha) = ?
+          ORDER BY fecha ASC`,
+        [id, anio]
+      );
+      asistenciaDiaria = filas;
+    } catch (_) { /* tabla puede no existir aún */ }
+
+    // Cursos del grado del alumno (instituciones), con maestro y horario.
+    let cursos = [];
+    if (alumno.grado) {
+      try {
+        const [filas] = await db.query(
+          `SELECT id, nombre, maestro, dias, hora_inicio, hora_fin
+             FROM cat_cursos
+            WHERE grado = ? AND activo = 1
+            ORDER BY nombre`,
+          [alumno.grado]
+        );
+        cursos = filas.map(c => ({
+          ...c,
+          dias: String(c.dias || '').split(',').filter(Boolean),
+        }));
+      } catch (_) { /* tabla puede no existir aún */ }
+    }
+
     // Catálogo de diplomados con sus exámenes para que el frontend arme las
     // columnas reales de cada diplomado (en vez de tener una lista cableada
     // que no incluye, p. ej., "Windows" cuando ese examen sí existe en la
@@ -248,6 +291,8 @@ const getReporteAlumno = async (req, res) => {
       diplomadosCatalogo,
       pagos,
       asistencia,
+      asistenciaDiaria,
+      cursos,
     });
   } catch (err) {
     console.error(err);

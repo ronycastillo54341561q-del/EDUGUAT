@@ -31,6 +31,17 @@ const SEMILLAS = [
   { id: 'sistec_jalapa',        nombre: 'Sistec Jalapa' },
 ];
 
+// Módulos por defecto para inquilinos tipo 'institucion' (primarias/básicas).
+// Excluye lo específico de academias (diplomados, TAC, mecanografía,
+// planificaciones, notas-*) y los módulos de super-admin/infra.
+const MODULOS_INSTITUCION_DEFAULT = [
+  'dashboard', 'alumnos', 'asistencia', 'horarios', 'nominas',
+  'nuevoPago', 'otrosPagos', 'pagos', 'recibos', 'papeleria',
+  'avisos', 'usuarios', 'roles', 'configuracion',
+  'reporteAlumno', 'consultas', 'impresion', 'constancias', 'misTablas',
+  'importar', 'bitacora', 'manual',
+];
+
 const bootstrapMeta = async () => {
   // Crea la base meta si no existe (sin usar el pool — éste apunta a META_DB).
   const admin = await mysql.createConnection({
@@ -120,11 +131,18 @@ const bootstrapMeta = async () => {
 
   // Institución demo (nuevo tipo de inquilino).  INSERT IGNORE para crearla
   // una sola vez; el loop de bootstrap creará su BD/esquema/admin igual que
-  // cualquier sede.  Limitada a Dashboard + Alumnos vía `modulos`.
+  // cualquier sede.  Trae el set de módulos por defecto de instituciones.
   try {
     await pool.query(
       "INSERT IGNORE INTO sedes (id, nombre, tipo, activo, modulos) VALUES ('inst_demo','Institución Demo','institucion',1,?)",
-      [JSON.stringify(['dashboard', 'alumnos'])]
+      [JSON.stringify(MODULOS_INSTITUCION_DEFAULT)]
+    );
+    // inst_demo es la sede DEMO/plantilla de instituciones: la mantenemos
+    // siempre sincronizada al set de módulos por defecto, así cualquier módulo
+    // nuevo (p. ej. nóminas) aparece sin intervención manual.
+    await pool.query(
+      "UPDATE sedes SET modulos=? WHERE id='inst_demo'",
+      [JSON.stringify(MODULOS_INSTITUCION_DEFAULT)]
     );
   } catch (err) {
     console.error('seed institución demo:', err.message);
@@ -150,12 +168,15 @@ const cargarSedes = async () => {
 
 const insertarSede = async ({ id, nombre, info, modulos, email_admin, tipo = 'academia' }) => {
   const tipoLimpio = tipo === 'institucion' ? 'institucion' : 'academia';
+  // Sin lista explícita: las instituciones traen su set por defecto; las
+  // academias quedan en null (= todos los módulos).
+  const modulosFinal = modulos || (tipoLimpio === 'institucion' ? MODULOS_INSTITUCION_DEFAULT : null);
   const pool = getMetaPool();
   await pool.query(
     'INSERT INTO sedes (id, nombre, tipo, info, activo, modulos, email_admin) VALUES (?,?,?,?,1,?,?)',
-    [id, nombre, tipoLimpio, info || null, modulos ? JSON.stringify(modulos) : null, email_admin || null]
+    [id, nombre, tipoLimpio, info || null, modulosFinal ? JSON.stringify(modulosFinal) : null, email_admin || null]
   );
-  registerSede({ id, nombre, info: info || null, activo: 1, modulos: modulos || null, email_admin, tipo: tipoLimpio });
+  registerSede({ id, nombre, info: info || null, activo: 1, modulos: modulosFinal || null, email_admin, tipo: tipoLimpio });
 };
 
 const actualizarActivo = async (id, activo) => {

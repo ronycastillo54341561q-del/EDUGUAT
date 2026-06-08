@@ -73,10 +73,12 @@ const obtener = async (req, res) => {
 };
 
 // GET /api/mis-tablas/_alumnos/filtrar  -> devuelve alumnos según filtros
-// Query params: horario, laboratorio, dia, tac, diplomado, establecimiento, estado
+// Query params academia: horario, laboratorio, dia, tac, diplomado, establecimiento, estado
+// Query params institución: grado, seccion, plan
 const alumnosFiltrados = async (req, res) => {
   try {
-    const { horario, laboratorio, dia, tac, diplomado, establecimiento, estado } = req.query;
+    const { horario, laboratorio, dia, tac, diplomado, establecimiento, estado,
+            grado, seccion, plan } = req.query;
     const where = [];
     const params = [];
     if (estado)          { where.push('a.estado = ?');          params.push(estado); }
@@ -86,11 +88,15 @@ const alumnosFiltrados = async (req, res) => {
     if (tac)             { where.push('a.tac = ?');             params.push(tac); }
     if (diplomado)       { where.push('a.diplomado = ?');       params.push(diplomado); }
     if (establecimiento) { where.push('a.establecimiento = ?'); params.push(establecimiento); }
+    if (grado)           { where.push('a.grado = ?');           params.push(grado); }
+    if (seccion)         { where.push('a.seccion = ?');         params.push(seccion); }
+    if (plan)            { where.push('a.plan_clases = ?');     params.push(plan); }
 
     const sql = `
       SELECT a.id, a.clave, a.codigo_estudiante, a.nombre, a.apellido, a.fecha_inicio, a.fecha_nacimiento,
              a.encargado, a.telefono, a.diplomado, a.tac, a.direccion, a.establecimiento,
              a.observaciones, a.dia_clases1, a.dia_clases2, a.horario, a.laboratorio,
+             a.grado, a.seccion, a.maestro_guia, a.plan_clases, a.dias_clase,
              a.estado, a.cuota_mensual, u.email
       FROM alumnos a
       LEFT JOIN usuarios u ON a.usuario_id = u.id

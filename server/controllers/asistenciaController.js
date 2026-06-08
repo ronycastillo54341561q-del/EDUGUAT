@@ -260,6 +260,91 @@ const guardarLoteAsistencia = async (req, res) => {
   }
 };
 
+/* ════════════════════════════════════════════════════════════════════
+   ASISTENCIA DIARIA (instituciones)
+   Grid de un mes: filas = alumnos, columnas = fechas de clase del mes.
+   Las columnas/celdas válidas se derivan en el front desde el plan del
+   alumno (`dias_clase`). Aquí sólo entregamos alumnos + sus marcas del mes.
+   ════════════════════════════════════════════════════════════════════ */
+const getAsistenciaDiaria = async (req, res) => {
+  const anio    = parseInt(req.query.anio) || new Date().getFullYear();
+  const mes     = parseInt(req.query.mes)  || (new Date().getMonth() + 1);
+  const estado  = req.query.estado !== undefined ? req.query.estado : 'activo';
+  const grado   = req.query.grado   || '';
+  const seccion = req.query.seccion || '';
+  const plan    = req.query.plan    || '';
+
+  const conditions = [];
+  const params     = [];
+  if (estado !== '') { conditions.push('al.estado=?');      params.push(estado); }
+  if (grado)         { conditions.push('al.grado=?');       params.push(grado); }
+  if (seccion)       { conditions.push('al.seccion=?');     params.push(seccion); }
+  if (plan)          { conditions.push('al.plan_clases=?'); params.push(plan); }
+  const where = conditions.length ? conditions.join(' AND ') : '1=1';
+
+  try {
+    const [alumnos] = await db.query(`
+      SELECT al.id, al.clave, al.codigo_estudiante, al.nombre, al.apellido,
+             al.grado, al.seccion, al.plan_clases, al.dias_clase, al.horario, al.estado
+      FROM alumnos al WHERE ${where}
+      ORDER BY al.apellido ASC, al.nombre ASC, al.id ASC
+    `, params);
+
+    if (alumnos.length === 0) return res.json([]);
+
+    const ids = alumnos.map(a => a.id);
+    const [asist] = await db.query(
+      `SELECT alumno_id, DATE_FORMAT(fecha,'%Y-%m-%d') AS fecha, estado
+         FROM asistencia_diaria
+        WHERE YEAR(fecha)=? AND MONTH(fecha)=?
+          AND alumno_id IN (${ids.map(() => '?').join(',')})`,
+      [anio, mes, ...ids]
+    );
+
+    const map = {};
+    for (const r of asist) {
+      if (!map[r.alumno_id]) map[r.alumno_id] = {};
+      map[r.alumno_id][r.fecha] = r.estado;
+    }
+
+    res.json(alumnos.map(a => ({ ...a, asistencias: map[a.id] || {} })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al obtener asistencia diaria' });
+  }
+};
+
+// Guardar en lote marcas diarias. Cada cambio: { alumno_id, fecha (YYYY-MM-DD),
+// estado }. estado vacío/null elimina la marca.
+const guardarLoteDiaria = async (req, res) => {
+  const { cambios } = req.body;
+  if (!Array.isArray(cambios) || cambios.length === 0)
+    return res.status(400).json({ message: 'Datos inválidos' });
+
+  try {
+    for (const c of cambios) {
+      if (!c.alumno_id || !c.fecha) continue;
+      if (!c.estado) {
+        await db.query(
+          'DELETE FROM asistencia_diaria WHERE alumno_id=? AND fecha=?',
+          [c.alumno_id, c.fecha]
+        );
+      } else {
+        await db.query(
+          `INSERT INTO asistencia_diaria (alumno_id, fecha, estado) VALUES (?,?,?)
+           ON DUPLICATE KEY UPDATE estado=VALUES(estado)`,
+          [c.alumno_id, c.fecha, String(c.estado).toLowerCase()]
+        );
+      }
+    }
+    log(req, 'guardar', 'Asistencia', `Asistencia diaria: ${cambios.length} registro(s)`);
+    res.json({ message: 'Asistencia guardada', total: cambios.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al guardar asistencia diaria' });
+  }
+};
+
 module.exports = {
   getMatrizAsistencia,
   getFiltros,
@@ -267,5 +352,7 @@ module.exports = {
   registrarAsistencia,
   eliminarAsistencia,
   getGridAsistencia,
-  guardarLoteAsistencia
+  guardarLoteAsistencia,
+  getAsistenciaDiaria,
+  guardarLoteDiaria
 };

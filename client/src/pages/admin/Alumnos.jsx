@@ -29,7 +29,9 @@ const camposIniciales = {
   fecha_nacimiento: '', encargado: '', telefono: '', diplomado: '',
   tac: '', asesor: '', direccion: '', establecimiento: '', observaciones: '',
   dia_clases1: 'lunes', dia_clases2: '', horario: '', laboratorio: '',
-  estado: 'activo', cuota_mensual: ''
+  estado: 'activo', cuota_mensual: '',
+  // Campos de instituciones (primarias/básicas)
+  grado: '', seccion: '', maestro_guia: '', plan_clases: '', dias_clase: ''
 };
 
 // Etiqueta combinada para los días/horario del alumno (ej. "lunes-martes 10:00 a 11:30")
@@ -52,11 +54,14 @@ const fmtFecha = d => d ? String(d).slice(0,10) : '—';
 const COL_DEFAULTS = {
   no:44, clave:90, alumno:200, cod:95, encargado:150, tel:110, email:175,
   finicio:105, fnac:105, dip:150, tac:80, asesor:140, hor:90, lab:80, dias:110,
-  est:80, cuota:75, dir:170, estab:150, obs:160, acc:145
+  est:80, cuota:75, dir:170, estab:150, obs:160, acc:145,
+  // Instituciones
+  grado:120, secc:80, mguia:150, plan:160
 };
 
 const Alumnos = () => {
-  const { usuario } = useAuth();
+  const { usuario, sede } = useAuth();
+  const esInstitucion = sede?.tipo === 'institucion';
   const puedeEditar = can(usuario?.rol, 'alumnos', 'edit');
   const esAdmin     = usuario?.rol === 'admin';
   const [alumnos, setAlumnos]             = useState([]);
@@ -90,7 +95,7 @@ const Alumnos = () => {
   }, [colWidths]);
 
   const [filtros,          setFiltros]          = useState({ horarios: [], laboratorios: [], dias: [], horarios_combinados: [] });
-  const [catalogos,        setCatalogos]        = useState({ horarios: [], laboratorios: [], establecimientos: [], cuotas: [], diplomados: [] });
+  const [catalogos,        setCatalogos]        = useState({ horarios: [], laboratorios: [], establecimientos: [], cuotas: [], diplomados: [], planes: [], grados: [], secciones: [] });
   const [fEstado,          setFEstado]          = useState(() => localStorage.getItem('alum_estado')  ?? 'activo');
   const [fHorarioCombo,    setFHorarioCombo]    = useState(() => localStorage.getItem('alum_horario_combo') ?? '');
   const [fLaboratorio,     setFLaboratorio]     = useState(() => localStorage.getItem('alum_lab')     ?? '');
@@ -98,6 +103,10 @@ const Alumnos = () => {
   const [fDiplomado,       setFDiplomado]       = useState(() => localStorage.getItem('alum_dip')     ?? '');
   const [fEstablecimiento, setFEstablecimiento] = useState(() => localStorage.getItem('alum_estab')   ?? '');
   const [fCodigoEstado,    setFCodigoEstado]    = useState(() => localStorage.getItem('alum_codest')  ?? '');
+  // Filtros propios de instituciones
+  const [fGrado,           setFGrado]           = useState(() => localStorage.getItem('alum_grado')   ?? '');
+  const [fSeccion,         setFSeccion]         = useState(() => localStorage.getItem('alum_seccion') ?? '');
+  const [fPlan,            setFPlan]            = useState(() => localStorage.getItem('alum_plan')    ?? '');
 
   useEffect(() => { localStorage.setItem('alum_estado',        fEstado);          }, [fEstado]);
   useEffect(() => { localStorage.setItem('alum_horario_combo', fHorarioCombo);    }, [fHorarioCombo]);
@@ -106,6 +115,9 @@ const Alumnos = () => {
   useEffect(() => { localStorage.setItem('alum_dip',           fDiplomado);       }, [fDiplomado]);
   useEffect(() => { localStorage.setItem('alum_estab',         fEstablecimiento); }, [fEstablecimiento]);
   useEffect(() => { localStorage.setItem('alum_codest',        fCodigoEstado);    }, [fCodigoEstado]);
+  useEffect(() => { localStorage.setItem('alum_grado',         fGrado);           }, [fGrado]);
+  useEffect(() => { localStorage.setItem('alum_seccion',       fSeccion);         }, [fSeccion]);
+  useEffect(() => { localStorage.setItem('alum_plan',          fPlan);            }, [fPlan]);
 
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setFiltros(data)).catch(console.error);
@@ -134,6 +146,10 @@ const Alumnos = () => {
   const diplomados       = uniq(alumnosParaFiltros, 'diplomado');
   const establecimientos = uniq(alumnosParaFiltros, 'establecimiento');
   const laboratoriosDelEstado = new Set(uniq(alumnosParaFiltros, 'laboratorio'));
+  // Listas para filtros de instituciones
+  const gradosU    = uniq(alumnosParaFiltros, 'grado');
+  const seccionesU = uniq(alumnosParaFiltros, 'seccion');
+  const planesU    = uniq(alumnosParaFiltros, 'plan_clases');
 
   // Lista única de horarios combinados (a partir de los alumnos existentes)
   const horariosCombinados = (() => {
@@ -150,14 +166,20 @@ const Alumnos = () => {
 
   const alumnosFiltrados = alumnos.filter(a => {
     if (fEstado          && a.estado          !== fEstado)                          return false;
-    if (fHorarioCombo    && horarioKey(a)     !== fHorarioCombo)                    return false;
-    if (fLaboratorio     && a.laboratorio     !== fLaboratorio)                     return false;
-    if (fTac             && a.tac             !== fTac)                             return false;
-    if (fDiplomado       && a.diplomado       !== fDiplomado)                       return false;
-    if (fEstablecimiento && a.establecimiento !== fEstablecimiento)                 return false;
     if (fCodigoEstado === 'ingresado' && !a.codigo_estudiante)                      return false;
     if (fCodigoEstado === 'sin'        && a.codigo_estudiante)                      return false;
-    if (busqueda && !`${a.nombre} ${a.apellido} ${a.clave||''} ${a.codigo_estudiante||''} ${a.direccion||''} ${a.establecimiento||''}`.toLowerCase().includes(busqueda.toLowerCase())) return false;
+    if (esInstitucion) {
+      if (fGrado   && a.grado       !== fGrado)   return false;
+      if (fSeccion && a.seccion     !== fSeccion) return false;
+      if (fPlan    && a.plan_clases !== fPlan)    return false;
+    } else {
+      if (fHorarioCombo    && horarioKey(a)     !== fHorarioCombo)                  return false;
+      if (fLaboratorio     && a.laboratorio     !== fLaboratorio)                   return false;
+      if (fTac             && a.tac             !== fTac)                           return false;
+      if (fDiplomado       && a.diplomado       !== fDiplomado)                     return false;
+      if (fEstablecimiento && a.establecimiento !== fEstablecimiento)               return false;
+    }
+    if (busqueda && !`${a.nombre} ${a.apellido} ${a.clave||''} ${a.codigo_estudiante||''} ${a.direccion||''} ${a.establecimiento||''} ${a.grado||''} ${a.seccion||''}`.toLowerCase().includes(busqueda.toLowerCase())) return false;
     return true;
   });
 
@@ -240,6 +262,101 @@ const Alumnos = () => {
     }
   };
 
+  /* ── Definición de columnas de la tabla ──────────────────────────────
+     La tabla se arma a partir de un arreglo de columnas. Las academias y
+     las instituciones comparten las 3 primeras (No./Clave/Alumno, que el
+     CSS congela con nth-child) y difieren en el resto. Así la vista de
+     academias queda idéntica y la de instituciones reemplaza/añade campos. */
+  const renderCodigo = (a) => (
+    a.codigo_estudiante ? (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <strong style={{ fontFamily: 'monospace', color: '#1a237e' }}>{a.codigo_estudiante}</strong>
+      </span>
+    ) : (
+      <span style={{ display: 'inline-block', padding: '1px 8px', borderRadius: 10, fontSize: '0.7rem', fontWeight: 600, background: '#fff3e0', color: '#e65100' }}>sin código</span>
+    )
+  );
+
+  const renderAcciones = (a) => (
+    <div className="td-acciones">
+      {puedeEditar && (
+        <button className="btn-edit" onClick={() => abrirModal(a)}>Editar</button>
+      )}
+      {esAdmin && (
+        <button className="btn-edit" style={{ background: '#e3f2fd', color: '#1565c0' }} onClick={() => { setModalPass(a); setNuevaPass(''); setMsgPass(''); }}>Contraseña</button>
+      )}
+      {esAdmin && (
+        <button
+          className={a.estado === 'activo' ? 'btn-danger' : 'btn-edit'}
+          onClick={() => toggleEstado(a)}
+        >
+          {a.estado === 'activo' ? 'Desactivar' : 'Activar'}
+        </button>
+      )}
+      {!puedeEditar && !esAdmin && (
+        <span style={{ color: '#999', fontSize: '0.78rem' }}>Solo lectura</span>
+      )}
+    </div>
+  );
+
+  const colNo     = { key: 'no',     label: 'No.',    align: 'center', render: (a, idx) => idx + 1 };
+  const colClave  = { key: 'clave',  label: 'Clave',  align: 'left',   render: (a) => <strong style={{ color: '#1a237e' }}>{a.clave}</strong> };
+  const colAlumno = { key: 'alumno', label: 'Alumno', align: 'left',   render: (a) => `${a.nombre} ${a.apellido}` };
+  const colCod    = { key: 'cod', label: 'Código', align: 'left', render: renderCodigo };
+  const colEncargado = { key: 'encargado', label: 'Encargado', align: 'left', render: (a) => a.encargado || '—' };
+  const colTel    = { key: 'tel',   label: 'Teléfono', align: 'left', render: (a) => a.telefono || '—' };
+  const colEmail  = { key: 'email', label: 'Email',    align: 'left', render: (a) => a.email || '—' };
+  const colFnac   = { key: 'fnac',  label: 'Fecha Nac.', align: 'left', render: (a) => fmtFecha(a.fecha_nacimiento) };
+  const colEstado = { key: 'est', label: 'Estado', align: 'center', render: (a) => <span className={`badge badge-${a.estado}`}>{a.estado}</span> };
+  const colCuota  = { key: 'cuota', label: 'Cuota', align: 'right', style: { paddingRight: 10, whiteSpace: 'nowrap' }, render: (a) => `Q${parseFloat(a.cuota_mensual || 0).toFixed(2)}` };
+  const colDir    = { key: 'dir', label: 'Dirección', align: 'left', render: (a) => a.direccion || '—' };
+  const colObs    = { key: 'obs', label: 'Observaciones', align: 'left', render: (a) => a.observaciones || '—' };
+  const colAcc    = { key: 'acc', label: 'Acciones', align: 'center', render: renderAcciones };
+
+  const columnasAcademia = [
+    colNo, colClave, colAlumno, colCod, colEncargado, colTel, colEmail,
+    { key: 'finicio', label: 'Fecha Inicio', align: 'left', render: (a) => fmtFecha(a.fecha_inicio) },
+    colFnac,
+    { key: 'dip',    label: 'Diplomado',  align: 'left', render: (a) => a.diplomado || '—' },
+    { key: 'tac',    label: 'TAC',        align: 'left', render: (a) => a.tac || '—' },
+    { key: 'asesor', label: 'Asesor',     align: 'left', render: (a) => a.asesor || '—' },
+    { key: 'hor',    label: 'Horario',    align: 'left', render: (a) => a.horario || '—' },
+    { key: 'lab',    label: 'Laboratorio', align: 'left', render: (a) => a.laboratorio || '—' },
+    { key: 'dias',   label: 'Días de Clase', align: 'left', render: (a) => a.dia_clases2 ? `${a.dia_clases1}-${a.dia_clases2}` : (a.dia_clases1 || '—') },
+    colEstado, colCuota, colDir,
+    { key: 'estab', label: 'Establecimiento', align: 'left', render: (a) => a.establecimiento || '—' },
+    colObs, colAcc,
+  ];
+
+  const renderPlan = (a) => {
+    const dias = (a.dias_clase || '').split(',').filter(Boolean).join(', ');
+    if (a.plan_clases && dias) return `${a.plan_clases} (${dias})`;
+    return a.plan_clases || dias || '—';
+  };
+
+  const columnasInstitucion = [
+    colNo, colClave, colAlumno, colCod, colEncargado, colTel, colEmail,
+    { key: 'finicio', label: 'Fecha Inscripción', align: 'left', render: (a) => fmtFecha(a.fecha_inicio) },
+    colFnac,
+    { key: 'grado', label: 'Grado',       align: 'left', render: (a) => a.grado || '—' },
+    { key: 'secc',  label: 'Sección',     align: 'left', render: (a) => a.seccion || '—' },
+    { key: 'mguia', label: 'Maestro Guía', align: 'left', render: (a) => a.maestro_guia || '—' },
+    { key: 'plan',  label: 'Plan / Días', align: 'left', render: renderPlan },
+    { key: 'hor',   label: 'Horario',     align: 'left', render: (a) => a.horario || '—' },
+    colEstado, colCuota, colDir, colObs, colAcc,
+  ];
+
+  const columnas = esInstitucion ? columnasInstitucion : columnasAcademia;
+
+  // Posición sticky (left) acumulada para las 3 primeras columnas congeladas.
+  const leftDe = (i) => columnas.slice(0, i).reduce((s, c) => s + (colWidths[c.key] || 0), 0);
+
+  // Horario para instituciones: un único rango aplicado a todos los días.
+  const horaIniInst = (form.horario || '').split(' a ')[0] || '';
+  const horaFinInst = (form.horario || '').split(' a ')[1] || '';
+  const setHorarioInst = (ini, fin) =>
+    setForm(f => ({ ...f, horario: (ini || fin) ? `${ini} a ${fin}` : '' }));
+
   return (
     <div className="admin-layout">
       <Sidebar />
@@ -253,35 +370,60 @@ const Alumnos = () => {
             <option value="retirado">Retirados</option>
             <option value="">Todos</option>
           </select>
-          {horariosCombinados.length > 0 && (
-            <select value={fHorarioCombo} onChange={e => setFHorarioCombo(e.target.value)}>
-              <option value="">Todos los horarios</option>
-              {horariosCombinados.map(h => <option key={h.key} value={h.key}>{h.label}</option>)}
-            </select>
-          )}
-          <select value={fLaboratorio} onChange={e => setFLaboratorio(e.target.value)}>
-            <option value="">Todos los laboratorios</option>
-            {filtros.laboratorios
-              .filter(l => laboratoriosDelEstado.has(l))
-              .map(l => <option key={l} value={l}>{l}</option>)}
-          </select>
-          {tacs.length > 0 && (
-            <select value={fTac} onChange={e => setFTac(e.target.value)}>
-              <option value="">Todos los TAC</option>
-              {tacs.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          )}
-          {diplomados.length > 0 && (
-            <select value={fDiplomado} onChange={e => setFDiplomado(e.target.value)}>
-              <option value="">Todos los diplomados</option>
-              {diplomados.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-          )}
-          {establecimientos.length > 0 && (
-            <select value={fEstablecimiento} onChange={e => setFEstablecimiento(e.target.value)}>
-              <option value="">Todos los establecimientos</option>
-              {establecimientos.map(e => <option key={e} value={e}>{e}</option>)}
-            </select>
+          {esInstitucion ? (
+            <>
+              {gradosU.length > 0 && (
+                <select value={fGrado} onChange={e => setFGrado(e.target.value)}>
+                  <option value="">Todos los grados</option>
+                  {gradosU.map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+              )}
+              {seccionesU.length > 0 && (
+                <select value={fSeccion} onChange={e => setFSeccion(e.target.value)}>
+                  <option value="">Todas las secciones</option>
+                  {seccionesU.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              )}
+              {planesU.length > 0 && (
+                <select value={fPlan} onChange={e => setFPlan(e.target.value)}>
+                  <option value="">Todos los planes</option>
+                  {planesU.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              )}
+            </>
+          ) : (
+            <>
+              {horariosCombinados.length > 0 && (
+                <select value={fHorarioCombo} onChange={e => setFHorarioCombo(e.target.value)}>
+                  <option value="">Todos los horarios</option>
+                  {horariosCombinados.map(h => <option key={h.key} value={h.key}>{h.label}</option>)}
+                </select>
+              )}
+              <select value={fLaboratorio} onChange={e => setFLaboratorio(e.target.value)}>
+                <option value="">Todos los laboratorios</option>
+                {filtros.laboratorios
+                  .filter(l => laboratoriosDelEstado.has(l))
+                  .map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+              {tacs.length > 0 && (
+                <select value={fTac} onChange={e => setFTac(e.target.value)}>
+                  <option value="">Todos los TAC</option>
+                  {tacs.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              )}
+              {diplomados.length > 0 && (
+                <select value={fDiplomado} onChange={e => setFDiplomado(e.target.value)}>
+                  <option value="">Todos los diplomados</option>
+                  {diplomados.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              )}
+              {establecimientos.length > 0 && (
+                <select value={fEstablecimiento} onChange={e => setFEstablecimiento(e.target.value)}>
+                  <option value="">Todos los establecimientos</option>
+                  {establecimientos.map(e => <option key={e} value={e}>{e}</option>)}
+                </select>
+              )}
+            </>
           )}
           <select value={fCodigoEstado} onChange={e => setFCodigoEstado(e.target.value)}>
             <option value="">Código (todos)</option>
@@ -315,110 +457,37 @@ const Alumnos = () => {
           <ScrollableTable>
             <table className="recibo-grid alumnos-grid" style={{ tableLayout: 'fixed', width: 'max-content', minWidth: '100%' }}>
               <colgroup>
-                {Object.entries(colWidths).map(([k, w]) => <col key={k} style={{ width: w }} />)}
+                {columnas.map(c => <col key={c.key} style={{ width: colWidths[c.key] }} />)}
               </colgroup>
               <thead>
                 <tr>
-                  {(() => {
-                    const frozenLeft = {
-                      no: 0,
-                      clave: colWidths.no,
-                      alumno: colWidths.no + colWidths.clave,
-                    };
-                    return [
-                      ['no',       'No.',             'center'],
-                      ['clave',    'Clave',           'left'],
-                      ['alumno',   'Alumno',          'left'],
-                      ['cod',      'Código',          'left'],
-                      ['encargado','Encargado',       'left'],
-                      ['tel',      'Teléfono',        'left'],
-                      ['email',    'Email',           'left'],
-                      ['finicio',  'Fecha Inicio',    'left'],
-                      ['fnac',     'Fecha Nac.',      'left'],
-                      ['dip',      'Diplomado',       'left'],
-                      ['tac',      'TAC',             'left'],
-                      ['asesor',   'Asesor',          'left'],
-                      ['hor',      'Horario',         'left'],
-                      ['lab',      'Laboratorio',     'left'],
-                      ['dias',     'Días de Clase',   'left'],
-                      ['est',      'Estado',          'center'],
-                      ['cuota',    'Cuota',           'right'],
-                      ['dir',      'Dirección',       'left'],
-                      ['estab',    'Establecimiento', 'left'],
-                      ['obs',      'Observaciones',   'left'],
-                      ['acc',      'Acciones',        'center'],
-                    ].map(([col, label, align]) => (
-                      <th key={col} style={{ textAlign: align, ...(col in frozenLeft ? { left: frozenLeft[col] } : {}) }}>
-                        {label}
-                        <div className="col-resizer" onMouseDown={e => startResize(col, e)} />
-                      </th>
-                    ));
-                  })()}
+                  {columnas.map((c, i) => (
+                    <th key={c.key} style={{ textAlign: c.align, ...(i < 3 ? { left: leftDe(i) } : {}) }}>
+                      {c.label}
+                      <div className="col-resizer" onMouseDown={e => startResize(c.key, e)} />
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {alumnosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan="21" style={{ textAlign: 'center', padding: '2rem', color: '#999' }}>
+                    <td colSpan={columnas.length} style={{ textAlign: 'center', padding: '2rem', color: '#999' }}>
                       No hay alumnos registrados
                     </td>
                   </tr>
                 ) : (
                   alumnosFiltrados.map((a, idx) => (
                     <tr key={a.id}>
-                      <td className="rc-no" style={{ left: 0 }}>{idx + 1}</td>
-                      <td style={{ left: colWidths.no }}><strong style={{ color: '#1a237e' }}>{a.clave}</strong></td>
-                      <td style={{ left: colWidths.no + colWidths.clave }}>{a.nombre} {a.apellido}</td>
-                      <td>
-                        {a.codigo_estudiante ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                            <strong style={{ fontFamily: 'monospace', color: '#1a237e' }}>{a.codigo_estudiante}</strong>
-                          </span>
-                        ) : (
-                          <span style={{ display: 'inline-block', padding: '1px 8px', borderRadius: 10, fontSize: '0.7rem', fontWeight: 600, background: '#fff3e0', color: '#e65100' }}>sin código</span>
-                        )}
-                      </td>
-                      <td>{a.encargado || '—'}</td>
-                      <td>{a.telefono || '—'}</td>
-                      <td>{a.email || '—'}</td>
-                      <td>{fmtFecha(a.fecha_inicio)}</td>
-                      <td>{fmtFecha(a.fecha_nacimiento)}</td>
-                      <td>{a.diplomado || '—'}</td>
-                      <td>{a.tac || '—'}</td>
-                      <td>{a.asesor || '—'}</td>
-                      <td>{a.horario || '—'}</td>
-                      <td>{a.laboratorio || '—'}</td>
-                      <td>{a.dia_clases2 ? `${a.dia_clases1}-${a.dia_clases2}` : (a.dia_clases1 || '—')}</td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span className={`badge badge-${a.estado}`}>{a.estado}</span>
-                      </td>
-                      <td style={{ textAlign: 'right', paddingRight: 10, whiteSpace: 'nowrap' }}>
-                        Q{parseFloat(a.cuota_mensual || 0).toFixed(2)}
-                      </td>
-                      <td>{a.direccion || '—'}</td>
-                      <td>{a.establecimiento || '—'}</td>
-                      <td>{a.observaciones || '—'}</td>
-                      <td style={{ textAlign: 'center' }}>
-                        <div className="td-acciones">
-                          {puedeEditar && (
-                            <button className="btn-edit" onClick={() => abrirModal(a)}>Editar</button>
-                          )}
-                          {esAdmin && (
-                            <button className="btn-edit" style={{ background: '#e3f2fd', color: '#1565c0' }} onClick={() => { setModalPass(a); setNuevaPass(''); setMsgPass(''); }}>Contraseña</button>
-                          )}
-                          {esAdmin && (
-                            <button
-                              className={a.estado === 'activo' ? 'btn-danger' : 'btn-edit'}
-                              onClick={() => toggleEstado(a)}
-                            >
-                              {a.estado === 'activo' ? 'Desactivar' : 'Activar'}
-                            </button>
-                          )}
-                          {!puedeEditar && !esAdmin && (
-                            <span style={{ color: '#999', fontSize: '0.78rem' }}>Solo lectura</span>
-                          )}
-                        </div>
-                      </td>
+                      {columnas.map((c, i) => (
+                        <td
+                          key={c.key}
+                          className={c.key === 'no' ? 'rc-no' : undefined}
+                          style={{ textAlign: c.align, ...(c.style || {}), ...(i < 3 ? { left: leftDe(i) } : {}) }}
+                        >
+                          {c.render(a, idx)}
+                        </td>
+                      ))}
                     </tr>
                   ))
                 )}
@@ -526,81 +595,148 @@ const Alumnos = () => {
                     <input name="telefono" value={form.telefono} onChange={handleChange} />
                   </div>
                   <div className="form-group">
-                    <label>Fecha de inicio</label>
+                    <label>{esInstitucion ? 'Fecha de inscripción' : 'Fecha de inicio'}</label>
                     <input type="date" name="fecha_inicio" value={form.fecha_inicio} onChange={handleChange} />
                   </div>
                   <div className="form-group">
                     <label>Fecha de nacimiento</label>
                     <input type="date" name="fecha_nacimiento" value={form.fecha_nacimiento} onChange={handleChange} />
                   </div>
-                  <div className="form-group">
-                    <label>Diplomado</label>
-                    <select name="diplomado" value={form.diplomado} onChange={handleChange}>
-                      <option value="">— Selecciona —</option>
-                      {catalogos.diplomados?.map(d => <option key={d.id} value={d.nombre}>{d.nombre}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>TAC</label>
-                    <input name="tac" value={form.tac} onChange={handleChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Asesor</label>
-                    <input name="asesor" value={form.asesor || ''} onChange={handleChange} placeholder="Nombre del asesor" />
-                  </div>
-                  <div className="form-group">
-                    <label>Establecimiento</label>
-                    <select name="establecimiento" value={form.establecimiento} onChange={handleChange}>
-                      <option value="">— Selecciona —</option>
-                      {catalogos.establecimientos?.map(e => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group full-width">
-                    <label>Horario de Clases *</label>
-                    {(() => {
-                      const matchCat = catalogos.horarios?.find(h =>
-                        h.dia1 === form.dia_clases1 &&
-                        (h.dia2 || '') === (form.dia_clases2 || '') &&
-                        fmtHorario(h) === form.horario
-                      );
-                      const value = matchCat ? String(matchCat.id) : '';
-                      return (
+                  {esInstitucion ? (
+                    <>
+                      <div className="form-group">
+                        <label>Grado</label>
+                        <select name="grado" value={form.grado} onChange={handleChange}>
+                          <option value="">— Selecciona —</option>
+                          {form.grado && !catalogos.grados?.some(g => g.nombre === form.grado) && (
+                            <option value={form.grado}>{form.grado}</option>
+                          )}
+                          {catalogos.grados?.map(g => <option key={g.id} value={g.nombre}>{g.nombre}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>Sección</label>
+                        <select name="seccion" value={form.seccion} onChange={handleChange}>
+                          <option value="">— Selecciona —</option>
+                          {form.seccion && !catalogos.secciones?.some(s => s.nombre === form.seccion) && (
+                            <option value={form.seccion}>{form.seccion}</option>
+                          )}
+                          {catalogos.secciones?.map(s => <option key={s.id} value={s.nombre}>{s.nombre}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>Maestro guía</label>
+                        <input name="maestro_guia" value={form.maestro_guia || ''} onChange={handleChange} placeholder="Opcional" />
+                      </div>
+                      <div className="form-group">
+                        <label>Plan de clases</label>
                         <select
-                          value={value}
+                          value={form.plan_clases || ''}
                           onChange={e => {
-                            const id = e.target.value;
-                            if (!id) { setForm({ ...form, dia_clases1: 'lunes', dia_clases2: '', horario: '' }); return; }
-                            const h = catalogos.horarios.find(x => String(x.id) === id);
-                            if (!h) return;
-                            setForm({
-                              ...form,
-                              dia_clases1: h.dia1,
-                              dia_clases2: h.dia2 || '',
-                              horario:     fmtHorario(h),
-                            });
+                            const p = catalogos.planes?.find(x => x.nombre === e.target.value);
+                            setForm({ ...form, plan_clases: e.target.value, dias_clase: p ? (p.dias || []).join(',') : '' });
                           }}
-                          required
                         >
-                          <option value="">— Selecciona un horario disponible —</option>
-                          {catalogos.horarios?.map(h => (
-                            <option key={h.id} value={h.id}>
-                              {h.dia2 ? `${h.dia1}-${h.dia2}` : h.dia1} {h.hora_inicio} a {h.hora_fin}
+                          <option value="">— Selecciona —</option>
+                          {form.plan_clases && !catalogos.planes?.some(p => p.nombre === form.plan_clases) && (
+                            <option value={form.plan_clases}>{form.plan_clases}</option>
+                          )}
+                          {catalogos.planes?.map(p => (
+                            <option key={p.id} value={p.nombre}>
+                              {p.nombre} ({(p.dias || []).join(', ')})
                             </option>
                           ))}
                         </select>
-                      );
-                    })()}
-                    <p style={{ fontSize: '0.72rem', color: '#888', margin: '4px 0 0' }}>
-                      Los horarios se gestionan desde el panel de Configuración. Cambios futuros no afectarán al alumno actual.
-                    </p>
-                  </div>
-                  <div className="form-group">
-                    <label>Laboratorio</label>
-                    <select name="laboratorio" value={form.laboratorio} onChange={handleChange}>
-                      <option value="">— Selecciona —</option>
-                      {catalogos.laboratorios?.map(l => <option key={l.id} value={l.nombre}>{l.nombre}</option>)}
-                    </select>
-                  </div>
+                        {form.dias_clase && (
+                          <p style={{ fontSize: '0.72rem', color: '#555', margin: '4px 0 0' }}>
+                            Días: {form.dias_clase.split(',').filter(Boolean).join(', ')}
+                          </p>
+                        )}
+                        <p style={{ fontSize: '0.72rem', color: '#888', margin: '4px 0 0' }}>
+                          Los planes se gestionan desde el panel de Configuración. Cambios futuros no afectarán al alumno actual.
+                        </p>
+                      </div>
+                      <div className="form-group">
+                        <label>Hora de inicio</label>
+                        <input type="time" value={horaIniInst} onChange={e => setHorarioInst(e.target.value, horaFinInst)} />
+                      </div>
+                      <div className="form-group">
+                        <label>Hora de fin</label>
+                        <input type="time" value={horaFinInst} onChange={e => setHorarioInst(horaIniInst, e.target.value)} />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="form-group">
+                        <label>Diplomado</label>
+                        <select name="diplomado" value={form.diplomado} onChange={handleChange}>
+                          <option value="">— Selecciona —</option>
+                          {catalogos.diplomados?.map(d => <option key={d.id} value={d.nombre}>{d.nombre}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>TAC</label>
+                        <input name="tac" value={form.tac} onChange={handleChange} />
+                      </div>
+                      <div className="form-group">
+                        <label>Asesor</label>
+                        <input name="asesor" value={form.asesor || ''} onChange={handleChange} placeholder="Nombre del asesor" />
+                      </div>
+                      <div className="form-group">
+                        <label>Establecimiento</label>
+                        <select name="establecimiento" value={form.establecimiento} onChange={handleChange}>
+                          <option value="">— Selecciona —</option>
+                          {catalogos.establecimientos?.map(e => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group full-width">
+                        <label>Horario de Clases *</label>
+                        {(() => {
+                          const matchCat = catalogos.horarios?.find(h =>
+                            h.dia1 === form.dia_clases1 &&
+                            (h.dia2 || '') === (form.dia_clases2 || '') &&
+                            fmtHorario(h) === form.horario
+                          );
+                          const value = matchCat ? String(matchCat.id) : '';
+                          return (
+                            <select
+                              value={value}
+                              onChange={e => {
+                                const id = e.target.value;
+                                if (!id) { setForm({ ...form, dia_clases1: 'lunes', dia_clases2: '', horario: '' }); return; }
+                                const h = catalogos.horarios.find(x => String(x.id) === id);
+                                if (!h) return;
+                                setForm({
+                                  ...form,
+                                  dia_clases1: h.dia1,
+                                  dia_clases2: h.dia2 || '',
+                                  horario:     fmtHorario(h),
+                                });
+                              }}
+                              required
+                            >
+                              <option value="">— Selecciona un horario disponible —</option>
+                              {catalogos.horarios?.map(h => (
+                                <option key={h.id} value={h.id}>
+                                  {h.dia2 ? `${h.dia1}-${h.dia2}` : h.dia1} {h.hora_inicio} a {h.hora_fin}
+                                </option>
+                              ))}
+                            </select>
+                          );
+                        })()}
+                        <p style={{ fontSize: '0.72rem', color: '#888', margin: '4px 0 0' }}>
+                          Los horarios se gestionan desde el panel de Configuración. Cambios futuros no afectarán al alumno actual.
+                        </p>
+                      </div>
+                      <div className="form-group">
+                        <label>Laboratorio</label>
+                        <select name="laboratorio" value={form.laboratorio} onChange={handleChange}>
+                          <option value="">— Selecciona —</option>
+                          {catalogos.laboratorios?.map(l => <option key={l.id} value={l.nombre}>{l.nombre}</option>)}
+                        </select>
+                      </div>
+                    </>
+                  )}
                   <div className="form-group">
                     <label>Estado</label>
                     <select name="estado" value={form.estado} onChange={handleChange}>

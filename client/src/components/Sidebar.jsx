@@ -30,6 +30,10 @@ const LogoutIcon = ({ size = 20 }) => (
 // Módulos que sólo se muestran al super-admin (admin de la sede semilla).
 const SUPER_ADMIN_MODULES = new Set(['academias']);
 
+// Módulos exclusivos de inquilinos tipo 'institucion' (nunca en academias).
+// Aunque una academia tenga modulos=null (todos), estos no deben aparecer.
+const INSTITUCION_MODULES = new Set(['nominas', 'horarios']);
+
 const NAV = [
   { section: 'PRINCIPAL', items: [
     { to: '/admin/dashboard',       icon: '🏠', label: 'Dashboard',        modulo: 'dashboard' },
@@ -38,6 +42,7 @@ const NAV = [
     { to: '/admin/alumnos',         icon: '👨‍🎓', label: 'Alumnos',          modulo: 'alumnos' },
     { to: '/admin/diplomados',      icon: '🏫', label: 'Diplomados',       modulo: 'diplomados' },
     { to: '/admin/asistencia',       icon: '📋', label: 'Asistencia',      modulo: 'asistencia' },
+    { to: '/admin/horarios',         icon: '⏰', label: 'Horarios de Clase', modulo: 'horarios' },
     { to: '/admin/planificaciones',  icon: '🗓️', label: 'Planificaciones', modulo: 'planificaciones' },
     { to: '/admin/mecanografia',    icon: '⌨️', label: 'Mecanografía',     modulo: 'mecanografia' },
   ]},
@@ -59,6 +64,7 @@ const NAV = [
     { to: '/admin/pagos',           icon: '💰', label: 'Pagos',        modulo: 'pagos' },
     { to: '/admin/recibos',         icon: '🧾', label: 'Recibos',      modulo: 'recibos' },
     { to: '/admin/papeleria',       icon: '📎', label: 'Papelería',    modulo: 'papeleria' },
+    { to: '/admin/nominas',         icon: '💼', label: 'Nóminas',      modulo: 'nominas' },
   ]},
   { section: 'COMUNICACIÓN', items: [
     { to: '/admin/avisos',          icon: '📣', label: 'Avisos',        modulo: 'avisos' },
@@ -142,6 +148,11 @@ const Sidebar = () => {
     if (!mod) return true;
     // Los módulos super-admin (academias, …) no dependen de la lista por sede.
     if (SUPER_ADMIN_MODULES.has(mod)) return esSuper;
+    // Módulos solo-institución: requieren tipo institucion además del whitelist.
+    if (INSTITUCION_MODULES.has(mod)) {
+      if (!esInstitucion) return false;
+      return sedeModulos ? sedeModulos.has(mod) : true;
+    }
     if (!sedeModulos) return true;
     return sedeModulos.has(mod);
   };

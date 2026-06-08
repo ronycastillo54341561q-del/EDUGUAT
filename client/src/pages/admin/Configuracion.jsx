@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import {
   MODULOS_MEMBRETE, membreteDefault, parseMembrete, membreteHTML,
 } from '../../lib/membrete';
@@ -12,15 +13,27 @@ import './Configuracion.css';
 
 const DIAS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
 
-const TABS = [
-  { id: 'horarios',         label: 'Horarios de Clase' },
-  { id: 'laboratorios',     label: 'Laboratorios' },
-  { id: 'establecimientos', label: 'Establecimientos' },
+// Pestañas comunes a ambos tipos de inquilino.
+const TABS_COMUNES = [
   { id: 'cuotas',           label: 'Cuotas' },
   { id: 'cuentas',          label: 'Cuentas Bancarias' },
   { id: 'instituciones',    label: 'Instituciones' },
   { id: 'membretes',        label: 'Membretes' },
   { id: 'anios',            label: 'Años de filtros' },
+];
+
+// Catálogos propios de academias.
+const TABS_ACADEMIA = [
+  { id: 'horarios',         label: 'Horarios de Clase' },
+  { id: 'laboratorios',     label: 'Laboratorios' },
+  { id: 'establecimientos', label: 'Establecimientos' },
+];
+
+// Catálogos propios de instituciones (primarias/básicas).
+const TABS_INSTITUCION = [
+  { id: 'planes',    label: 'Planes de Clase' },
+  { id: 'grados',    label: 'Grados' },
+  { id: 'secciones', label: 'Secciones' },
 ];
 
 const fmtHorarioLabel = (h) => {
@@ -29,8 +42,18 @@ const fmtHorarioLabel = (h) => {
 };
 
 export default function Configuracion() {
-  const [tab, setTab] = useState(() => localStorage.getItem('cfg_tab') || 'horarios');
+  const { sede } = useAuth();
+  const esInstitucion = sede?.tipo === 'institucion';
+  const TABS = esInstitucion
+    ? [...TABS_INSTITUCION, ...TABS_COMUNES]
+    : [...TABS_ACADEMIA, ...TABS_COMUNES];
+
+  const [tab, setTab] = useState(() => localStorage.getItem('cfg_tab') || TABS[0].id);
   useEffect(() => { localStorage.setItem('cfg_tab', tab); }, [tab]);
+
+  // Si la pestaña guardada no existe para este tipo de inquilino (p. ej. se
+  // cambió de academia a institución), se muestra la primera disponible.
+  const tabActivo = TABS.some(t => t.id === tab) ? tab : TABS[0].id;
 
   return (
     <div className="admin-layout">
@@ -46,7 +69,7 @@ export default function Configuracion() {
           {TABS.map(t => (
             <button
               key={t.id}
-              className={`cfg-tab${tab === t.id ? ' active' : ''}`}
+              className={`cfg-tab${tabActivo === t.id ? ' active' : ''}`}
               onClick={() => setTab(t.id)}
             >
               {t.label}
@@ -55,14 +78,17 @@ export default function Configuracion() {
         </div>
 
         <div className="cfg-panel">
-          {tab === 'horarios'         && <SeccionHorarios />}
-          {tab === 'laboratorios'     && <SeccionLabs />}
-          {tab === 'establecimientos' && <SeccionEstabs />}
-          {tab === 'cuotas'           && <SeccionCuotas />}
-          {tab === 'cuentas'          && <SeccionCuentas />}
-          {tab === 'instituciones'    && <SeccionInstituciones />}
-          {tab === 'membretes'        && <SeccionMembretes />}
-          {tab === 'anios'            && <SeccionAnios />}
+          {tabActivo === 'horarios'         && <SeccionHorarios />}
+          {tabActivo === 'laboratorios'     && <SeccionLabs />}
+          {tabActivo === 'establecimientos' && <SeccionEstabs />}
+          {tabActivo === 'planes'           && <SeccionPlanes />}
+          {tabActivo === 'grados'           && <SeccionGrados />}
+          {tabActivo === 'secciones'        && <SeccionSecciones />}
+          {tabActivo === 'cuotas'           && <SeccionCuotas />}
+          {tabActivo === 'cuentas'          && <SeccionCuentas />}
+          {tabActivo === 'instituciones'    && <SeccionInstituciones />}
+          {tabActivo === 'membretes'        && <SeccionMembretes />}
+          {tabActivo === 'anios'            && <SeccionAnios />}
         </div>
       </div>
     </div>
@@ -330,6 +356,401 @@ const SeccionEstabs = () => (
     placeholder="Ej: Liceo Javier"
   />
 );
+
+/* ════════════════════════════════════════════
+   GRADOS + sus CURSOS (instituciones)
+   ════════════════════════════════════════════ */
+const fmtHorarioCurso = (c) => {
+  if (c.hora_inicio && c.hora_fin) return `${c.hora_inicio} a ${c.hora_fin}`;
+  return c.hora_inicio || c.hora_fin || '';
+};
+
+function CursosDeGrado({ grado }) {
+  const empty = { nombre: '', maestro: '', dias: [], hora_inicio: '', hora_fin: '', activo: 1 };
+  const [items, setItems]   = useState([]);
+  const [modal, setModal]   = useState(false);
+  const [form, setForm]     = useState(empty);
+  const [editId, setEditId] = useState(null);
+  const [err, setErr]       = useState('');
+
+  const cargar = useCallback(() => {
+    API.get(`/catalogos/cursos?grado=${encodeURIComponent(grado)}`)
+      .then(({ data }) => setItems(data)).catch(console.error);
+  }, [grado]);
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const abrir = (it = null) => {
+    setErr('');
+    if (it) {
+      setEditId(it.id);
+      setForm({
+        nombre: it.nombre, maestro: it.maestro || '', dias: it.dias || [],
+        hora_inicio: it.hora_inicio || '', hora_fin: it.hora_fin || '', activo: it.activo,
+      });
+    } else { setEditId(null); setForm(empty); }
+    setModal(true);
+  };
+
+  const toggleDia = (d) => setForm(f => ({
+    ...f, dias: f.dias.includes(d) ? f.dias.filter(x => x !== d) : [...f.dias, d],
+  }));
+
+  const guardar = async (e) => {
+    e.preventDefault();
+    if (!form.nombre.trim()) { setErr('Nombre del curso requerido'); return; }
+    try {
+      const dias = DIAS.filter(d => form.dias.includes(d));
+      const payload = { ...form, grado, dias };
+      if (editId) await API.put(`/catalogos/cursos/${editId}`, payload);
+      else        await API.post('/catalogos/cursos', payload);
+      setModal(false); cargar();
+    } catch (ex) { setErr(ex.response?.data?.message || 'Error al guardar'); }
+  };
+
+  const eliminar = async (it) => {
+    if (!confirm(`¿Eliminar el curso "${it.nombre}"?`)) return;
+    try { await API.delete(`/catalogos/cursos/${it.id}`); cargar(); }
+    catch { alert('Error al eliminar'); }
+  };
+
+  return (
+    <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #e0e0e0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+        <strong style={{ fontSize: '0.82rem', color: '#555' }}>Cursos ({items.length})</strong>
+        <button type="button" className="btn-edit" style={{ padding: '2px 10px', fontSize: '0.78rem' }} onClick={() => abrir()}>
+          + Curso
+        </button>
+      </div>
+      {items.length === 0 ? (
+        <div style={{ color: '#999', fontSize: '0.8rem' }}>Sin cursos para este grado.</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {items.map(c => (
+            <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, fontSize: '0.82rem', padding: '3px 0' }}>
+              <span style={{ color: c.activo ? '#333' : '#aaa' }}>
+                <strong>{c.nombre}</strong>
+                {c.maestro && <span style={{ color: '#666' }}> · {c.maestro}</span>}
+                {(c.dias?.length > 0 || fmtHorarioCurso(c)) && (
+                  <span style={{ color: '#888' }}> · {[(c.dias || []).join(', '), fmtHorarioCurso(c)].filter(Boolean).join(' ')}</span>
+                )}
+                {!c.activo && <span className="cfg-badge-off">Inactivo</span>}
+              </span>
+              <span style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                <button type="button" className="btn-edit" style={{ padding: '1px 8px', fontSize: '0.74rem' }} onClick={() => abrir(c)}>Editar</button>
+                <button type="button" className="btn-danger-sm" style={{ padding: '1px 8px', fontSize: '0.74rem' }} onClick={() => eliminar(c)}>✕</button>
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {modal && (
+        <div className="modal-overlay" onClick={() => setModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <div className="modal-header">
+              <h2>{editId ? 'Editar curso' : 'Nuevo curso'} — {grado}</h2>
+              <button className="modal-close" onClick={() => setModal(false)}>✕</button>
+            </div>
+            <form onSubmit={guardar} className="modal-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Nombre del curso *</label>
+                  <input value={form.nombre} placeholder="Ej: Matemáticas"
+                         onChange={e => setForm({ ...form, nombre: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label>Maestro</label>
+                  <input value={form.maestro} placeholder="Nombre del maestro"
+                         onChange={e => setForm({ ...form, maestro: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Hora inicio</label>
+                  <input type="time" value={form.hora_inicio}
+                         onChange={e => setForm({ ...form, hora_inicio: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Hora fin</label>
+                  <input type="time" value={form.hora_fin}
+                         onChange={e => setForm({ ...form, hora_fin: e.target.value })} />
+                </div>
+                <div className="form-group full-width">
+                  <label>Días que se imparte</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 4 }}>
+                    {DIAS.map(d => (
+                      <label key={d} style={{ display: 'flex', alignItems: 'center', gap: 5, textTransform: 'capitalize' }}>
+                        <input type="checkbox" checked={form.dias.includes(d)} onChange={() => toggleDia(d)} />
+                        {d}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="form-group full-width">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={!!form.activo}
+                           onChange={e => setForm({ ...form, activo: e.target.checked ? 1 : 0 })} />
+                    Activo
+                  </label>
+                </div>
+              </div>
+              {err && <p style={{ color: '#e53935', fontSize: '0.85rem' }}>{err}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary">{editId ? 'Actualizar' : 'Crear'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SeccionGrados() {
+  const empty = { nombre: '', activo: 1 };
+  const [items, setItems]   = useState([]);
+  const [modal, setModal]   = useState(false);
+  const [form, setForm]     = useState(empty);
+  const [editId, setEditId] = useState(null);
+  const [err, setErr]       = useState('');
+  const [expandido, setExpandido] = useState(null); // id del grado con cursos abiertos
+
+  const cargar = useCallback(() => {
+    API.get('/catalogos/grados').then(({ data }) => setItems(data)).catch(console.error);
+  }, []);
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const abrir = (it = null) => {
+    setErr('');
+    if (it) { setEditId(it.id); setForm({ nombre: it.nombre, activo: it.activo }); }
+    else    { setEditId(null); setForm(empty); }
+    setModal(true);
+  };
+
+  const guardar = async (e) => {
+    e.preventDefault();
+    if (!form.nombre.trim()) { setErr('Nombre requerido'); return; }
+    try {
+      if (editId) await API.put(`/catalogos/grados/${editId}`, form);
+      else        await API.post('/catalogos/grados', form);
+      setModal(false); cargar();
+    } catch (ex) { setErr(ex.response?.data?.message || 'Error al guardar'); }
+  };
+
+  const eliminar = async (it) => {
+    if (!confirm(`¿Eliminar el grado "${it.nombre}"?`)) return;
+    try { await API.delete(`/catalogos/grados/${it.id}`); cargar(); }
+    catch { alert('Error al eliminar'); }
+  };
+
+  return (
+    <>
+      <div className="cfg-toolbar">
+        <h2>Grados ({items.length})</h2>
+        <button className="btn-primary" onClick={() => abrir()}>+ Nuevo Grado</button>
+      </div>
+      <p className="cfg-hint">
+        Grados disponibles para inscribir alumnos (ej. Primero Primaria, Segundo Básico).
+        Abre un grado para administrar sus <strong>cursos</strong> (con maestro, días y horario).
+      </p>
+
+      {items.length === 0 ? (
+        <div className="cfg-empty">No hay grados.</div>
+      ) : (
+        <div className="cfg-list">
+          {items.map(it => (
+            <div key={it.id} className={`cfg-card${it.activo ? '' : ' inactivo'}`} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <div className="cfg-card-info">
+                  <strong>{it.nombre}</strong>
+                  {!it.activo && <span className="cfg-badge-off">Inactivo</span>}
+                </div>
+                <div className="cfg-card-actions">
+                  <button className="btn-edit" onClick={() => setExpandido(expandido === it.id ? null : it.id)}>
+                    {expandido === it.id ? 'Ocultar cursos' : 'Cursos'}
+                  </button>
+                  <button className="btn-edit" onClick={() => abrir(it)}>Editar</button>
+                  <button className="btn-danger-sm" onClick={() => eliminar(it)}>Eliminar</button>
+                </div>
+              </div>
+              {expandido === it.id && <CursosDeGrado grado={it.nombre} />}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {modal && (
+        <div className="modal-overlay" onClick={() => setModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
+            <div className="modal-header">
+              <h2>{editId ? 'Editar grado' : 'Nuevo grado'}</h2>
+              <button className="modal-close" onClick={() => setModal(false)}>✕</button>
+            </div>
+            <form onSubmit={guardar} className="modal-form">
+              <div className="form-grid">
+                <div className="form-group full-width">
+                  <label>Grado *</label>
+                  <input value={form.nombre} placeholder="Ej: Primero Primaria"
+                         onChange={e => setForm({ ...form, nombre: e.target.value })} required />
+                </div>
+                <div className="form-group full-width">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={!!form.activo}
+                           onChange={e => setForm({ ...form, activo: e.target.checked ? 1 : 0 })} />
+                    Activo
+                  </label>
+                </div>
+              </div>
+              {err && <p style={{ color: '#e53935', fontSize: '0.85rem' }}>{err}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary">{editId ? 'Actualizar' : 'Crear'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+const SeccionSecciones = () => (
+  <SeccionSimple
+    titulo="Secciones"
+    descripcion="Secciones o paralelos disponibles (ej. A, B, C)."
+    endpoint="secciones"
+    campo="nombre"
+    placeholder="Ej: A"
+  />
+);
+
+/* ════════════════════════════════════════════
+   PLANES DE DÍAS DE CLASE (instituciones)
+   ════════════════════════════════════════════ */
+function SeccionPlanes() {
+  const empty = { nombre: '', dias: [], activo: 1 };
+  const [items, setItems]   = useState([]);
+  const [modal, setModal]   = useState(false);
+  const [form, setForm]     = useState(empty);
+  const [editId, setEditId] = useState(null);
+  const [err, setErr]       = useState('');
+
+  const cargar = useCallback(() => {
+    API.get('/catalogos/planes').then(({ data }) => setItems(data)).catch(console.error);
+  }, []);
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const abrir = (it = null) => {
+    setErr('');
+    if (it) { setEditId(it.id); setForm({ nombre: it.nombre, dias: it.dias || [], activo: it.activo }); }
+    else    { setEditId(null); setForm(empty); }
+    setModal(true);
+  };
+
+  const toggleDia = (d) => setForm(f => ({
+    ...f,
+    dias: f.dias.includes(d) ? f.dias.filter(x => x !== d) : [...f.dias, d],
+  }));
+
+  const guardar = async (e) => {
+    e.preventDefault();
+    if (!form.nombre.trim()) { setErr('Nombre es requerido'); return; }
+    if (form.dias.length === 0) { setErr('Selecciona al menos un día'); return; }
+    try {
+      // Reordena los días de lunes a domingo antes de enviar.
+      const dias = DIAS.filter(d => form.dias.includes(d));
+      if (editId) await API.put(`/catalogos/planes/${editId}`, { ...form, dias });
+      else        await API.post('/catalogos/planes', { ...form, dias });
+      setModal(false); cargar();
+    } catch (ex) { setErr(ex.response?.data?.message || 'Error al guardar'); }
+  };
+
+  const eliminar = async (it) => {
+    if (!confirm(`¿Eliminar el plan "${it.nombre}"?\nLos alumnos ya inscritos no se verán afectados.`)) return;
+    try { await API.delete(`/catalogos/planes/${it.id}`); cargar(); }
+    catch { alert('Error al eliminar'); }
+  };
+
+  return (
+    <>
+      <div className="cfg-toolbar">
+        <h2>Planes de Clase ({items.length})</h2>
+        <button className="btn-primary" onClick={() => abrir()}>+ Nuevo Plan</button>
+      </div>
+      <p className="cfg-hint">
+        Define bloques de días de clase (ej. <em>Plan diario</em> = lunes a viernes,
+        <em> Fin de semana</em> = sábado). Al inscribir un alumno eliges un plan y se le
+        asigna un solo horario para todos esos días.
+      </p>
+
+      {items.length === 0 ? (
+        <div className="cfg-empty">
+          No hay planes. <button className="btn-primary" onClick={() => abrir()}>Crear primero</button>
+        </div>
+      ) : (
+        <div className="cfg-list">
+          {items.map(it => (
+            <div key={it.id} className={`cfg-card${it.activo ? '' : ' inactivo'}`}>
+              <div className="cfg-card-info" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                <strong>{it.nombre}</strong>
+                <span style={{ color: '#666', fontSize: '0.78rem' }}>
+                  {(it.dias || []).join(', ') || '—'}
+                </span>
+                {!it.activo && <span className="cfg-badge-off">Inactivo</span>}
+              </div>
+              <div className="cfg-card-actions">
+                <button className="btn-edit" onClick={() => abrir(it)}>Editar</button>
+                <button className="btn-danger-sm" onClick={() => eliminar(it)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {modal && (
+        <div className="modal-overlay" onClick={() => setModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <div className="modal-header">
+              <h2>{editId ? 'Editar Plan' : 'Nuevo Plan'}</h2>
+              <button className="modal-close" onClick={() => setModal(false)}>✕</button>
+            </div>
+            <form onSubmit={guardar} className="modal-form">
+              <div className="form-grid">
+                <div className="form-group full-width">
+                  <label>Nombre del plan *</label>
+                  <input value={form.nombre} placeholder="Ej: Plan diario"
+                         onChange={e => setForm({ ...form, nombre: e.target.value })} required />
+                </div>
+                <div className="form-group full-width">
+                  <label>Días de clase *</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 4 }}>
+                    {DIAS.map(d => (
+                      <label key={d} style={{ display: 'flex', alignItems: 'center', gap: 5, textTransform: 'capitalize' }}>
+                        <input type="checkbox" checked={form.dias.includes(d)} onChange={() => toggleDia(d)} />
+                        {d}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="form-group full-width">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={!!form.activo}
+                           onChange={e => setForm({ ...form, activo: e.target.checked ? 1 : 0 })} />
+                    Activo (aparece al inscribir alumnos)
+                  </label>
+                </div>
+              </div>
+              {err && <p style={{ color: '#e53935', fontSize: '0.85rem' }}>{err}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary">{editId ? 'Actualizar' : 'Crear'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 /* ════════════════════════════════════════════
    CUOTAS

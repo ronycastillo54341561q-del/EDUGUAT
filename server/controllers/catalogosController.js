@@ -130,6 +130,166 @@ const factorySimple = (tabla, campo, modulo) => ({
 
 const labs   = factorySimple('cat_laboratorios',     'nombre', 'Catálogos');
 const estabs = factorySimple('cat_establecimientos', 'nombre', 'Catálogos');
+const grados   = factorySimple('cat_grados',    'nombre', 'Catálogos');
+const secciones = factorySimple('cat_secciones', 'nombre', 'Catálogos');
+
+/* ─────────────── PLANES DE DÍAS DE CLASE (instituciones) ─────────────── */
+// Cada plan es { nombre, dias }.  `dias` se guarda como CSV ("lunes,martes").
+// El alumno elige un plan al inscribirse y los días se copian (snapshot) a
+// `alumnos.dias_clase`, de modo que editar el plan luego no altera registros.
+const DIAS_VALIDOS = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+
+const limpiarDias = (raw) => {
+  const arr = Array.isArray(raw) ? raw : String(raw || '').split(',');
+  return arr
+    .map(d => String(d).trim().toLowerCase())
+    .filter(d => DIAS_VALIDOS.includes(d));
+};
+
+const listPlanes = async (_req, res) => {
+  try {
+    const [rows] = await db.query(
+      'SELECT id, nombre, dias, activo FROM cat_planes_clase ORDER BY nombre'
+    );
+    res.json(rows.map(r => ({ ...r, dias: limpiarDias(r.dias) })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al listar planes' });
+  }
+};
+
+const crearPlan = async (req, res) => {
+  const { nombre, dias = [], activo = 1 } = req.body;
+  const dlist = limpiarDias(dias);
+  if (!nombre || !String(nombre).trim())
+    return res.status(400).json({ message: 'Nombre es requerido' });
+  if (dlist.length === 0)
+    return res.status(400).json({ message: 'Selecciona al menos un día' });
+  try {
+    const [r] = await db.query(
+      'INSERT INTO cat_planes_clase (nombre, dias, activo) VALUES (?,?,?)',
+      [String(nombre).trim(), dlist.join(','), activo ? 1 : 0]
+    );
+    log(req, 'crear', 'Catálogos', `Plan de clases: ${nombre} (${dlist.join(', ')})`);
+    res.json({ ok: true, id: r.insertId });
+  } catch (err) {
+    console.error(err);
+    if (err.code === 'ER_DUP_ENTRY')
+      return res.status(400).json({ message: 'Ya existe un plan con ese nombre' });
+    res.status(500).json({ message: 'Error al crear plan' });
+  }
+};
+
+const actualizarPlan = async (req, res) => {
+  const { id } = req.params;
+  const { nombre, dias = [], activo = 1 } = req.body;
+  const dlist = limpiarDias(dias);
+  if (!nombre || !String(nombre).trim())
+    return res.status(400).json({ message: 'Nombre es requerido' });
+  if (dlist.length === 0)
+    return res.status(400).json({ message: 'Selecciona al menos un día' });
+  try {
+    await db.query(
+      'UPDATE cat_planes_clase SET nombre=?, dias=?, activo=? WHERE id=?',
+      [String(nombre).trim(), dlist.join(','), activo ? 1 : 0, id]
+    );
+    log(req, 'editar', 'Catálogos', `Plan de clases ID ${id}: ${nombre} (${dlist.join(', ')})`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    if (err.code === 'ER_DUP_ENTRY')
+      return res.status(400).json({ message: 'Ya existe un plan con ese nombre' });
+    res.status(500).json({ message: 'Error al actualizar plan' });
+  }
+};
+
+const eliminarPlan = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM cat_planes_clase WHERE id=?', [id]);
+    log(req, 'eliminar', 'Catálogos', `Plan de clases ID ${id}`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al eliminar plan' });
+  }
+};
+
+/* ─────────────── CURSOS POR GRADO (instituciones) ─────────────── */
+// Cada curso pertenece a un grado (por nombre) y tiene maestro, días (CSV) y
+// horario. Se usan para mostrar/filtrar la asistencia por curso en el reporte.
+const fmtCurso = (c) => ({
+  ...c,
+  dias: limpiarDias(c.dias),
+});
+
+const listCursos = async (req, res) => {
+  const grado = req.query.grado || '';
+  try {
+    const where = grado ? 'WHERE grado=?' : '';
+    const params = grado ? [grado] : [];
+    const [rows] = await db.query(
+      `SELECT id, grado, nombre, maestro, dias, hora_inicio, hora_fin, activo
+         FROM cat_cursos ${where} ORDER BY grado, nombre`,
+      params
+    );
+    res.json(rows.map(fmtCurso));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al listar cursos' });
+  }
+};
+
+const crearCurso = async (req, res) => {
+  const { grado, nombre, maestro = '', dias = [], hora_inicio = '', hora_fin = '', activo = 1 } = req.body;
+  if (!grado || !String(grado).trim()) return res.status(400).json({ message: 'Grado es requerido' });
+  if (!nombre || !String(nombre).trim()) return res.status(400).json({ message: 'Nombre del curso es requerido' });
+  try {
+    const [r] = await db.query(
+      `INSERT INTO cat_cursos (grado, nombre, maestro, dias, hora_inicio, hora_fin, activo)
+       VALUES (?,?,?,?,?,?,?)`,
+      [String(grado).trim(), String(nombre).trim(), maestro || null,
+       limpiarDias(dias).join(','), hora_inicio || null, hora_fin || null, activo ? 1 : 0]
+    );
+    log(req, 'crear', 'Catálogos', `Curso: ${nombre} (${grado})`);
+    res.json({ ok: true, id: r.insertId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al crear curso' });
+  }
+};
+
+const actualizarCurso = async (req, res) => {
+  const { id } = req.params;
+  const { grado, nombre, maestro = '', dias = [], hora_inicio = '', hora_fin = '', activo = 1 } = req.body;
+  if (!grado || !String(grado).trim()) return res.status(400).json({ message: 'Grado es requerido' });
+  if (!nombre || !String(nombre).trim()) return res.status(400).json({ message: 'Nombre del curso es requerido' });
+  try {
+    await db.query(
+      `UPDATE cat_cursos SET grado=?, nombre=?, maestro=?, dias=?, hora_inicio=?, hora_fin=?, activo=?
+        WHERE id=?`,
+      [String(grado).trim(), String(nombre).trim(), maestro || null,
+       limpiarDias(dias).join(','), hora_inicio || null, hora_fin || null, activo ? 1 : 0, id]
+    );
+    log(req, 'editar', 'Catálogos', `Curso ID ${id}: ${nombre} (${grado})`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al actualizar curso' });
+  }
+};
+
+const eliminarCurso = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM cat_cursos WHERE id=?', [id]);
+    log(req, 'eliminar', 'Catálogos', `Curso ID ${id}`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al eliminar curso' });
+  }
+};
 
 /* ─────────────── CUOTAS (con monto + descripcion) ─────────────── */
 const listCuotas = async (_req, res) => {
@@ -260,12 +420,18 @@ const getTodos = async (_req, res) => {
     const [establecimientos] = await db.query('SELECT id, nombre, activo FROM cat_establecimientos WHERE activo=1 ORDER BY nombre');
     const [cuotas]          = await db.query('SELECT id, monto, descripcion, activo FROM cat_cuotas WHERE activo=1 ORDER BY monto');
     const [diplomados]      = await db.query('SELECT id, nombre FROM dip_diplomados WHERE activo=1 ORDER BY nombre');
+    const [planes]          = await db.query('SELECT id, nombre, dias, activo FROM cat_planes_clase WHERE activo=1 ORDER BY nombre');
+    const [grados]          = await db.query('SELECT id, nombre, activo FROM cat_grados      WHERE activo=1 ORDER BY nombre');
+    const [secciones]       = await db.query('SELECT id, nombre, activo FROM cat_secciones   WHERE activo=1 ORDER BY nombre');
     res.json({
       horarios:        horarios.map(h => ({ ...h, etiqueta: fmtEtiqueta(h) })),
       laboratorios,
       establecimientos,
       cuotas,
       diplomados,
+      planes:          planes.map(p => ({ ...p, dias: limpiarDias(p.dias) })),
+      grados,
+      secciones,
     });
   } catch (err) {
     console.error(err);
@@ -288,6 +454,20 @@ module.exports = {
   crearEstab:      estabs.crear,
   actualizarEstab: estabs.actualizar,
   eliminarEstab:   estabs.eliminar,
+  // planes de días de clase (instituciones)
+  listPlanes, crearPlan, actualizarPlan, eliminarPlan,
+  // cursos por grado (instituciones)
+  listCursos, crearCurso, actualizarCurso, eliminarCurso,
+  // grados (instituciones)
+  listGrados:      grados.list,
+  crearGrado:      grados.crear,
+  actualizarGrado: grados.actualizar,
+  eliminarGrado:   grados.eliminar,
+  // secciones (instituciones)
+  listSecciones:      secciones.list,
+  crearSeccion:       secciones.crear,
+  actualizarSeccion:  secciones.actualizar,
+  eliminarSeccion:    secciones.eliminar,
   // cuotas
   listCuotas, crearCuota, actualizarCuota, eliminarCuota,
   // cuentas bancarias

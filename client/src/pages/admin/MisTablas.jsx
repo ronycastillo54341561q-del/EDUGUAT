@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import * as XLSX from 'xlsx-js-style';
 import './admin.css';
 import './MisTablas.css';
@@ -58,6 +59,29 @@ const COLS_ALUMNO = [
   { key: 'dia_clases2',       label: 'Día 2',            tipo: 'texto'   },
   { key: 'direccion',         label: 'Dirección',        tipo: 'texto'   },
   { key: 'establecimiento',   label: 'Establecimiento',  tipo: 'texto'   },
+  { key: 'observaciones',     label: 'Observaciones',    tipo: 'texto'   },
+  { key: 'estado',            label: 'Estado',           tipo: 'texto'   },
+  { key: 'cuota_mensual',     label: 'Cuota mensual',    tipo: 'decimal' },
+];
+
+/* ─ Columnas disponibles de alumno (instituciones) ─ */
+const COLS_ALUMNO_INST = [
+  { key: 'clave',             label: 'Clave',            tipo: 'texto'   },
+  { key: 'codigo_estudiante', label: 'Código',           tipo: 'texto'   },
+  { key: 'nombre',            label: 'Nombre',           tipo: 'texto'   },
+  { key: 'apellido',          label: 'Apellido',         tipo: 'texto'   },
+  { key: 'fecha_nacimiento',  label: 'F. Nacimiento',    tipo: 'fecha'   },
+  { key: 'fecha_inicio',      label: 'F. Inscripción',   tipo: 'fecha'   },
+  { key: 'encargado',         label: 'Encargado',        tipo: 'texto'   },
+  { key: 'telefono',          label: 'Teléfono',         tipo: 'texto'   },
+  { key: 'email',             label: 'Email',            tipo: 'texto'   },
+  { key: 'grado',             label: 'Grado',            tipo: 'texto'   },
+  { key: 'seccion',           label: 'Sección',          tipo: 'texto'   },
+  { key: 'maestro_guia',      label: 'Maestro guía',     tipo: 'texto'   },
+  { key: 'plan_clases',       label: 'Plan',             tipo: 'texto'   },
+  { key: 'dias_clase',        label: 'Días de clase',    tipo: 'texto'   },
+  { key: 'horario',           label: 'Horario',          tipo: 'texto'   },
+  { key: 'direccion',         label: 'Dirección',        tipo: 'texto'   },
   { key: 'observaciones',     label: 'Observaciones',    tipo: 'texto'   },
   { key: 'estado',            label: 'Estado',           tipo: 'texto'   },
   { key: 'cuota_mensual',     label: 'Cuota mensual',    tipo: 'decimal' },
@@ -159,6 +183,9 @@ const tiempoRestante = (desactivadoAt, ahora) => {
 };
 
 const MisTablas = () => {
+  const { sede } = useAuth();
+  const esInstitucion = sede?.tipo === 'institucion';
+  const colsCat = esInstitucion ? COLS_ALUMNO_INST : COLS_ALUMNO;
   const [tablas, setTablas]       = useState([]);
   const [cargando, setCargando]   = useState(false);
   const [wizard, setWizard]       = useState(null);   // objeto con los datos del wizard
@@ -234,11 +261,11 @@ const MisTablas = () => {
       descripcion: '',
       encabezado: '',
       conAlumnos: null,
-      filtros: { estado: 'activo', horario: '', laboratorio: '', dia: '', tac: '', diplomado: '', establecimiento: '' },
+      filtros: { estado: 'activo', horario: '', laboratorio: '', dia: '', tac: '', diplomado: '', establecimiento: '', grado: '', seccion: '', plan: '' },
       colsSeleccionadas: ['codigo_estudiante', 'nombre', 'apellido'],
       alumnosPreview: [],
       guardando: false,
-      opciones: { horarios: [], laboratorios: [], dias: DIAS, tacs: [], diplomados: [], establecimientos: [] },
+      opciones: { horarios: [], laboratorios: [], dias: DIAS, tacs: [], diplomados: [], establecimientos: [], grados: [], secciones: [], planes: [] },
     });
   };
 
@@ -263,6 +290,9 @@ const MisTablas = () => {
             tacs:            uniq(alumnos, 'tac'),
             diplomados:      uniq(alumnos, 'diplomado'),
             establecimientos: uniq(alumnos, 'establecimiento'),
+            grados:          uniq(alumnos, 'grado'),
+            secciones:       uniq(alumnos, 'seccion'),
+            planes:          uniq(alumnos, 'plan_clases'),
           }
         });
       } catch (err) { console.error(err); }
@@ -294,12 +324,12 @@ const MisTablas = () => {
       // COLS_ALUMNO. Así el usuario obtiene siempre las columnas en el
       // orden esperado (clave, código, nombre, apellido…) sin importar
       // en qué orden marcó los checkboxes.
-      const ordenCat = COLS_ALUMNO.map(c => c.key);
+      const ordenCat = colsCat.map(c => c.key);
       const colsOrdenadas = [...wizard.colsSeleccionadas]
         .sort((a, b) => ordenCat.indexOf(a) - ordenCat.indexOf(b));
 
       columnas = colsOrdenadas.map((k) => {
-        const meta = COLS_ALUMNO.find(c => c.key === k);
+        const meta = colsCat.find(c => c.key === k);
         return { key: k, label: meta?.label || k, tipo: meta?.tipo || 'texto' };
       });
 
@@ -438,6 +468,8 @@ const MisTablas = () => {
             setWizard={setWizard}
             onCancelar={cancelarWizard}
             onGenerar={generarTabla}
+            esInstitucion={esInstitucion}
+            colsCat={colsCat}
           />
         )}
       </div>
@@ -446,7 +478,7 @@ const MisTablas = () => {
 };
 
 /* ══════════════════════════ Wizard ══════════════════════════ */
-const Wizard = ({ wizard, setWizard, onCancelar, onGenerar }) => {
+const Wizard = ({ wizard, setWizard, onCancelar, onGenerar, esInstitucion, colsCat }) => {
   const w = wizard;
   const set = (patch) => setWizard({ ...w, ...patch });
 
@@ -533,48 +565,76 @@ const Wizard = ({ wizard, setWizard, onCancelar, onGenerar }) => {
                   <option value="retirado">Retirados</option>
                 </select>
               </div>
-              <div className="mt-field">
-                <label>Horario</label>
-                <select value={w.filtros.horario} onChange={e => set({ filtros: { ...w.filtros, horario: e.target.value } })}>
-                  <option value="">Todos</option>
-                  {w.opciones.horarios.map(h => <option key={h} value={h}>{h}</option>)}
-                </select>
-              </div>
-              <div className="mt-field">
-                <label>Laboratorio</label>
-                <select value={w.filtros.laboratorio} onChange={e => set({ filtros: { ...w.filtros, laboratorio: e.target.value } })}>
-                  <option value="">Todos</option>
-                  {w.opciones.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
-                </select>
-              </div>
-              <div className="mt-field">
-                <label>Día</label>
-                <select value={w.filtros.dia} onChange={e => set({ filtros: { ...w.filtros, dia: e.target.value } })}>
-                  <option value="">Todos</option>
-                  {w.opciones.dias.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-              <div className="mt-field">
-                <label>TAC</label>
-                <select value={w.filtros.tac} onChange={e => set({ filtros: { ...w.filtros, tac: e.target.value } })}>
-                  <option value="">Todos</option>
-                  {w.opciones.tacs.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div className="mt-field">
-                <label>Diplomado</label>
-                <select value={w.filtros.diplomado} onChange={e => set({ filtros: { ...w.filtros, diplomado: e.target.value } })}>
-                  <option value="">Todos</option>
-                  {w.opciones.diplomados.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-              <div className="mt-field">
-                <label>Establecimiento</label>
-                <select value={w.filtros.establecimiento} onChange={e => set({ filtros: { ...w.filtros, establecimiento: e.target.value } })}>
-                  <option value="">Todos</option>
-                  {w.opciones.establecimientos.map(e => <option key={e} value={e}>{e}</option>)}
-                </select>
-              </div>
+              {esInstitucion ? (
+                <>
+                  <div className="mt-field">
+                    <label>Grado</label>
+                    <select value={w.filtros.grado} onChange={e => set({ filtros: { ...w.filtros, grado: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.grados.map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>Sección</label>
+                    <select value={w.filtros.seccion} onChange={e => set({ filtros: { ...w.filtros, seccion: e.target.value } })}>
+                      <option value="">Todas</option>
+                      {w.opciones.secciones.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>Plan</label>
+                    <select value={w.filtros.plan} onChange={e => set({ filtros: { ...w.filtros, plan: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.planes.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mt-field">
+                    <label>Horario</label>
+                    <select value={w.filtros.horario} onChange={e => set({ filtros: { ...w.filtros, horario: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.horarios.map(h => <option key={h} value={h}>{h}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>Laboratorio</label>
+                    <select value={w.filtros.laboratorio} onChange={e => set({ filtros: { ...w.filtros, laboratorio: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>Día</label>
+                    <select value={w.filtros.dia} onChange={e => set({ filtros: { ...w.filtros, dia: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.dias.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>TAC</label>
+                    <select value={w.filtros.tac} onChange={e => set({ filtros: { ...w.filtros, tac: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.tacs.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>Diplomado</label>
+                    <select value={w.filtros.diplomado} onChange={e => set({ filtros: { ...w.filtros, diplomado: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.diplomados.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-field">
+                    <label>Establecimiento</label>
+                    <select value={w.filtros.establecimiento} onChange={e => set({ filtros: { ...w.filtros, establecimiento: e.target.value } })}>
+                      <option value="">Todos</option>
+                      {w.opciones.establecimientos.map(e => <option key={e} value={e}>{e}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mt-preview-count">
@@ -583,7 +643,7 @@ const Wizard = ({ wizard, setWizard, onCancelar, onGenerar }) => {
 
             <h4 style={{ color: '#1a237e', marginTop: '0.4rem', marginBottom: '0.4rem' }}>Columnas a incluir</h4>
             <div className="mt-cols-picker">
-              {COLS_ALUMNO.map(c => (
+              {colsCat.map(c => (
                 <label key={c.key}>
                   <input
                     type="checkbox"

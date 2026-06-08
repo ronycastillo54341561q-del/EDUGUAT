@@ -26,6 +26,30 @@ router.post  ('/establecimientos',     verifyRole('admin'), c.crearEstab);
 router.put   ('/establecimientos/:id', verifyRole('admin'), c.actualizarEstab);
 router.delete('/establecimientos/:id', verifyRole('admin'), c.eliminarEstab);
 
+// Planes de días de clase (instituciones)
+router.get   ('/planes',      c.listPlanes);
+router.post  ('/planes',      verifyRole('admin'), c.crearPlan);
+router.put   ('/planes/:id',  verifyRole('admin'), c.actualizarPlan);
+router.delete('/planes/:id',  verifyRole('admin'), c.eliminarPlan);
+
+// Cursos por grado (instituciones)
+router.get   ('/cursos',      c.listCursos);
+router.post  ('/cursos',      verifyRole('admin'), c.crearCurso);
+router.put   ('/cursos/:id',  verifyRole('admin'), c.actualizarCurso);
+router.delete('/cursos/:id',  verifyRole('admin'), c.eliminarCurso);
+
+// Grados (instituciones)
+router.get   ('/grados',      c.listGrados);
+router.post  ('/grados',      verifyRole('admin'), c.crearGrado);
+router.put   ('/grados/:id',  verifyRole('admin'), c.actualizarGrado);
+router.delete('/grados/:id',  verifyRole('admin'), c.eliminarGrado);
+
+// Secciones (instituciones)
+router.get   ('/secciones',     c.listSecciones);
+router.post  ('/secciones',     verifyRole('admin'), c.crearSeccion);
+router.put   ('/secciones/:id', verifyRole('admin'), c.actualizarSeccion);
+router.delete('/secciones/:id', verifyRole('admin'), c.eliminarSeccion);
+
 // Cuotas
 router.get   ('/cuotas',     c.listCuotas);
 router.post  ('/cuotas',     verifyRole('admin'), c.crearCuota);

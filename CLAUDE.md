@@ -58,6 +58,79 @@ y duplicado en backend.
   + overrides de roles base + roles custom (cacheados en localStorage). Helpers: `can(rol, modulo, action)`,
   `canExport`, `defaultRoute(rol)`, `ADMIN_PANEL_ROLES`. **El backend SIEMPRE revalida; esto es solo UI.**
 
+## Tipo de inquilino: `academia` vs `institucion`
+
+Cada sede tiene un `tipo` (`sedesMeta[id].tipo`, viaja en el objeto `sede` del
+front vía `useAuth().sede.tipo`). El esquema de BD es **el mismo**; algunas
+pantallas se **adaptan** según el tipo, sin duplicar módulos:
+
+- **Alumnos** (`client/src/pages/admin/Alumnos.jsx`): tabla y formulario
+  **dirigidos por columnas** (`columnasAcademia` / `columnasInstitucion`). Para
+  `institucion` se ocultan Diplomado/TAC/Asesor/Laboratorio/Establecimiento y se
+  muestran **Grado, Sección, Maestro guía, Plan/Días** (`fecha_inicio` se
+  etiqueta "Fecha de inscripción"). Campos nuevos en `alumnos` (nullables, las
+  academias nunca los llenan): `grado`, `seccion`, `maestro_guia`, `plan_clases`,
+  `dias_clase` (CSV snapshot de los días del plan). La cuota mensual se mantiene.
+- **Configuración** (`Configuracion.jsx`): para `institucion` se muestran las
+  pestañas **Planes de Clase / Grados / Secciones** en vez de Horarios/Laboratorios/
+  Establecimientos. Nuevos catálogos: `cat_planes_clase` (nombre + `dias` CSV),
+  `cat_grados`, `cat_secciones` (CRUD en `catalogosController` + `/api/catalogos/*`).
+  Un "plan" define el bloque de días; al inscribir se elige un plan y **un solo
+  horario** (rango) para todos esos días.
+- **Asistencia** (`Asistencia.jsx` despacha a `AsistenciaInstitucion.jsx` cuando
+  `tipo==='institucion'`): academias siguen con el grid **anual semanal**
+  (`asistencia_semanal`); instituciones usan asistencia **diaria por mes**
+  (tabla `asistencia_diaria`, un registro por `(alumno, fecha)`, mismos códigos
+  x/e/p/f/r). El grid muestra sólo las fechas de clase del mes (derivadas del
+  `dias_clase` de cada alumno), agrupadas por semana; celdas grises = no es día
+  de clase. Endpoints `GET /asistencia/diaria` y `POST /asistencia/diaria/lote`.
+- **Cursos por grado** (`cat_cursos`: grado[nombre]+nombre+maestro+dias CSV+horas):
+  se gestionan en Configuración → Grados (cada grado se expande para administrar
+  sus cursos). CRUD en `/api/catalogos/cursos`. Se ligan al grado por **nombre**
+  (coincide con `alumnos.grado`).
+- **Consultas** (`Consultas.jsx`, branch interno por tipo): para `institucion` los
+  filtros son **grado/sección/plan** (en vez de tac/día/horario/laboratorio), las
+  tarjetas muestran grado/sección/maestro guía y **se oculta la asistencia** (los
+  exports Excel/PDF también cambian de columnas). `reporte/financiero` acepta los
+  params `grado/seccion/plan` (aditivos).
+- **Mis Tablas** (`MisTablas.jsx`, branch interno): el wizard usa `COLS_ALUMNO_INST`
+  (grado/sección/maestro guía/plan/días) y filtros grado/sección/plan para
+  instituciones. `/mis-tablas/_alumnos/filtrar` acepta esos params y devuelve los
+  campos de institución.
+- **Reporte de Alumno** (`ReporteAlumno.jsx` despacha a `ReporteAlumnoInstitucion.jsx`):
+  academias ven mecanografía/TAC/diplomados + asistencia semanal; instituciones ven
+  datos de inscripción (grado/sección/plan/maestro guía), **calendario de asistencia
+  por mes** (celdas teñidas por estado, colapsable por mes), **cursos del grado**
+  (maestro/horario) y un filtro que limita el calendario a los días del curso elegido.
+  Pagos se mantienen en ambos. El backend (`reporteController.getReporteAlumno`)
+  agrega `asistenciaDiaria` y `cursos` a la respuesta (toleran tablas inexistentes).
+
+- **Nóminas** (`Nominas.jsx`, módulo **exclusivo de instituciones**): pago a
+  colaboradores. Tablas `colaboradores`, `nominas`, `nomina_renglones`
+  (percepciones/deducciones como JSON TEXT, suma manual → líquido). Una nómina
+  autogenera un renglón por colaborador activo (salario base). Período mensual o
+  quincenal. Boleta de pago PDF por colaborador (ventana de impresión con datos de
+  `/config`). API `/api/nominas` (colaboradores + nóminas + renglones + pagar).
+  Gating: es un **módulo solo-institución** — `INSTITUCION_MODULES = {'nominas'}` en
+  `Sidebar.jsx` y `PrivateRoute.jsx` lo ocultan/bloquean en academias aunque tengan
+  `modulos=null`. Va en `MODULOS_INSTITUCION_DEFAULT`; quítalo de la lista de módulos
+  de una sede pública. La sede demo `inst_demo` se re-sincroniza al default en cada boot.
+
+- **Horarios de Clase** (`Horarios.jsx`, **módulo solo-institución**): armador de
+  parrilla por grado/sección. Tablas `horario_franjas` (bloques de tiempo globales =
+  "timbre") y `horario_clases` (celda `(grado,seccion,dia,hora_inicio)` → curso +
+  maestro, UNIQUE por esa tupla). UX guiada: defines franjas una vez (filas), eliges
+  grado+sección, clic en cada casilla → eliges curso y el **maestro se autocompleta**
+  desde `cat_cursos.maestro` (editable). Detecta **choques de maestro** (mismo maestro
+  en otro grupo a la misma hora → casilla roja), "aplicar a toda la semana", e
+  **imprime** el horario (grado/sección). API `/api/horarios` (franjas, clases,
+  ocupacion, maestros). Gating idéntico a nóminas (`INSTITUCION_MODULES`).
+
+> No bifurques creando módulos paralelos: extiende la vertical existente con una
+> rama `esInstitucion = sede?.tipo === 'institucion'`. Academias debe quedar idéntico.
+> Módulos solo-institución (nóminas, horarios): añádelos a `INSTITUCION_MODULES`
+> (Sidebar+PrivateRoute) y a `MODULOS_INSTITUCION_DEFAULT` (sedeRegistry).
+
 ## Patrón de un módulo (end-to-end)
 
 Cada feature ("módulo") es una vertical. Para `foo`:
@@ -104,6 +177,7 @@ Rutas alumno usan `<PrivateRoute rol="alumno">` y viven en `client/src/pages/alu
 `diplomados`, `mensualidades`/`pagos`, `nuevo-pago`, `otros-pagos`, `recibos`, `papeleria`,
 `config-pagos`, `cierres`, `dashboard`, `reporte`/`reporte-financiero`, `consultas-reportes`,
 `constancias`, `avisos`, `bitacora`, `mis-tablas`, `relaciones`, `catalogos`, `importacion`,
-`backups`, `usuarios`, `roles`, `academias`, `sedes`, `instituciones` (nuevo), `alumno` (self-service).
+`backups`, `usuarios`, `roles`, `academias`, `sedes`, `instituciones` (nuevo),
+`nominas` y `horarios` (solo instituciones), `alumno` (self-service).
 
 Listado autoritativo de wiring: `server/index.js` (API) y `client/src/App.jsx` (SPA).

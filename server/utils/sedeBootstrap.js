@@ -131,6 +131,11 @@ const initDb = async (pool) => {
        dia_clases2       VARCHAR(20) NULL,
        horario           VARCHAR(40) NULL,
        laboratorio       VARCHAR(40) NULL,
+       grado             VARCHAR(80)  NULL,
+       seccion           VARCHAR(80)  NULL,
+       maestro_guia      VARCHAR(150) NULL,
+       plan_clases       VARCHAR(80)  NULL,
+       dias_clase        VARCHAR(160) NULL,
        estado            ENUM('activo','inactivo','retirado') NOT NULL DEFAULT 'activo',
        cuota_mensual     DECIMAL(10,2) NOT NULL DEFAULT 0,
        usuario_id        INT NULL,
@@ -156,6 +161,18 @@ const initDb = async (pool) => {
        alumno_id INT NOT NULL, anio SMALLINT NOT NULL,
        mes TINYINT NOT NULL, semana TINYINT NOT NULL, estado CHAR(1) NULL,
        UNIQUE KEY uk_asist_sem (alumno_id, anio, mes, semana)
+     )`,
+    // Asistencia DIARIA (instituciones): un registro por (alumno, fecha).
+    // Códigos de estado iguales a la semanal: x asistió · e enfermo · p permiso
+    // · f falta · r recuperó. Independiente de asistencia_semanal (academias).
+    `CREATE TABLE IF NOT EXISTS asistencia_diaria (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       alumno_id INT NOT NULL,
+       fecha DATE NOT NULL,
+       estado CHAR(1) NOT NULL,
+       observacion VARCHAR(255) NULL,
+       UNIQUE KEY uk_asist_dia (alumno_id, fecha),
+       INDEX idx_asist_dia_fecha (fecha)
      )`,
     `CREATE TABLE IF NOT EXISTS mecanografia_notas (
        id INT AUTO_INCREMENT PRIMARY KEY,
@@ -304,6 +321,123 @@ const initDb = async (pool) => {
        descripcion VARCHAR(120) NULL,
        activo TINYINT(1) NOT NULL DEFAULT 1,
        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`,
+    // ── Catálogos exclusivos del tipo de inquilino 'institucion' ──────────
+    // Plan de días de clase: un bloque con nombre (ej. "Plan diario") y la
+    // lista de días que cubre (CSV: "lunes,martes,..."). El alumno elige un
+    // plan; los días se copian (snapshot) a `alumnos.dias_clase` al inscribir.
+    `CREATE TABLE IF NOT EXISTS cat_planes_clase (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       nombre VARCHAR(80) NOT NULL UNIQUE,
+       dias VARCHAR(160) NOT NULL DEFAULT '',
+       activo TINYINT(1) NOT NULL DEFAULT 1,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`,
+    `CREATE TABLE IF NOT EXISTS cat_grados (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       nombre VARCHAR(80) NOT NULL UNIQUE,
+       activo TINYINT(1) NOT NULL DEFAULT 1,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`,
+    `CREATE TABLE IF NOT EXISTS cat_secciones (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       nombre VARCHAR(80) NOT NULL UNIQUE,
+       activo TINYINT(1) NOT NULL DEFAULT 1,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`,
+    // Cursos por grado (instituciones): cada grado tiene sus cursos, con
+    // maestro, días (CSV) y horario. Se ligan al grado por NOMBRE para que
+    // coincida con el snapshot `alumnos.grado`.
+    `CREATE TABLE IF NOT EXISTS cat_cursos (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       grado VARCHAR(80) NOT NULL,
+       nombre VARCHAR(120) NOT NULL,
+       maestro VARCHAR(150) NULL,
+       dias VARCHAR(160) NOT NULL DEFAULT '',
+       hora_inicio VARCHAR(10) NULL,
+       hora_fin VARCHAR(10) NULL,
+       activo TINYINT(1) NOT NULL DEFAULT 1,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       INDEX idx_cursos_grado (grado)
+     )`,
+    // ── Nóminas (módulo exclusivo de instituciones privadas) ─────────────
+    // Colaboradores/empleados a quienes la institución paga salario.
+    `CREATE TABLE IF NOT EXISTS colaboradores (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       nombre VARCHAR(150) NOT NULL,
+       apellido VARCHAR(150) NOT NULL,
+       dpi VARCHAR(25) NULL,
+       nit VARCHAR(25) NULL,
+       puesto VARCHAR(120) NULL,
+       telefono VARCHAR(80) NULL,
+       email VARCHAR(150) NULL,
+       fecha_ingreso DATE NULL,
+       salario_base DECIMAL(10,2) NOT NULL DEFAULT 0,
+       banco VARCHAR(80) NULL,
+       cuenta VARCHAR(80) NULL,
+       estado ENUM('activo','inactivo') NOT NULL DEFAULT 'activo',
+       observaciones TEXT NULL,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`,
+    // Cada corrida de nómina (un período). periodo_tipo: mensual | quincenal.
+    `CREATE TABLE IF NOT EXISTS nominas (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       nombre VARCHAR(150) NOT NULL,
+       periodo_tipo ENUM('mensual','quincenal') NOT NULL DEFAULT 'mensual',
+       anio SMALLINT NOT NULL,
+       mes TINYINT NOT NULL,
+       quincena TINYINT NULL,
+       fecha_pago DATE NULL,
+       estado ENUM('borrador','pagada') NOT NULL DEFAULT 'borrador',
+       observaciones TEXT NULL,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       INDEX idx_nominas_periodo (anio, mes)
+     )`,
+    // Renglón por colaborador dentro de una nómina. percepciones/deducciones
+    // se guardan como JSON (TEXT): [{ concepto, monto }]. Se guarda snapshot
+    // del nombre/puesto por si el colaborador se elimina luego.
+    `CREATE TABLE IF NOT EXISTS nomina_renglones (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       nomina_id INT NOT NULL,
+       colaborador_id INT NULL,
+       nombre VARCHAR(300) NOT NULL,
+       puesto VARCHAR(120) NULL,
+       percepciones LONGTEXT NULL,
+       deducciones LONGTEXT NULL,
+       total_percepciones DECIMAL(10,2) NOT NULL DEFAULT 0,
+       total_deducciones DECIMAL(10,2) NOT NULL DEFAULT 0,
+       liquido DECIMAL(10,2) NOT NULL DEFAULT 0,
+       pagado TINYINT(1) NOT NULL DEFAULT 0,
+       metodo_pago VARCHAR(80) NULL,
+       fecha_pago DATE NULL,
+       observacion VARCHAR(255) NULL,
+       INDEX idx_renglon_nomina (nomina_id)
+     )`,
+    // ── Horarios de clase (módulo institución) ───────────────────────────
+    // Franjas horarias globales (el "timbre" de la institución): se definen
+    // una vez y todas las parrillas por grado/sección las comparten como filas.
+    `CREATE TABLE IF NOT EXISTS horario_franjas (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       hora_inicio VARCHAR(10) NOT NULL,
+       hora_fin VARCHAR(10) NOT NULL,
+       etiqueta VARCHAR(60) NULL,
+       orden SMALLINT NOT NULL DEFAULT 0,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`,
+    // Cada celda de la parrilla: (grado, sección, día, franja) → curso + maestro.
+    // hora_inicio/hora_fin se guardan (snapshot) para imprimir y detectar choques.
+    `CREATE TABLE IF NOT EXISTS horario_clases (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       grado VARCHAR(80) NOT NULL,
+       seccion VARCHAR(80) NOT NULL DEFAULT '',
+       dia VARCHAR(20) NOT NULL,
+       hora_inicio VARCHAR(10) NOT NULL,
+       hora_fin VARCHAR(10) NOT NULL,
+       curso VARCHAR(120) NULL,
+       maestro VARCHAR(150) NULL,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       UNIQUE KEY uk_horario_celda (grado, seccion, dia, hora_inicio),
+       INDEX idx_horario_maestro (dia, hora_inicio)
      )`,
     `CREATE TABLE IF NOT EXISTS mis_tablas (
        id INT AUTO_INCREMENT PRIMARY KEY,
@@ -520,6 +654,13 @@ const initDb = async (pool) => {
        MODIFY COLUMN l19 SMALLINT NULL, MODIFY COLUMN l20 SMALLINT NULL,
        MODIFY COLUMN examen SMALLINT NULL`,
     `ALTER TABLE alumnos ADD COLUMN asesor VARCHAR(150) NULL AFTER tac`,
+    // Campos exclusivos de inquilinos tipo 'institucion' (primarias/básicas).
+    // Son nullable y las academias nunca los llenan, así que no afectan su flujo.
+    `ALTER TABLE alumnos ADD COLUMN grado        VARCHAR(80)  NULL AFTER laboratorio`,
+    `ALTER TABLE alumnos ADD COLUMN seccion      VARCHAR(80)  NULL AFTER grado`,
+    `ALTER TABLE alumnos ADD COLUMN maestro_guia VARCHAR(150) NULL AFTER seccion`,
+    `ALTER TABLE alumnos ADD COLUMN plan_clases  VARCHAR(80)  NULL AFTER maestro_guia`,
+    `ALTER TABLE alumnos ADD COLUMN dias_clase   VARCHAR(160) NULL AFTER plan_clases`,
     `ALTER TABLE constancia_plantillas ADD COLUMN espacio_post_encabezado TINYINT NOT NULL DEFAULT 3`,
     `ALTER TABLE constancia_plantillas ADD COLUMN espacio_post_fecha      TINYINT NOT NULL DEFAULT 2`,
     `ALTER TABLE constancia_plantillas ADD COLUMN espacio_post_saludo     TINYINT NOT NULL DEFAULT 1`,

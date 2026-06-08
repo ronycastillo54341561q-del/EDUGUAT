@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { useAniosFiltros } from '../../lib/anios';
 import './admin.css';
 
@@ -51,6 +52,8 @@ const normalizeSeg = (raw) => {
 const FILTROS_DEFAULT = {
   anio: ANIO_HOY, operador: 'igual', mes_ref: MES_HOY,
   tac: '', horario: '', laboratorio: '', dia: '',
+  // Filtros de instituciones
+  grado: '', seccion: '', plan: '',
 };
 
 const ASIST_COL = {
@@ -77,7 +80,7 @@ const lsReportes = () => {
 };
 
 const descFiltro = f => {
-  const extras = [f.tac, f.horario, f.laboratorio, f.dia].filter(Boolean).join(', ');
+  const extras = [f.tac, f.horario, f.laboratorio, f.dia, f.grado, f.seccion, f.plan].filter(Boolean).join(', ');
   if (f.operador === 'sin') {
     return `Todos · ${f.anio}${extras ? ` · ${extras}` : ''}`;
   }
@@ -109,13 +112,20 @@ const PILL_STYLE = {
 };
 
 /* ══════════════ Exportar Excel (CSV) ══════════════ */
-const exportarExcel = (resultado, seguimiento, filtros) => {
-  const headers = [
-    'Clave','Código','Nombre','Apellido','Teléfono','Encargado','Establecimiento',
-    'TAC','Días','Horario','Laboratorio','Cuota',
-    ...MESES.map(m => m.lab),
-    'Verificado','Observación',
-  ];
+const exportarExcel = (resultado, seguimiento, filtros, esInstitucion = false) => {
+  const headers = esInstitucion
+    ? [
+        'Clave','Código','Nombre','Apellido','Teléfono','Encargado',
+        'Grado','Sección','Maestro guía','Plan','Cuota',
+        ...MESES.map(m => m.lab),
+        'Verificado','Observación',
+      ]
+    : [
+        'Clave','Código','Nombre','Apellido','Teléfono','Encargado','Establecimiento',
+        'TAC','Días','Horario','Laboratorio','Cuota',
+        ...MESES.map(m => m.lab),
+        'Verificado','Observación',
+      ];
   const rows = resultado.map(a => {
     const seg  = seguimiento[a.id] || {};
     const dias = [a.dia_clases1, a.dia_clases2].filter(Boolean).join('+');
@@ -128,11 +138,21 @@ const exportarExcel = (resultado, seguimiento, filtros) => {
       return m.num <= MES_HOY ? 'Atrasado' : 'Pendiente';
     });
     const obsTxt = (seg.observaciones || []).map(o => o.texto).filter(Boolean).join(' · ');
+    const base = esInstitucion
+      ? [
+          a.clave, a.codigo_estudiante || '', a.nombre, a.apellido,
+          a.telefono || '', a.encargado || '',
+          a.grado || '', a.seccion || '', a.maestro_guia || '', a.plan_clases || '',
+          a.cuota_mensual,
+        ]
+      : [
+          a.clave, a.codigo_estudiante || '', a.nombre, a.apellido,
+          a.telefono || '', a.encargado || '', a.establecimiento || '',
+          a.tac || '', dias, a.horario || '', a.laboratorio || '',
+          a.cuota_mensual,
+        ];
     return [
-      a.clave, a.codigo_estudiante || '', a.nombre, a.apellido,
-      a.telefono || '', a.encargado || '', a.establecimiento || '',
-      a.tac || '', dias, a.horario || '', a.laboratorio || '',
-      a.cuota_mensual,
+      ...base,
       ...pagoCols,
       seg.verificado ? 'Sí' : 'No',
       obsTxt,
@@ -151,7 +171,7 @@ const exportarExcel = (resultado, seguimiento, filtros) => {
 };
 
 /* ══════════════ Exportar PDF ══════════════ */
-const exportarPDF = (resultado, seguimiento, filtros) => {
+const exportarPDF = (resultado, seguimiento, filtros, esInstitucion = false) => {
   const mesClase = (m, p, cuota) => {
     if (!p) return '<span style="color:#ccc">—</span>';
     if (p.anulado)   return '<span style="background:#eee;color:#999;padding:1px 4px;border-radius:3px;font-size:9px">Anul</span>';
@@ -168,7 +188,9 @@ const exportarPDF = (resultado, seguimiento, filtros) => {
   const filas   = resultado.map(a => {
     const seg  = seguimiento[a.id] || {};
     const dias = [a.dia_clases1, a.dia_clases2].filter(Boolean).map(CAP).join('+');
-    const info = [a.tac, [dias, a.horario, a.laboratorio ? 'Lab.'+a.laboratorio : ''].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
+    const info = esInstitucion
+      ? [a.grado, a.seccion ? `Sec. ${a.seccion}` : '', a.maestro_guia].filter(Boolean).join(' · ')
+      : [a.tac, [dias, a.horario, a.laboratorio ? 'Lab.'+a.laboratorio : ''].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
     const mesesTd = MESES.map(m => `<td style="text-align:center;padding:3px 2px">${mesClase(m, a.pagos[m.cod], a.cuota_mensual)}</td>`).join('');
     const obsHtml = (seg.observaciones || []).map(o => o.texto).filter(Boolean).join(' · ');
     return `<tr${seg.verificado ? ' style="background:#f0fff4"' : ''}>
@@ -206,7 +228,7 @@ const exportarPDF = (resultado, seguimiento, filtros) => {
 </div>
 <table>
 <thead><tr>
-  <th>Clave</th><th>Alumno</th><th>Teléfono</th><th>Encargado</th><th>TAC / Horario</th>
+  <th>Clave</th><th>Alumno</th><th>Teléfono</th><th>Encargado</th><th>${esInstitucion ? 'Grado / Sección' : 'TAC / Horario'}</th>
   ${mesesTh}<th>✓</th><th>Observación</th>
 </tr></thead>
 <tbody>${filas}</tbody>
@@ -255,7 +277,7 @@ const FilaAsist = ({ label, semanas }) => (
 );
 
 /* ══════════════ Tarjeta de alumno ══════════════ */
-const TarjetaAlumno = ({ alumno, seg, onSeg, onObsAdd, onObsUpdate, onObsDelete }) => {
+const TarjetaAlumno = ({ alumno, seg, onSeg, onObsAdd, onObsUpdate, onObsDelete, esInstitucion }) => {
   const [verAsist, setVerAsist] = useState(false);
   const dias        = [alumno.dia_clases1, alumno.dia_clases2].filter(Boolean).map(CAP).join('+');
   const horarioFull = [dias, alumno.horario, alumno.laboratorio ? `Lab.${alumno.laboratorio}` : ''].filter(Boolean).join(' ');
@@ -284,9 +306,19 @@ const TarjetaAlumno = ({ alumno, seg, onSeg, onObsAdd, onObsUpdate, onObsDelete 
         <div className="cq-header-meta">
           {alumno.telefono        && <span>📞 {alumno.telefono}</span>}
           {alumno.encargado       && <span>👤 {alumno.encargado}</span>}
-          {alumno.establecimiento && <span>🏫 {alumno.establecimiento}</span>}
-          {alumno.tac             && <span>📍 {alumno.tac}</span>}
-          {horarioFull            && <span>🕐 {horarioFull}</span>}
+          {esInstitucion ? (
+            <>
+              {alumno.grado        && <span>🎓 {alumno.grado}</span>}
+              {alumno.seccion      && <span>🔠 Sección {alumno.seccion}</span>}
+              {alumno.maestro_guia && <span>🧑‍🏫 {alumno.maestro_guia}</span>}
+            </>
+          ) : (
+            <>
+              {alumno.establecimiento && <span>🏫 {alumno.establecimiento}</span>}
+              {alumno.tac             && <span>📍 {alumno.tac}</span>}
+              {horarioFull            && <span>🕐 {horarioFull}</span>}
+            </>
+          )}
         </div>
       </div>
 
@@ -327,11 +359,13 @@ const TarjetaAlumno = ({ alumno, seg, onSeg, onObsAdd, onObsUpdate, onObsDelete 
               </>
             )}
           </div>
-          <button className={`cq-asist-btn${verAsist ? ' activo' : ''}`} onClick={() => setVerAsist(v => !v)}>
-            {verAsist ? '▲ Asistencia' : '▼ Asistencia'}
-          </button>
+          {!esInstitucion && (
+            <button className={`cq-asist-btn${verAsist ? ' activo' : ''}`} onClick={() => setVerAsist(v => !v)}>
+              {verAsist ? '▲ Asistencia' : '▼ Asistencia'}
+            </button>
+          )}
         </div>
-        {verAsist && (
+        {!esInstitucion && verAsist && (
           <div className="cq-asist-wrap">
             <table style={{ borderCollapse:'collapse' }}>
               <thead>
@@ -595,6 +629,8 @@ const ModalGuardar = ({ filtros, count, reporteActivo, onConfirmar, onCancelar }
 /* ══════════════ Página principal ══════════════ */
 export default function Consultas() {
   const { anios: ANIOS } = useAniosFiltros();
+  const { sede } = useAuth();
+  const esInstitucion = sede?.tipo === 'institucion';
   const [filtros,       setFiltros]       = useState(lsFiltro);
   const [resultado,     setResultado]     = useState(null);
   const [cargando,      setCargando]      = useState(false);
@@ -606,7 +642,7 @@ export default function Consultas() {
   const [modalCompartir, setModalCompartir] = useState(null); // reporte a compartir
   const [modalEliminar, setModalEliminar]  = useState(null);  // reporte a eliminar
   const [usuariosCompartibles, setUsuariosCompartibles] = useState([]);
-  const [uiFiltros,     setUiFiltros]     = useState({ horarios:[], laboratorios:[], dias:[], tacs:[] });
+  const [uiFiltros,     setUiFiltros]     = useState({ horarios:[], laboratorios:[], dias:[], tacs:[], grados:[], secciones:[], planes:[] });
 
   // ref para que generar() siempre lea los filtros más recientes
   const filtrosRef = useRef(filtros);
@@ -642,8 +678,14 @@ export default function Consultas() {
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setUiFiltros(prev => ({ ...prev, ...data }))).catch(console.error);
     API.get('/alumnos').then(({ data }) => {
-      const tacs = [...new Set(data.map(a => a.tac).filter(Boolean))].sort();
-      setUiFiltros(prev => ({ ...prev, tacs }));
+      const uniq = (k) => [...new Set(data.map(a => a[k]).filter(Boolean))].sort();
+      setUiFiltros(prev => ({
+        ...prev,
+        tacs:      uniq('tac'),
+        grados:    uniq('grado'),
+        secciones: uniq('seccion'),
+        planes:    uniq('plan_clases'),
+      }));
     }).catch(console.error);
   }, []);
 
@@ -791,6 +833,9 @@ export default function Consultas() {
     if (f.horario)     p.set('horario',      f.horario);
     if (f.laboratorio) p.set('laboratorio',  f.laboratorio);
     if (f.dia)         p.set('dia',          f.dia);
+    if (f.grado)       p.set('grado',        f.grado);
+    if (f.seccion)     p.set('seccion',      f.seccion);
+    if (f.plan)        p.set('plan',         f.plan);
     API.get(`/reporte/financiero?${p}`)
       .then(({ data }) => setResultado(data))
       .catch(err => setError(err.response?.data?.message || 'Error al cargar reporte'))
@@ -847,6 +892,9 @@ export default function Consultas() {
       if (f.horario)     p.set('horario',      f.horario);
       if (f.laboratorio) p.set('laboratorio',  f.laboratorio);
       if (f.dia)         p.set('dia',          f.dia);
+      if (f.grado)       p.set('grado',        f.grado);
+      if (f.seccion)     p.set('seccion',      f.seccion);
+      if (f.plan)        p.set('plan',         f.plan);
       const { data } = await API.get(`/reporte/financiero?${p}`);
       setResultado(data);
     } catch (err) {
@@ -877,10 +925,10 @@ export default function Consultas() {
           <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap', alignItems:'center' }}>
             {resultado !== null && (
               <>
-                <button className="cq-btn-export" onClick={() => exportarExcel(resultado, seguimiento, filtros)}>
+                <button className="cq-btn-export" onClick={() => exportarExcel(resultado, seguimiento, filtros, esInstitucion)}>
                   📊 Excel
                 </button>
-                <button className="cq-btn-export" onClick={() => exportarPDF(resultado, seguimiento, filtros)}>
+                <button className="cq-btn-export" onClick={() => exportarPDF(resultado, seguimiento, filtros, esInstitucion)}>
                   🖨️ PDF
                 </button>
                 <button className="cq-btn-guardar" onClick={() => setModalGuardar(true)}>
@@ -933,41 +981,75 @@ export default function Consultas() {
                 </select>
               </div>
             </div>
-            {uiFiltros.tacs?.length > 0 && (
-              <div className="cq-fg">
-                <label>TAC</label>
-                <select value={filtros.tac} onChange={e => setFiltros(f => ({ ...f, tac: e.target.value }))}>
-                  <option value="">Todos</option>
-                  {uiFiltros.tacs.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-            )}
-            {uiFiltros.dias?.length > 0 && (
-              <div className="cq-fg">
-                <label>Día</label>
-                <select value={filtros.dia} onChange={e => setFiltros(f => ({ ...f, dia: e.target.value }))}>
-                  <option value="">Todos</option>
-                  {uiFiltros.dias.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-            )}
-            {uiFiltros.horarios?.length > 0 && (
-              <div className="cq-fg">
-                <label>Horario</label>
-                <select value={filtros.horario} onChange={e => setFiltros(f => ({ ...f, horario: e.target.value }))}>
-                  <option value="">Todos</option>
-                  {uiFiltros.horarios.map(h => <option key={h} value={h}>{h}</option>)}
-                </select>
-              </div>
-            )}
-            {uiFiltros.laboratorios?.length > 0 && (
-              <div className="cq-fg">
-                <label>Laboratorio</label>
-                <select value={filtros.laboratorio} onChange={e => setFiltros(f => ({ ...f, laboratorio: e.target.value }))}>
-                  <option value="">Todos</option>
-                  {uiFiltros.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
-                </select>
-              </div>
+            {esInstitucion ? (
+              <>
+                {uiFiltros.grados?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>Grado</label>
+                    <select value={filtros.grado} onChange={e => setFiltros(f => ({ ...f, grado: e.target.value }))}>
+                      <option value="">Todos</option>
+                      {uiFiltros.grados.map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
+                )}
+                {uiFiltros.secciones?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>Sección</label>
+                    <select value={filtros.seccion} onChange={e => setFiltros(f => ({ ...f, seccion: e.target.value }))}>
+                      <option value="">Todas</option>
+                      {uiFiltros.secciones.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                )}
+                {uiFiltros.planes?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>Plan</label>
+                    <select value={filtros.plan} onChange={e => setFiltros(f => ({ ...f, plan: e.target.value }))}>
+                      <option value="">Todos</option>
+                      {uiFiltros.planes.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {uiFiltros.tacs?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>TAC</label>
+                    <select value={filtros.tac} onChange={e => setFiltros(f => ({ ...f, tac: e.target.value }))}>
+                      <option value="">Todos</option>
+                      {uiFiltros.tacs.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                )}
+                {uiFiltros.dias?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>Día</label>
+                    <select value={filtros.dia} onChange={e => setFiltros(f => ({ ...f, dia: e.target.value }))}>
+                      <option value="">Todos</option>
+                      {uiFiltros.dias.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                )}
+                {uiFiltros.horarios?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>Horario</label>
+                    <select value={filtros.horario} onChange={e => setFiltros(f => ({ ...f, horario: e.target.value }))}>
+                      <option value="">Todos</option>
+                      {uiFiltros.horarios.map(h => <option key={h} value={h}>{h}</option>)}
+                    </select>
+                  </div>
+                )}
+                {uiFiltros.laboratorios?.length > 0 && (
+                  <div className="cq-fg">
+                    <label>Laboratorio</label>
+                    <select value={filtros.laboratorio} onChange={e => setFiltros(f => ({ ...f, laboratorio: e.target.value }))}>
+                      <option value="">Todos</option>
+                      {uiFiltros.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                )}
+              </>
             )}
             <div className="cq-fg" style={{ alignSelf:'flex-end' }}>
               <button className="btn-primary" onClick={generar} disabled={cargando} style={{ width:'100%', padding:'0.5rem' }}>
@@ -1016,6 +1098,7 @@ export default function Consultas() {
                   onObsAdd={onObsAdd}
                   onObsUpdate={onObsUpdate}
                   onObsDelete={onObsDelete}
+                  esInstitucion={esInstitucion}
                 />
               ))}
             </div>

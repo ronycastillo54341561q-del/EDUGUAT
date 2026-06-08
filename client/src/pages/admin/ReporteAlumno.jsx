@@ -2,7 +2,9 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { useAniosFiltros } from '../../lib/anios';
+import ReporteAlumnoInstitucion from './ReporteAlumnoInstitucion';
 import './admin.css';
 import './ReporteAlumno.css';
 
@@ -187,8 +189,15 @@ const SeccionColapsable = ({ titulo, abierta, onToggle, badge, children }) => (
   </div>
 );
 
-// ─── Componente principal ────────────────────────────────────────────────────
+// ─── Despachador por tipo de inquilino ───────────────────────────────────────
 const ReporteAlumno = () => {
+  const { sede } = useAuth();
+  if (sede?.tipo === 'institucion') return <ReporteAlumnoInstitucion />;
+  return <ReporteAlumnoAcademia />;
+};
+
+// ─── Componente principal (academias) ────────────────────────────────────────
+const ReporteAlumnoAcademia = () => {
   const { anios: ANIOS_FILTRO } = useAniosFiltros();
   const [busqueda,     setBusqueda]     = useState('');
   const [sugerencias,  setSugerencias]  = useState([]);

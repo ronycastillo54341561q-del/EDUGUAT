@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { useAniosFiltros } from '../../lib/anios';
+import AsistenciaInstitucion from './AsistenciaInstitucion';
 import './admin.css';
 
 const MESES = [
@@ -97,7 +99,15 @@ function calcSlots(anio, mesInicio, diaNombre, programas) {
   return slots;
 }
 
+// Despachador por tipo de inquilino: las instituciones usan asistencia diaria
+// (por mes/semana), las academias el grid anual semanal de siempre.
 export default function Asistencia() {
+  const { sede } = useAuth();
+  if (sede?.tipo === 'institucion') return <AsistenciaInstitucion />;
+  return <AsistenciaAcademia />;
+}
+
+function AsistenciaAcademia() {
   const ls = (k, d) => localStorage.getItem(k) ?? d;
   const { anios: ANIOS } = useAniosFiltros();
 

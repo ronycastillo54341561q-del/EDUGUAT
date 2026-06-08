@@ -5,6 +5,9 @@ import { can, defaultRoute, isSuperAdmin } from '../lib/permissions';
 // Módulos que sólo el super-admin puede ver (gestión global multi-sede).
 const SUPER_ADMIN_MODULES = new Set(['academias']);
 
+// Módulos exclusivos de inquilinos tipo 'institucion'.
+const INSTITUCION_MODULES = new Set(['nominas', 'horarios']);
+
 const PrivateRoute = ({ children, rol, roles, modulo }) => {
   const { usuario, sede, cargando } = useAuth();
 
@@ -23,6 +26,12 @@ const PrivateRoute = ({ children, rol, roles, modulo }) => {
   // se ven afectadas.
   const sedeModulos = Array.isArray(sede?.modulos) && sede.modulos.length ? sede.modulos : null;
   if (modulo && sedeModulos && !sedeModulos.includes(modulo) && !SUPER_ADMIN_MODULES.has(modulo)) {
+    return <Navigate to={defaultRoute(usuario.rol)} replace />;
+  }
+
+  // Módulos solo-institución: bloqueados si la sede no es de tipo institucion
+  // (las academias con modulos=null no pasan por el filtro de arriba).
+  if (modulo && INSTITUCION_MODULES.has(modulo) && sede?.tipo !== 'institucion') {
     return <Navigate to={defaultRoute(usuario.rol)} replace />;
   }
 

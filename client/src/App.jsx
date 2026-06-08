@@ -27,6 +27,8 @@ import OtrosPagos from './pages/admin/OtrosPagos';
 import GestionDiplomados from './pages/admin/GestionDiplomados';
 import Planificaciones from './pages/admin/Planificaciones';
 import MisTablas from './pages/admin/MisTablas';
+import Nominas from './pages/admin/Nominas';
+import Horarios from './pages/admin/Horarios';
 import Configuracion from './pages/admin/Configuracion';
 import Usuarios from './pages/admin/Usuarios';
 import Roles from './pages/admin/Roles';
@@ -92,6 +94,8 @@ function App() {
           <Route path="/admin/diplomados"         element={<PrivateRoute modulo="diplomados"><GestionDiplomados /></PrivateRoute>} />
           <Route path="/admin/planificaciones"  element={<PrivateRoute modulo="planificaciones"><Planificaciones /></PrivateRoute>} />
           <Route path="/admin/mis-tablas"       element={<PrivateRoute modulo="misTablas"><MisTablas /></PrivateRoute>} />
+          <Route path="/admin/nominas"          element={<PrivateRoute modulo="nominas"><Nominas /></PrivateRoute>} />
+          <Route path="/admin/horarios"         element={<PrivateRoute modulo="horarios"><Horarios /></PrivateRoute>} />
           <Route path="/admin/configuracion"    element={<PrivateRoute modulo="configuracion"><Configuracion /></PrivateRoute>} />
           <Route path="/admin/usuarios"         element={<PrivateRoute modulo="usuarios"><Usuarios /></PrivateRoute>} />
           <Route path="/admin/roles"            element={<PrivateRoute modulo="roles"><Roles /></PrivateRoute>} />
