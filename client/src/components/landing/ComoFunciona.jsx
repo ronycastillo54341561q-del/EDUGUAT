@@ -1,29 +1,30 @@
 import { useNavigate } from 'react-router-dom';
 import Reveal from './Reveal';
+import Icon from './Icon';
 import './ComoFunciona.css';
 
 const pasos = [
   {
     n: '01',
-    icono: '🏫',
+    icono: 'building',
     titulo: 'Elige tu sede',
     texto: 'Cada institución o academia tiene su propio espacio aislado. Busca la tuya y entra.',
   },
   {
     n: '02',
-    icono: '🔐',
+    icono: 'lock',
     titulo: 'Inicia sesión',
     texto: 'Acceso por roles: dirección, oficina, maestros y alumnos ven solo lo que les corresponde.',
   },
   {
     n: '03',
-    icono: '🗂️',
+    icono: 'grid',
     titulo: 'Gestiona el día a día',
     texto: 'Alumnos, pagos, asistencias y notas centralizados, con recibos y constancias automáticas.',
   },
   {
     n: '04',
-    icono: '📈',
+    icono: 'chart',
     titulo: 'Decide con datos',
     texto: 'Dashboard ejecutivo y reportes financieros en tiempo real para tomar mejores decisiones.',
   },
@@ -47,17 +48,19 @@ const ComoFunciona = () => {
           {pasos.map((p, i) => (
             <Reveal as="article" className="lp-paso" delay={i * 120} key={p.n}>
               <div className="lp-paso__num">{p.n}</div>
-              <div className="lp-paso__icono" aria-hidden="true">{p.icono}</div>
+              <div className="lp-paso__icono" aria-hidden="true"><Icon name={p.icono} size={28} /></div>
               <h3 className="lp-paso__titulo">{p.titulo}</h3>
               <p className="lp-paso__texto">{p.texto}</p>
-              {i < pasos.length - 1 && <span className="lp-paso__flecha" aria-hidden="true">→</span>}
+              {i < pasos.length - 1 && (
+                <span className="lp-paso__flecha" aria-hidden="true"><Icon name="arrow" size={22} /></span>
+              )}
             </Reveal>
           ))}
         </div>
 
         <Reveal className="lp-comofunciona__cta">
           <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/acceder')}>
-            Acceder al sistema →
+            Acceder al sistema <Icon name="arrow" size={20} />
           </button>
           <p className="lp-comofunciona__nota">Sin instalaciones. Funciona en cualquier navegador.</p>
         </Reveal>

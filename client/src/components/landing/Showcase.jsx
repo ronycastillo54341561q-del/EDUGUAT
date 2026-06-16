@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import Reveal from './Reveal';
+import Icon from './Icon';
 import './Showcase.css';
 
 const modulos = [
-  { icono: '🎓', nombre: 'Alumnos' },
-  { icono: '💳', nombre: 'Pagos y recibos' },
-  { icono: '✅', nombre: 'Asistencias' },
-  { icono: '📝', nombre: 'Notas y TAC' },
-  { icono: '📚', nombre: 'Diplomados' },
-  { icono: '📊', nombre: 'Reportes financieros' },
-  { icono: '🏫', nombre: 'Multi-sede' },
-  { icono: '📄', nombre: 'Constancias' },
-  { icono: '👥', nombre: 'Usuarios y roles' },
-  { icono: '🕒', nombre: 'Bitácora' },
-  { icono: '📢', nombre: 'Avisos' },
-  { icono: '💾', nombre: 'Respaldos' },
+  { icono: 'cap', nombre: 'Alumnos' },
+  { icono: 'card', nombre: 'Pagos y recibos' },
+  { icono: 'check', nombre: 'Asistencias' },
+  { icono: 'pencil', nombre: 'Notas y TAC' },
+  { icono: 'book', nombre: 'Diplomados' },
+  { icono: 'chart', nombre: 'Reportes financieros' },
+  { icono: 'building', nombre: 'Multi-sede' },
+  { icono: 'file', nombre: 'Constancias' },
+  { icono: 'users', nombre: 'Usuarios y roles' },
+  { icono: 'clock', nombre: 'Bitácora' },
+  { icono: 'megaphone', nombre: 'Avisos' },
+  { icono: 'database', nombre: 'Respaldos' },
 ];
 
 const capturas = [
@@ -147,7 +148,7 @@ const Showcase = () => {
           <div className="lp-modulos__grid">
             {modulos.map((m, i) => (
               <Reveal as="div" className="lp-modulo" delay={i * 40} key={m.nombre}>
-                <span className="lp-modulo__icono" aria-hidden="true">{m.icono}</span>
+                <span className="lp-modulo__icono" aria-hidden="true"><Icon name={m.icono} size={24} /></span>
                 <span className="lp-modulo__nombre">{m.nombre}</span>
               </Reveal>
             ))}

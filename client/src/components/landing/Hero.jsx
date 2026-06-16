@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import Icon from './Icon';
 import './Hero.css';
 
 const Hero = () => {
@@ -25,7 +26,7 @@ const Hero = () => {
 
           <div className="lp-hero__botones">
             <button className="lp-btn-acceder lp-btn-acceder--xl" onClick={() => navigate('/acceder')}>
-              Acceder al sistema →
+              Acceder al sistema <Icon name="arrow" size={20} />
             </button>
             <button className="lp-btn lp-btn--secundario" onClick={() => scrollA('showcase')}>
               Ver el sistema

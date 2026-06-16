@@ -1,0 +1,106 @@
+.lp-galeria {
+  padding: 96px 24px;
+  background: #ffffff;
+}
+
+.lp-galeria__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.lp-galeria__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 26px;
+  margin-top: 44px;
+}
+
+.gl-card {
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--lp-borde);
+  box-shadow: 0 10px 30px rgba(26, 35, 126, 0.06);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.gl-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 26px 56px rgba(26, 35, 126, 0.18);
+}
+
+.gl-card__marco {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, #f5f6fb, #e9ecfb);
+  overflow: hidden;
+}
+
+.gl-card__marco img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.gl-card:hover .gl-card__marco img {
+  transform: scale(1.05);
+}
+
+.gl-card__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--lp-azul-400);
+  text-align: center;
+  padding: 16px;
+  border: 2px dashed #c5cae9;
+  border-radius: 16px;
+  margin: 10px;
+}
+
+.gl-card__pendiente {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--lp-azul);
+}
+
+.gl-card__placeholder code {
+  font-size: 0.78rem;
+  background: #fff;
+  padding: 3px 9px;
+  border-radius: 6px;
+  color: var(--lp-gris);
+  border: 1px solid var(--lp-borde);
+}
+
+.gl-card__pie {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  font-weight: 700;
+  color: var(--lp-azul);
+}
+
+.gl-card__icono {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  color: #1a237e;
+  background: linear-gradient(135deg, #eef0fb, #e3e7ff);
+}
+
+@media (max-width: 720px) {
+  .lp-galeria { padding: 64px 18px; }
+  .lp-galeria__grid { grid-template-columns: 1fr; }
+}

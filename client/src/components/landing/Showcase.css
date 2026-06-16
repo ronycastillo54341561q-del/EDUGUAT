@@ -225,7 +225,22 @@
   box-shadow: 0 12px 26px rgba(26, 35, 126, 0.12);
 }
 
-.lp-modulo__icono { font-size: 1.9rem; }
+.lp-modulo__icono {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #1a237e;
+  background: linear-gradient(135deg, #eef0fb, #e3e7ff);
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+.lp-modulo:hover .lp-modulo__icono {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #ffd54f;
+}
 .lp-modulo__nombre { font-size: 0.9rem; font-weight: 600; color: #2a2f45; }
 
 /* Scroll reveal (compartido por la landing) */

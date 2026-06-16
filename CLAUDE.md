@@ -181,3 +181,25 @@ Rutas alumno usan `<PrivateRoute rol="alumno">` y viven en `client/src/pages/alu
 `nominas` y `horarios` (solo instituciones), `alumno` (self-service).
 
 Listado autoritativo de wiring: `server/index.js` (API) y `client/src/App.jsx` (SPA).
+
+## Landing público (marketing)
+
+Sitio público en `/` + páginas `/preguntas-frecuentes`, `/contacto`, `/mas-sistemas`
+(rutas SPA en `App.jsx`, sin auth). Vive en `client/src/components/landing/` +
+`client/src/pages/{Landing,PreguntasFrecuentes,Contacto,MasSistemas}.jsx`. **No tocar
+el SEO** de `client/index.html` (meta/JSON-LD ya posicionados). Convenciones:
+
+- **Iconos**: NO emojis. Set SVG de línea propio en `components/landing/Icon.jsx`
+  (`<Icon name="..." />`, hereda `currentColor`). Agrega nuevos paths a `PATHS`.
+- **Animaciones**: `Reveal.jsx` (scroll-reveal con IntersectionObserver; variantes
+  `lp-reveal--left/right/zoom/blur` en `Landing.css`), `ScrollProgress.jsx` (barra
+  superior), `Loader.jsx` (pantalla de carga con monograma "Ed" + barra, una vez por
+  sesión vía `sessionStorage 'lp_intro'`). Todo respeta `prefers-reduced-motion`.
+- **FAQ**: datos en `faqData.js`, render en `FAQ.jsx` (acordeón; `completo` = todas).
+- **Galería**: `Galeria.jsx` muestra capturas reales desde `client/public/capturas/`
+  (`01-dashboard.png` … `06-reportes.png`, ver README ahí); si falta una, muestra un
+  placeholder con el nombre del archivo en vez de romperse.
+- **Contacto**: el form (`Contact.jsx`) no tiene backend de correo → abre `mailto:`
+  prellenado a **info@miguatemala.com** (correo corporativo). EduGuat se presenta como
+  producto de **MiGuatemala** (`miguatemala.com`) en Footer y página "Más sistemas".
+- Tokens de color/diseño en `:root` de `client/src/pages/Landing.css`.

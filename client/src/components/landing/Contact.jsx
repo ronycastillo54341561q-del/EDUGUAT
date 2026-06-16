@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Icon from './Icon';
 import './Contact.css';
 
 const tipos = ['Solicitar demo', 'Hacer consulta', 'Información de precios'];
@@ -40,6 +41,22 @@ const Contact = () => {
       setErrores(e2);
       return;
     }
+    // Sin backend de correo: abrimos el cliente de email del usuario con todo
+    // prellenado hacia el correo corporativo info@miguatemala.com.
+    const asunto = `EduGuat — ${form.tipo}${form.institucion ? ' · ' + form.institucion : ''}`;
+    const cuerpo = [
+      `Nombre: ${form.nombre}`,
+      `Email: ${form.email}`,
+      `Teléfono: ${form.telefono || '—'}`,
+      `Institución: ${form.institucion || '—'}`,
+      `Tipo de solicitud: ${form.tipo}`,
+      '',
+      'Mensaje:',
+      form.mensaje || '—',
+    ].join('\n');
+    window.location.href =
+      `mailto:info@miguatemala.com?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+
     setEnviado(true);
     setForm({ nombre: '', email: '', telefono: '', institucion: '', tipo: tipos[0], mensaje: '' });
     setTimeout(() => setEnviado(false), 6000);
@@ -59,23 +76,32 @@ const Contact = () => {
         <div className="lp-contact__grid">
           <aside className="lp-contact__info">
             <div className="lp-info__item">
-              <span className="lp-info__icono">✉️</span>
+              <span className="lp-info__icono"><Icon name="mail" size={22} /></span>
               <div>
                 <div className="lp-info__label">Email</div>
-                <a href="mailto:ronycastillo54341561q@gmail.com" className="lp-info__valor">
-                  ronycastillo54341561q@gmail.com
+                <a href="mailto:info@miguatemala.com" className="lp-info__valor">
+                  info@miguatemala.com
                 </a>
               </div>
             </div>
             <div className="lp-info__item">
-              <span className="lp-info__icono">📍</span>
+              <span className="lp-info__icono"><Icon name="whatsapp" size={22} /></span>
               <div>
-                <div className="lp-info__label">Ubicación</div>
-                <div className="lp-info__valor">Guatemala</div>
+                <div className="lp-info__label">WhatsApp</div>
+                <a href="https://wa.me/50254341561" target="_blank" rel="noopener noreferrer" className="lp-info__valor">
+                  +502 5434 1561
+                </a>
               </div>
             </div>
             <div className="lp-info__item">
-              <span className="lp-info__icono">🕒</span>
+              <span className="lp-info__icono"><Icon name="pin" size={22} /></span>
+              <div>
+                <div className="lp-info__label">Ubicación</div>
+                <div className="lp-info__valor">Quetzaltenango, Guatemala</div>
+              </div>
+            </div>
+            <div className="lp-info__item">
+              <span className="lp-info__icono"><Icon name="clock" size={22} /></span>
               <div>
                 <div className="lp-info__label">Disponibilidad</div>
                 <div className="lp-info__valor">Lunes a Viernes, 9:00 AM - 6:00 PM</div>
@@ -91,7 +117,7 @@ const Contact = () => {
           <form className="lp-contact__form" onSubmit={onSubmit} noValidate>
             {enviado && (
               <div className="lp-form__confirmacion" role="status">
-                ✓ ¡Mensaje enviado! Te contactaremos pronto.
+                <Icon name="tick" size={18} strokeWidth={2.6} /> ¡Mensaje enviado! Te contactaremos pronto.
               </div>
             )}
 

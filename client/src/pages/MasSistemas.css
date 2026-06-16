@@ -1,0 +1,136 @@
+/* ---- Bloque de marca MiGuatemala ---- */
+.ms-marca {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 28px 32px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #f5f6fb, #eef0ff);
+  border: 1px solid var(--lp-borde);
+  margin-bottom: 16px;
+}
+
+.ms-marca__logo {
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, #283593, #1a237e);
+  box-shadow: 0 10px 26px rgba(26, 35, 126, 0.3);
+}
+
+.ms-marca__nombre { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--lp-azul); }
+.ms-marca__lema { margin: 2px 0 0; color: var(--lp-gris); font-style: italic; }
+.ms-marca__cta { margin-left: auto; }
+
+/* ---- Títulos de sección internos ---- */
+.ms-titulo-seccion {
+  margin: 56px 0 22px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--lp-azul);
+  text-align: center;
+}
+
+/* ---- Grid de sistemas ---- */
+.ms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.ms-card {
+  position: relative;
+  padding: 26px 24px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--lp-borde);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  overflow: hidden;
+}
+
+.ms-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--lp-azul-400);
+  box-shadow: 0 20px 44px rgba(26, 35, 126, 0.14);
+}
+
+.ms-card--actual {
+  border-color: var(--lp-azul);
+  background: linear-gradient(160deg, #ffffff 0%, #f3f5ff 100%);
+  box-shadow: 0 16px 40px rgba(26, 35, 126, 0.16);
+}
+
+.ms-card__badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--lp-acento);
+  color: var(--lp-azul);
+}
+
+.ms-card__icono {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: #1a237e;
+  background: linear-gradient(135deg, #eef0fb, #e3e7ff);
+  margin-bottom: 16px;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.ms-card:hover .ms-card__icono {
+  transform: scale(1.08) rotate(-4deg);
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #ffd54f;
+}
+
+.ms-card__nombre { margin: 0 0 8px; font-size: 1.2rem; font-weight: 700; color: var(--lp-azul); }
+.ms-card__desc { margin: 0; color: var(--lp-gris); font-size: 0.95rem; line-height: 1.6; }
+
+/* ---- Ventajas ---- */
+.ms-ventajas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.ms-ventaja {
+  display: flex;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--lp-suave);
+  border: 1px solid var(--lp-borde);
+}
+
+.ms-ventaja__icono {
+  display: inline-flex;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #283593, #1a237e);
+}
+
+.ms-ventaja strong { color: var(--lp-azul); display: block; margin-bottom: 4px; }
+.ms-ventaja p { margin: 0; color: var(--lp-gris); font-size: 0.9rem; line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .ms-marca { flex-direction: column; text-align: center; }
+  .ms-marca__cta { margin-left: 0; }
+}

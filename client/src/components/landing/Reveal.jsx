@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 // Envuelve contenido y lo revela con una animación suave la primera vez
 // que entra en el viewport (scroll-reveal). Respeta prefers-reduced-motion.
-const Reveal = ({ children, as: Tag = 'div', delay = 0, className = '' }) => {
+const Reveal = ({ children, as: Tag = 'div', delay = 0, className = '', ...rest }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -30,6 +30,7 @@ const Reveal = ({ children, as: Tag = 'div', delay = 0, className = '' }) => {
       ref={ref}
       className={`lp-reveal ${visible ? 'lp-reveal--visible' : ''} ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
+      {...rest}
     >
       {children}
     </Tag>

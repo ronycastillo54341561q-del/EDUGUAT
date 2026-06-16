@@ -6,6 +6,9 @@ import SedeSelector from './pages/SedeSelector';
 import InstitucionSelector from './pages/InstitucionSelector';
 import Acceder from './pages/Acceder';
 import Landing from './pages/Landing';
+import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
+import Contacto from './pages/Contacto';
+import MasSistemas from './pages/MasSistemas';
 import { defaultRoute } from './lib/permissions';
 // Admin
 import Dashboard from './pages/admin/Dashboard';
@@ -68,6 +71,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/"            element={<Landing />} />
+          <Route path="/preguntas-frecuentes" element={<PreguntasFrecuentes />} />
+          <Route path="/contacto"    element={<Contacto />} />
+          <Route path="/mas-sistemas" element={<MasSistemas />} />
           <Route path="/acceder"     element={<Acceder />} />
           <Route path="/seleccionar" element={<RootGate />} />
           <Route path="/instituciones" element={<InstitucionSelector />} />

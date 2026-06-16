@@ -1,9 +1,10 @@
 import Reveal from './Reveal';
+import Icon from './Icon';
 import './Benefits.css';
 
 const beneficiarios = [
   {
-    icono: '🏛️',
+    icono: 'landmark',
     titulo: 'Directores y Administradores',
     descripcion: 'Toma decisiones basadas en datos con visibilidad total.',
     beneficios: [
@@ -14,7 +15,7 @@ const beneficiarios = [
     ],
   },
   {
-    icono: '👩‍🏫',
+    icono: 'presentation',
     titulo: 'Maestros',
     descripcion: 'Herramientas que ahorran tiempo en tareas administrativas.',
     beneficios: [
@@ -25,7 +26,7 @@ const beneficiarios = [
     ],
   },
   {
-    icono: '👨‍👩‍👧',
+    icono: 'heart',
     titulo: 'Padres de Familia',
     descripcion: 'Mantente al tanto del progreso académico de tus hijos.',
     beneficios: [
@@ -36,7 +37,7 @@ const beneficiarios = [
     ],
   },
   {
-    icono: '🎓',
+    icono: 'cap',
     titulo: 'Estudiantes',
     descripcion: 'Tu información académica siempre disponible.',
     beneficios: [
@@ -64,14 +65,14 @@ const Benefits = () => {
           {beneficiarios.map((b, i) => (
             <Reveal as="article" className="lp-benefit" delay={i * 90} key={b.titulo}>
               <div className="lp-benefit__header">
-                <span className="lp-benefit__icono" aria-hidden="true">{b.icono}</span>
+                <span className="lp-benefit__icono" aria-hidden="true"><Icon name={b.icono} size={26} /></span>
                 <h3 className="lp-benefit__titulo">{b.titulo}</h3>
               </div>
               <p className="lp-benefit__descripcion">{b.descripcion}</p>
               <ul className="lp-benefit__lista">
                 {b.beneficios.map((item) => (
                   <li key={item}>
-                    <span className="lp-benefit__check">✓</span>
+                    <span className="lp-benefit__check"><Icon name="tick" size={15} strokeWidth={2.6} /></span>
                     <span>{item}</span>
                   </li>
                 ))}

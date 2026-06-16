@@ -1,7 +1,17 @@
 .lp-page {
+  /* Paleta de marca EduGuat */
+  --lp-azul: #1a237e;
+  --lp-azul-700: #283593;
+  --lp-azul-400: #5c6bc0;
+  --lp-acento: #ffd54f;
+  --lp-tinta: #2a2f45;
+  --lp-gris: #6b7280;
+  --lp-suave: #f5f6fb;
+  --lp-borde: #e6e8f2;
+
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-  color: #2a2f45;
+  color: var(--lp-tinta);
   background: #ffffff;
   min-height: 100vh;
   line-height: 1.5;
@@ -17,4 +27,171 @@
 
 .lp-page main {
   display: block;
+}
+
+/* ---- Iconos de línea (reemplazan emojis) ---- */
+.lp-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex: none;
+}
+
+/* ---- Barra de progreso de scroll (arriba del todo) ---- */
+.lp-scrollbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--lp-scroll, 0));
+  background: linear-gradient(90deg, var(--lp-azul), var(--lp-acento));
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* ---- Variantes de scroll-reveal (la base vive en Showcase.css) ---- */
+.lp-reveal--left { transform: translateX(-40px); }
+.lp-reveal--right { transform: translateX(40px); }
+.lp-reveal--zoom { transform: scale(0.9); }
+.lp-reveal--blur { filter: blur(8px); }
+.lp-reveal--left.lp-reveal--visible,
+.lp-reveal--right.lp-reveal--visible { transform: translateX(0); }
+.lp-reveal--zoom.lp-reveal--visible { transform: scale(1); }
+.lp-reveal--blur.lp-reveal--visible { filter: blur(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .lp-scrollbar { display: none; }
+}
+
+/* ---- Página interna (FAQ / Contacto / Más sistemas) ---- */
+.lp-interna {
+  padding: 132px 24px 64px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.lp-interna__hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.lp-interna__migaja {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--lp-azul-400);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.lp-interna__titulo {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  color: var(--lp-azul);
+  letter-spacing: -1px;
+  margin: 0 0 14px;
+}
+
+.lp-interna__sub {
+  font-size: 1.08rem;
+  color: var(--lp-gris);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ---- Tarjetas de canales de contacto ---- */
+.lp-canales {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.lp-canal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 26px 24px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--lp-borde);
+  text-decoration: none;
+  color: var(--lp-tinta);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.lp-canal:hover {
+  transform: translateY(-6px);
+  border-color: var(--lp-azul-400);
+  box-shadow: 0 18px 40px rgba(26, 35, 126, 0.14);
+}
+
+.lp-canal__icono {
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: #1a237e;
+  background: linear-gradient(135deg, #eef0fb, #e3e7ff);
+  margin-bottom: 8px;
+}
+
+.lp-canal__titulo { font-weight: 700; color: var(--lp-azul); font-size: 1.1rem; }
+.lp-canal__texto { font-size: 0.88rem; color: var(--lp-gris); }
+.lp-canal__valor { font-weight: 700; color: var(--lp-azul-400); margin-top: 4px; }
+
+/* ---- Banner CTA reutilizable ---- */
+.lp-cta-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  padding: 40px 44px;
+  border-radius: 24px;
+  background: radial-gradient(120% 160% at 0% 0%, #283593 0%, #1a237e 60%, #11164f 100%);
+  color: #fff;
+  box-shadow: 0 24px 60px rgba(26, 35, 126, 0.28);
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-cta-banner::after {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 213, 79, 0.28), transparent 70%);
+}
+
+.lp-cta-banner h2 {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.lp-cta-banner p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 520px;
+}
+
+.lp-cta-banner .lp-btn-acceder {
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .lp-cta-banner { padding: 30px 24px; }
+  .lp-cta-banner h2 { font-size: 1.25rem; }
 }

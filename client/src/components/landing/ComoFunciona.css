@@ -61,7 +61,18 @@
   opacity: 0.9;
 }
 
-.lp-paso__icono { font-size: 2rem; margin: 14px 0 10px; }
+.lp-paso__icono {
+  display: inline-flex;
+  width: 58px;
+  height: 58px;
+  margin: 14px 0 12px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  color: #ffd54f;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
 
 .lp-paso__titulo {
   font-size: 1.1rem;
@@ -81,9 +92,15 @@
   right: -19px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.6rem;
+  display: inline-flex;
   color: #ffd54f;
   z-index: 2;
+  animation: lp-flecha 1.8s ease-in-out infinite;
+}
+
+@keyframes lp-flecha {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(4px); }
 }
 
 .lp-comofunciona__cta {
@@ -93,6 +110,9 @@
 
 /* Botón Acceder destacado — reutilizable en Header/Hero */
 .lp-btn-acceder {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: #ffd54f;
   color: #1a237e;
   border: none;

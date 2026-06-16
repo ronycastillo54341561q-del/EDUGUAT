@@ -64,15 +64,22 @@
 }
 
 .lp-feature__icono {
-  font-size: 2.6rem;
   margin-bottom: 16px;
   display: inline-flex;
   width: 64px;
   height: 64px;
-  background: #eef0fb;
-  border-radius: 12px;
+  color: #1a237e;
+  background: linear-gradient(135deg, #eef0fb, #e3e7ff);
+  border-radius: 14px;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.lp-feature:hover .lp-feature__icono {
+  transform: scale(1.08) rotate(-4deg);
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #ffd54f;
 }
 
 .lp-feature__titulo {
