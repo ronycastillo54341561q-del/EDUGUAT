@@ -59,6 +59,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'https://eduguat.com',
   'https://www.eduguat.com',
+  'https://eduguat.miguatemala.com',
   'https://eduguat-landing.vercel.app',
   'https://eduguat.vercel.app',
 ];
