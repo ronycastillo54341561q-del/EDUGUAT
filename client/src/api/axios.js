@@ -8,7 +8,7 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV
     ? 'http://localhost:5000'
-    : 'https://eduguat-production.up.railway.app');
+    : ''); // prod sin VITE_API_URL → rutas relativas (/api), same-origin
 
 const API = axios.create({
   baseURL: `${API_URL}/api`,
