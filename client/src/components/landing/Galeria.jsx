@@ -8,10 +8,10 @@ import './Galeria.css';
 // existe, se muestra un marco de placeholder con el nombre del archivo que falta
 // en vez de una imagen rota.
 const capturas = [
-  { archivo: '/capturas/01-dashboard.png', titulo: 'Dashboard ejecutivo', icono: 'chart' },
+  { archivo: '../../../public/capturas/01-dashboard.png', titulo: 'Dashboard ejecutivo', icono: 'chart' },
   { archivo: '/capturas/02-alumnos.png', titulo: 'Gestión de alumnos', icono: 'cap' },
   { archivo: '/capturas/03-pagos.png', titulo: 'Pagos y recibos', icono: 'card' },
-  { archivo: '/capturas/04-asistencia.png', titulo: 'Control de asistencia', icono: 'check' },
+  { archivo: '../../../public/capturas/04-asistencia.png', titulo: 'Control de asistencia', icono: 'check' },
   { archivo: '/capturas/05-notas.png', titulo: 'Notas y boletas', icono: 'pencil' },
   { archivo: '/capturas/06-reportes.png', titulo: 'Reportes financieros', icono: 'wallet' },
 ];
