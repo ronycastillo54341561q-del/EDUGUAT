@@ -36,9 +36,10 @@ const Features = () => {
       <div className="lp-features__inner">
         <Reveal className="lp-section__header">
           <span className="lp-section__pill">Características</span>
-          <h2 className="lp-section__titulo">Todo lo que necesita tu institución</h2>
+          <h2 className="lp-section__titulo">Todo lo que su institución necesita</h2>
           <p className="lp-section__descripcion">
-            Un sistema completo que cubre todas las áreas críticas de la administración educativa.
+            Módulos que cubren las áreas críticas de la administración educativa,
+            integrados en una sola plataforma.
           </p>
         </Reveal>
 

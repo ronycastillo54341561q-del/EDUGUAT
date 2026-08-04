@@ -6,7 +6,7 @@ const beneficiarios = [
   {
     icono: 'landmark',
     titulo: 'Directores y Administradores',
-    descripcion: 'Toma decisiones basadas en datos con visibilidad total.',
+    descripcion: 'Decisiones informadas con visibilidad completa de la operación.',
     beneficios: [
       'Dashboard ejecutivo con indicadores clave',
       'Reportes financieros en tiempo real',
@@ -28,7 +28,7 @@ const beneficiarios = [
   {
     icono: 'heart',
     titulo: 'Padres de Familia',
-    descripcion: 'Mantente al tanto del progreso académico de tus hijos.',
+    descripcion: 'Seguimiento del progreso académico de sus hijos, desde cualquier dispositivo.',
     beneficios: [
       'Seguimiento académico actualizado',
       'Notificaciones de pagos y eventos',
@@ -39,7 +39,7 @@ const beneficiarios = [
   {
     icono: 'cap',
     titulo: 'Estudiantes',
-    descripcion: 'Tu información académica siempre disponible.',
+    descripcion: 'Su información académica, siempre disponible.',
     beneficios: [
       'Acceso a calificaciones y notas',
       'Portal de comunicación interno',
@@ -57,7 +57,8 @@ const Benefits = () => {
           <span className="lp-section__pill">Beneficios</span>
           <h2 className="lp-section__titulo">Diseñado para toda la comunidad educativa</h2>
           <p className="lp-section__descripcion">
-            Cada usuario tiene acceso exactamente a la información que necesita, ni más ni menos.
+            Cada perfil accede únicamente a la información que le corresponde,
+            según su rol dentro de la institución.
           </p>
         </Reveal>
 

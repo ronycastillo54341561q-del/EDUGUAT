@@ -18,9 +18,9 @@ const FAQ = ({ completo = false }) => {
         {!completo && (
           <Reveal className="lp-section__header">
             <span className="lp-section__pill">Preguntas frecuentes</span>
-            <h2 className="lp-section__titulo">Resolvemos tus dudas</h2>
+            <h2 className="lp-section__titulo">Antes de tomar una decisión</h2>
             <p className="lp-section__descripcion">
-              Lo que más nos preguntan las instituciones de Guatemala antes de dar el paso.
+              Las consultas más frecuentes de las instituciones que evalúan EduGuat.
             </p>
           </Reveal>
         )}

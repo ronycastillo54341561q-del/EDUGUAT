@@ -119,10 +119,11 @@ const Showcase = () => {
     <section id="showcase" className="lp-showcase">
       <div className="lp-showcase__inner">
         <Reveal className="lp-section__header">
-          <span className="lp-section__pill">El sistema por dentro</span>
-          <h2 className="lp-section__titulo">Mira EduGuat en acción</h2>
+          <span className="lp-section__pill">Módulos</span>
+          <h2 className="lp-section__titulo">Un recorrido por la plataforma</h2>
           <p className="lp-section__descripcion">
-            Una plataforma, todos tus módulos. Así se ve el día a día de la administración.
+            Los módulos principales del sistema, tal como los utiliza el personal
+            administrativo en su trabajo diario.
           </p>
         </Reveal>
 

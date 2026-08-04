@@ -7,26 +7,26 @@ const pasos = [
   {
     n: '01',
     icono: 'building',
-    titulo: 'Elige tu sede',
-    texto: 'Cada institución o academia tiene su propio espacio aislado. Busca la tuya y entra.',
+    titulo: 'Seleccione su sede',
+    texto: 'Cada institución o academia opera en un espacio propio y aislado, con su información independiente.',
   },
   {
     n: '02',
     icono: 'lock',
-    titulo: 'Inicia sesión',
-    texto: 'Acceso por roles: dirección, oficina, maestros y alumnos ven solo lo que les corresponde.',
+    titulo: 'Inicie sesión',
+    texto: 'Acceso por roles: dirección, oficina, maestros y alumnos consultan únicamente lo que les corresponde.',
   },
   {
     n: '03',
     icono: 'grid',
-    titulo: 'Gestiona el día a día',
-    texto: 'Alumnos, pagos, asistencias y notas centralizados, con recibos y constancias automáticas.',
+    titulo: 'Gestione la operación diaria',
+    texto: 'Alumnos, pagos, asistencias y notas centralizados, con recibos y constancias generados automáticamente.',
   },
   {
     n: '04',
     icono: 'chart',
-    titulo: 'Decide con datos',
-    texto: 'Dashboard ejecutivo y reportes financieros en tiempo real para tomar mejores decisiones.',
+    titulo: 'Decida con información',
+    texto: 'Dashboard ejecutivo y reportes financieros en tiempo real para respaldar cada decisión.',
   },
 ];
 
@@ -37,10 +37,11 @@ const ComoFunciona = () => {
     <section id="como-funciona" className="lp-comofunciona">
       <div className="lp-comofunciona__inner">
         <Reveal className="lp-section__header">
-          <span className="lp-section__pill lp-section__pill--claro">Recorrido</span>
-          <h2 className="lp-section__titulo lp-section__titulo--claro">Cómo funciona en 4 pasos</h2>
+          <span className="lp-section__pill lp-section__pill--claro">Implementación</span>
+          <h2 className="lp-section__titulo lp-section__titulo--claro">Puesta en marcha en cuatro pasos</h2>
           <p className="lp-section__descripcion lp-section__descripcion--claro">
-            De cero a operando en minutos. Así es el camino de una institución con EduGuat.
+            Sin infraestructura propia ni procesos largos de instalación: su
+            institución puede comenzar a operar en poco tiempo.
           </p>
         </Reveal>
 

@@ -5,27 +5,27 @@
 const faqs = [
   {
     p: '¿Cuánto cuesta EduGuat?',
-    r: 'EduGuat trabaja con un modelo de suscripción mensual o anual, sin una inversión inicial grande en servidores ni licencias. El precio se ajusta al tamaño y las necesidades de tu institución. Escríbenos por el formulario de contacto y te enviamos una cotización a tu medida.',
+    r: 'EduGuat opera bajo un modelo de suscripción mensual o anual, sin inversión inicial en servidores ni licencias. El precio se ajusta al tamaño y las necesidades de cada institución. Escríbanos por el formulario de contacto y le enviaremos una cotización a la medida.',
   },
   {
     p: '¿Necesito instalar algo o comprar servidores?',
-    r: 'No. EduGuat es 100% en la nube: funciona desde cualquier navegador (computadora, tablet o celular) sin instalaciones. Nosotros nos encargamos del servidor, las actualizaciones y los respaldos. Además es instalable como app (PWA) en el celular.',
+    r: 'No. EduGuat funciona completamente en la nube, desde cualquier navegador (computadora, tablet o celular) y sin instalaciones. Nosotros nos encargamos del servidor, las actualizaciones y los respaldos. Además, puede instalarse como aplicación (PWA) en el celular.',
   },
   {
     p: '¿Funciona sin internet?',
-    r: 'EduGuat necesita conexión a internet porque toda la información se guarda de forma segura en la nube y se sincroniza en tiempo real entre sedes y usuarios. Funciona bien incluso con conexiones modestas, y al ser una app web ligera consume pocos datos.',
+    r: 'EduGuat requiere conexión a internet, ya que toda la información se almacena de forma segura en la nube y se sincroniza en tiempo real entre sedes y usuarios. Opera con normalidad incluso con conexiones modestas y, al ser una aplicación web ligera, consume pocos datos.',
   },
   {
     p: '¿Emite recibos y es compatible con la SAT (FEL)?',
-    r: 'Sí. EduGuat genera recibos de pago y comprobantes de colegiatura automáticamente, con su historial por alumno. Para la facturación electrónica (FEL) requerida por la SAT, lo integramos con tu certificador para que tus documentos tributarios sean electrónicos. Cuéntanos tu caso y lo configuramos.',
+    r: 'Sí. EduGuat genera recibos de pago y comprobantes de colegiatura automáticamente, con historial por alumno. Para la facturación electrónica (FEL) requerida por la SAT, realizamos la integración con su certificador para que sus documentos tributarios sean electrónicos. Cuéntenos su caso y lo configuramos.',
   },
   {
     p: '¿Qué tan seguros están los datos de mis alumnos?',
-    r: 'Cada institución tiene su propia base de datos aislada en la nube, con acceso por roles (dirección, oficina, maestros y alumnos ven solo lo que les corresponde), sesión única por usuario y cierre por inactividad. Realizamos respaldos automáticos para que nunca pierdas tu información.',
+    r: 'Cada institución cuenta con su propia base de datos aislada en la nube, con acceso por roles (dirección, oficina, maestros y alumnos consultan únicamente lo que les corresponde), sesión única por usuario y cierre por inactividad. Realizamos respaldos automáticos para que su información esté siempre protegida.',
   },
   {
     p: '¿Puedo administrar varias sedes o jornadas?',
-    r: 'Sí. EduGuat es multi-sede de nacimiento: gestiona varias sedes, jornadas o academias desde una sola cuenta, cada una con sus propios alumnos, pagos y reportes, y con una visión consolidada para la dirección.',
+    r: 'Sí. EduGuat fue diseñado desde su origen como sistema multi-sede: administre varias sedes, jornadas o academias desde una sola cuenta, cada una con sus propios alumnos, pagos y reportes, y con una visión consolidada para la dirección.',
   },
   {
     p: '¿Sirve para colegios, academias e institutos?',
@@ -33,11 +33,11 @@ const faqs = [
   },
   {
     p: '¿Pueden pasar la información que ya tengo en Excel?',
-    r: 'Sí. Contamos con un módulo de importación para migrar tus alumnos y datos desde Excel, de modo que empieces a trabajar sin volver a digitar todo. Te acompañamos en la carga inicial.',
+    r: 'Sí. Contamos con un módulo de importación para migrar sus alumnos y datos desde Excel, de modo que empiece a trabajar sin volver a digitar todo. Le acompañamos en la carga inicial.',
   },
   {
     p: '¿Ofrecen capacitación y soporte?',
-    r: 'Sí. Somos una empresa guatemalteca y damos soporte en español por WhatsApp y correo, además de capacitación a tu personal para que aprovechen el sistema desde el primer día.',
+    r: 'Sí. Somos una empresa guatemalteca y brindamos soporte en español por WhatsApp y correo, además de capacitación a su personal para que aproveche el sistema desde el primer día.',
   },
   {
     p: '¿Los padres y alumnos pueden ver su información?',

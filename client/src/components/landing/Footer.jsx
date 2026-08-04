@@ -13,8 +13,9 @@ const Footer = () => {
         <div className="lp-footer__columna">
           <img src={logo} alt="EduGuat" className="lp-footer__logo-img" />
           <p className="lp-footer__descripcion">
-            Sistema de gestión de información educativa diseñado para transformar la administración
-            de instituciones en Guatemala.
+            Sistema de gestión educativa para colegios, academias e institutos de
+            Guatemala: alumnos, pagos, asistencia, calificaciones y reportes en una
+            sola plataforma.
           </p>
           <a
             className="lp-footer__sello"

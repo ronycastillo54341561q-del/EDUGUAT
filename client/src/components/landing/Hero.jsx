@@ -14,14 +14,15 @@ const Hero = () => {
     <section className="lp-hero">
       <div className="lp-hero__inner">
         <div className="lp-hero__contenido lp-fade-in">
-          <span className="lp-hero__pill">Innovación educativa para Guatemala</span>
+          <span className="lp-hero__pill">Software guatemalteco de gestión educativa</span>
           <h1 className="lp-hero__titulo">
-            Gestiona tu institución educativa <span className="lp-hero__acento">de forma inteligente</span>
+            La administración de su institución educativa, <span className="lp-hero__acento">en una sola plataforma</span>
           </h1>
           <p className="lp-hero__descripcion">
-            EDUGUAT es el sistema que revoluciona la administración de instituciones educativas en
-            Guatemala. Automatiza procesos, centraliza información y mejora la comunicación entre
-            directores, maestros, padres y estudiantes.
+            EduGuat centraliza la operación diaria de colegios, academias e institutos:
+            alumnos, pagos, asistencia, calificaciones y reportes financieros, con
+            información en tiempo real para la dirección y accesos diferenciados para
+            oficina, maestros, padres y estudiantes.
           </p>
 
           <div className="lp-hero__botones">
@@ -29,18 +30,18 @@ const Hero = () => {
               Acceder al sistema <Icon name="arrow" size={20} />
             </button>
             <button className="lp-btn lp-btn--secundario" onClick={() => scrollA('showcase')}>
-              Ver el sistema
+              Conocer la plataforma
             </button>
           </div>
 
           <div className="lp-hero__estadisticas">
             <div className="lp-stat">
-              <div className="lp-stat__numero">5+</div>
-              <div className="lp-stat__texto">Módulos</div>
+              <div className="lp-stat__numero">12</div>
+              <div className="lp-stat__texto">Módulos integrados</div>
             </div>
             <div className="lp-stat">
               <div className="lp-stat__numero">100%</div>
-              <div className="lp-stat__texto">Automatización</div>
+              <div className="lp-stat__texto">En la nube</div>
             </div>
             <div className="lp-stat">
               <div className="lp-stat__numero">24/7</div>

@@ -67,9 +67,10 @@ const Contact = () => {
       <div className="lp-contact__inner">
         <div className="lp-section__header">
           <span className="lp-section__pill">Contacto</span>
-          <h2 className="lp-section__titulo">Hablemos sobre tu institución</h2>
+          <h2 className="lp-section__titulo">Hablemos sobre su institución</h2>
           <p className="lp-section__descripcion">
-            Estamos listos para mostrarte cómo EDUGUAT puede transformar tu administración educativa.
+            Coordinemos una demostración o resolvamos sus dudas: le mostraremos cómo
+            EduGuat se adapta a la operación de su institución.
           </p>
         </div>
 
@@ -109,15 +110,15 @@ const Contact = () => {
             </div>
 
             <div className="lp-info__nota">
-              <strong>¿Listo para empezar?</strong>
-              <p>Completa el formulario y un asesor se pondrá en contacto contigo en menos de 24 horas hábiles.</p>
+              <strong>¿Listo para comenzar?</strong>
+              <p>Complete el formulario y un asesor le contactará en menos de 24 horas hábiles.</p>
             </div>
           </aside>
 
           <form className="lp-contact__form" onSubmit={onSubmit} noValidate>
             {enviado && (
               <div className="lp-form__confirmacion" role="status">
-                <Icon name="tick" size={18} strokeWidth={2.6} /> ¡Mensaje enviado! Te contactaremos pronto.
+                <Icon name="tick" size={18} strokeWidth={2.6} /> Mensaje enviado. Le contactaremos a la brevedad.
               </div>
             )}
 
@@ -130,7 +131,7 @@ const Contact = () => {
                 value={form.nombre}
                 onChange={onChange}
                 className={errores.nombre ? 'lp-form__input--error' : ''}
-                placeholder="Tu nombre"
+                placeholder="Nombre y apellido"
               />
               {errores.nombre && <span className="lp-form__error">{errores.nombre}</span>}
             </div>
@@ -144,7 +145,7 @@ const Contact = () => {
                 value={form.email}
                 onChange={onChange}
                 className={errores.email ? 'lp-form__input--error' : ''}
-                placeholder="tu@email.com"
+                placeholder="correo@institucion.edu.gt"
               />
               {errores.email && <span className="lp-form__error">{errores.email}</span>}
             </div>
@@ -191,7 +192,7 @@ const Contact = () => {
                 rows="4"
                 value={form.mensaje}
                 onChange={onChange}
-                placeholder="Cuéntanos sobre tu institución..."
+                placeholder="Cuéntenos sobre su institución y lo que necesita resolver"
               />
             </div>
 
