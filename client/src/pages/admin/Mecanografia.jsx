@@ -146,7 +146,7 @@ export default function Mecanografia() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>⌨️ Mecanografía</h1>
+        <h1>Mecanografía</h1>
         <p className="subtitle">Ingresa la nota de cada lección (0–100). Navega con flechas o Tab.</p>
 
         <div className="asist-filtros">

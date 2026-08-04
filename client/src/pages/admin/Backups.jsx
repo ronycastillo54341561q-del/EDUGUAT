@@ -172,14 +172,14 @@ export default function Backups() {
             disabled={creando}
             style={{ fontSize: '1rem', padding: '0.6rem 1.2rem' }}
           >
-            {creando ? '⏳ Creando backup...' : '💾 Crear Backup Ahora'}
+            {creando ? 'Creando backup...' : 'Crear Backup Ahora'}
           </button>
           <button
             className="btn-secondary"
             onClick={cargar}
             disabled={cargando}
           >
-            🔄 Refrescar
+            Refrescar
           </button>
           <span style={{ color: '#666', fontSize: '0.85rem' }}>
             {cargando ? 'Cargando...' : `${rows.length} respaldo(s)`}
@@ -242,7 +242,7 @@ export default function Backups() {
                     {b.drive_status === 'ok' && b.drive_link && (
                       <a href={b.drive_link} target="_blank" rel="noreferrer"
                          style={{ color: '#1976d2', textDecoration: 'none' }}>
-                        ☁ Ver en Drive
+                        Ver en Drive
                       </a>
                     )}
                     {b.drive_status === 'pendiente' && (
@@ -257,7 +257,7 @@ export default function Backups() {
                         }}
                         title={b.error_msg || 'Error al subir a Drive'}
                       >
-                        ⚠ Drive error
+                        Drive error
                       </span>
                     )}
                   </td>
@@ -270,14 +270,14 @@ export default function Backups() {
                       disabled={!b.filepath || b.estado !== 'ok'}
                       title={!b.filepath ? 'Archivo local ya purgado' : 'Descargar a tu PC'}
                     >
-                      ⬇ Descargar
+                      Descargar
                     </button>
                     <button
                       className="btn-secondary"
                       style={{ fontSize: '0.8rem', color: '#b71c1c' }}
                       onClick={() => handleEliminar(b)}
                     >
-                      🗑 Eliminar
+                      Eliminar
                     </button>
                   </td>
                 </tr>

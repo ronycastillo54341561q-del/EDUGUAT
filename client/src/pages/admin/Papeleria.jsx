@@ -299,7 +299,7 @@ export default function Papeleria() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📎 Pagos de Papelería</h1>
+        <h1>Pagos de Papelería</h1>
         <p className="subtitle">
           Registra los pagos de papelería por alumno. Agrega tantas filas como necesites; las filas vacías no se guardarán.
         </p>
@@ -332,9 +332,9 @@ export default function Papeleria() {
               'Crear cierre del día'
             }
           >
-            📊 Cierre del día
+            Cierre del día
             {cierreHoy?.cierre?.estado === 'revisado' && ' ✓'}
-            {cierreHoy?.cierre?.estado === 'pendiente' && ' ⏳'}
+            {cierreHoy?.cierre?.estado === 'pendiente' && ''}
           </button>
           {paginaActual < totalPag && (
             <button className="rec-pag-btn" onClick={() => setPagina(totalPag)}>
@@ -451,7 +451,7 @@ export default function Papeleria() {
                               const bg = cz?.estado === 'revisado' ? '#2e7d32'
                                        : cz ? '#e65100' : '#1a237e';
                               const lbl = cz?.estado === 'revisado' ? '✓ Revisado'
-                                        : cz ? '⏳ Pendiente' : '+ Cierre';
+                                        : cz ? 'Pendiente' : '+ Cierre';
                               return (
                                 <button
                                   type="button"

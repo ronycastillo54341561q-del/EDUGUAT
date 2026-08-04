@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BarChart3, CheckCircle2, Thermometer, FileText, XCircle } from 'lucide-react';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
 import '../admin/admin.css';
@@ -52,7 +53,7 @@ const AlumnoAsistencia = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>📋 Mi Asistencia</h1>
+        <h1>Mi Asistencia</h1>
         <p className="subtitle">Asistencia semanal por mes</p>
 
         <div className="asist-filtros" style={{ marginBottom: '1.5rem' }}>
@@ -64,11 +65,11 @@ const AlumnoAsistencia = () => {
         {/* Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {[
-            { key: 'pct', label: '% Asistencia', valor: pct != null ? `${pct}%` : '—', color: '#1a237e', icon: '📊' },
-            { key: 'x',   label: 'Asistencias',  valor: totales.x, color: ESTADOS.x.color, icon: '✅' },
-            { key: 'e',   label: 'Enfermo',      valor: totales.e, color: ESTADOS.e.color, icon: '🤒' },
-            { key: 'p',   label: 'Permisos',     valor: totales.p, color: ESTADOS.p.color, icon: '📄' },
-            { key: 'f',   label: 'Faltas',       valor: totales.f, color: ESTADOS.f.color, icon: '❌' },
+            { key: 'pct', label: '% Asistencia', valor: pct != null ? `${pct}%` : '—', color: '#1a237e', icon: <BarChart3 size={20} /> },
+            { key: 'x',   label: 'Asistencias',  valor: totales.x, color: ESTADOS.x.color, icon: <CheckCircle2 size={20} /> },
+            { key: 'e',   label: 'Enfermo',      valor: totales.e, color: ESTADOS.e.color, icon: <Thermometer size={20} /> },
+            { key: 'p',   label: 'Permisos',     valor: totales.p, color: ESTADOS.p.color, icon: <FileText size={20} /> },
+            { key: 'f',   label: 'Faltas',       valor: totales.f, color: ESTADOS.f.color, icon: <XCircle size={20} /> },
           ].map(({ key, label, valor, color, icon }) => (
             <div key={key} className="card" style={{ textAlign: 'center', padding: '1rem 0.5rem' }}>
               <div style={{ fontSize: '1.4rem' }}>{icon}</div>

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { School, Landmark } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 import logo from '../assets/eduguat-logo.png';
 import './auth.css';
@@ -25,7 +26,7 @@ const Acceder = () => {
             className="auth-sede"
             onClick={() => navigate('/seleccionar')}
           >
-            <span className="auth-sede__icono" aria-hidden="true">🏫</span>
+            <span className="auth-sede__icono" aria-hidden="true"><School size={26} /></span>
             <span className="auth-sede__nombre">Academias</span>
             <span className="auth-sede__info">Ingresa a tu academia</span>
           </button>
@@ -35,7 +36,7 @@ const Acceder = () => {
             className="auth-sede"
             onClick={() => navigate('/instituciones')}
           >
-            <span className="auth-sede__icono" aria-hidden="true">🏛️</span>
+            <span className="auth-sede__icono" aria-hidden="true"><Landmark size={26} /></span>
             <span className="auth-sede__nombre">Instituciones</span>
             <span className="auth-sede__info">Ingresa a tu institución</span>
           </button>

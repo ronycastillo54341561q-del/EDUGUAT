@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { loadMembrete } from '../../lib/membrete';
@@ -194,7 +195,7 @@ export default function OtrosPagos() {
 
         {recibo && (
           <div className="np-success-card">
-            <div className="np-success-icon">✅</div>
+            <div className="np-success-icon"><CheckCircle2 size={46} /></div>
             <h2>Cobro registrado exitosamente</h2>
             <p>Recibo generado:</p>
             <div className="recibo-num">#{recibo.no_recibo}</div>

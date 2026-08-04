@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { User, Target, Award, CheckCircle2, Clock3, Coins, Banknote, PiggyBank, Pin, BookOpen, Star, Flag, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
@@ -111,7 +112,7 @@ const AlumnoDashboard = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>📊 Mi Dashboard</h1>
+        <h1>Mi Dashboard</h1>
         <p className="subtitle">Resumen de tus estadísticas hasta hoy · Año {anio}</p>
 
         {/* Banner perfil */}
@@ -126,7 +127,7 @@ const AlumnoDashboard = () => {
             background: 'rgba(255,255,255,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1.6rem', flexShrink: 0
-          }}>👤</div>
+          }}><User size={28} /></div>
           <div style={{ flex: 1, minWidth: 240 }}>
             <h2 style={{ color: '#fff', fontSize: '1.2rem', margin: 0 }}>
               {perfil.nombre} {perfil.apellido}
@@ -146,7 +147,7 @@ const AlumnoDashboard = () => {
         {/* Avisos recientes */}
         <div className="card" style={{ marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '.75rem' }}>
-            <h3 style={{ color: '#1a237e', fontSize: '0.95rem', margin: 0 }}>📣 Avisos recientes</h3>
+            <h3 style={{ color: '#1a237e', fontSize: '0.95rem', margin: 0 }}>Avisos recientes</h3>
             <Link to="/alumno/avisos" style={{ fontSize: '.78rem', color: '#3949ab', textDecoration: 'none' }}>
               Ver todos →
             </Link>
@@ -186,9 +187,9 @@ const AlumnoDashboard = () => {
         </div>
 
         {/* Asistencia */}
-        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>📋 Asistencia</h3>
+        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Asistencia</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
-          <Card titulo="% Asistencia" valor={asistencia.pct != null ? `${asistencia.pct}%` : '—'} color="#2e7d32" icon="✅" />
+          <Card titulo="% Asistencia" valor={asistencia.pct != null ? `${asistencia.pct}%` : '—'} color="#2e7d32" icon={<BarChart3 size={20} />} />
           <Card titulo="Asistencias" valor={asistencia.x} color="#2e7d32" icon="X" />
           <Card titulo="Enfermo" valor={asistencia.e} color="#e65100" icon="E" />
           <Card titulo="Permisos" valor={asistencia.p} color="#1565c0" icon="P" />
@@ -196,49 +197,49 @@ const AlumnoDashboard = () => {
         </div>
 
         {/* Notas */}
-        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>📝 Notas {anio}</h3>
+        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Notas {anio}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
           <Card
             titulo="Promedio TAC"
             valor={notas.tac.promedio != null ? notas.tac.promedio : '—'}
             color={(notas.tac.promedio || 0) >= 60 ? '#2e7d32' : '#c62828'}
-            icon="🎯"
+            icon={<Target size={20} />}
           />
           <Card
             titulo="Promedio Diplomado"
             valor={notas.diplomado.promedio != null ? notas.diplomado.promedio : '—'}
             sub={`${notas.diplomado.total_materias} materias con nota`}
             color={(notas.diplomado.promedio || 0) >= 60 ? '#2e7d32' : '#c62828'}
-            icon="🎓"
+            icon={<Award size={20} />}
           />
         </div>
 
         {/* Pagos */}
-        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>💰 Pagos {anio}</h3>
+        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Pagos {anio}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
-          <Card titulo="Pagadas" valor={pagos.pagadas} color="#2e7d32" icon="✅" />
-          <Card titulo="Pendientes" valor={pagos.pendientes} color="#e65100" icon="⏳" />
-          <Card titulo="Con abono" valor={pagos.con_abono} color="#1565c0" icon="💸" />
-          <Card titulo="Total pagado" valor={`Q ${pagos.total_pagado.toFixed(2)}`} color="#1a237e" icon="💵" />
-          <Card titulo="Total abonado" valor={`Q ${pagos.total_abonado.toFixed(2)}`} color="#1565c0" icon="🪙" />
-          <Card titulo="Pendiente Q" valor={`Q ${pagos.total_pendiente.toFixed(2)}`} color="#c62828" icon="📌" />
+          <Card titulo="Pagadas" valor={pagos.pagadas} color="#2e7d32" icon={<CheckCircle2 size={20} />} />
+          <Card titulo="Pendientes" valor={pagos.pendientes} color="#e65100" icon={<Clock3 size={20} />} />
+          <Card titulo="Con abono" valor={pagos.con_abono} color="#1565c0" icon={<Coins size={20} />} />
+          <Card titulo="Total pagado" valor={`Q ${pagos.total_pagado.toFixed(2)}`} color="#1a237e" icon={<Banknote size={20} />} />
+          <Card titulo="Total abonado" valor={`Q ${pagos.total_abonado.toFixed(2)}`} color="#1565c0" icon={<PiggyBank size={20} />} />
+          <Card titulo="Pendiente Q" valor={`Q ${pagos.total_pendiente.toFixed(2)}`} color="#c62828" icon={<Pin size={20} />} />
         </div>
 
         {/* Mecanografía */}
-        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>⌨️ Mecanografía {anio}</h3>
+        <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Mecanografía {anio}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '.75rem', marginBottom: '1rem' }}>
-          <Card titulo="Lecciones completadas" valor={`${mecanografia.completadas}/${mecanografia.total}`} color="#1a237e" icon="📚" />
+          <Card titulo="Lecciones completadas" valor={`${mecanografia.completadas}/${mecanografia.total}`} color="#1a237e" icon={<BookOpen size={20} />} />
           <Card
             titulo="Promedio"
             valor={mecanografia.promedio != null ? mecanografia.promedio : '—'}
             color={(mecanografia.promedio || 0) >= 60 ? '#2e7d32' : '#c62828'}
-            icon="⭐"
+            icon={<Star size={20} />}
           />
           <Card
             titulo="Examen"
             valor={mecanografia.examen != null ? mecanografia.examen : '—'}
             color={(mecanografia.examen || 0) >= 60 ? '#2e7d32' : '#c62828'}
-            icon="🏁"
+            icon={<Flag size={20} />}
           />
         </div>
       </div>

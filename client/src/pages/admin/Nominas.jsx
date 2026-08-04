@@ -352,7 +352,7 @@ function NominaDetalle({ id, instInfo, puedeEditar, esAdmin, onVolver }) {
             </span>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className="btn-edit" onClick={exportarExcel}>📊 Excel</button>
+            <button className="btn-edit" onClick={exportarExcel}>Excel</button>
             {esAdmin && nomina.estado !== 'pagada' && (
               <button className="btn-primary" onClick={marcarPagada}>✓ Marcar nómina pagada</button>
             )}
@@ -399,7 +399,7 @@ function NominaDetalle({ id, instInfo, puedeEditar, esAdmin, onVolver }) {
                     <td style={{ textAlign: 'center', padding: '6px 10px' }}>
                       <div className="td-acciones">
                         <button className="btn-edit" onClick={() => setEditRenglon(r)}>{puedeEditar ? 'Editar' : 'Ver'}</button>
-                        <button className="btn-edit" style={{ background: '#e3f2fd', color: '#1565c0' }} onClick={() => boleta(r)}>🖨️ Boleta</button>
+                        <button className="btn-edit" style={{ background: '#e3f2fd', color: '#1565c0' }} onClick={() => boleta(r)}>Boleta</button>
                       </div>
                     </td>
                   </tr>
@@ -490,7 +490,7 @@ export default function Nominas() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>💼 Nóminas</h1>
+        <h1>Nóminas</h1>
         <p className="subtitle">Gestión de colaboradores y pago de nóminas de la institución.</p>
 
         <div className="cfg-tabs" style={{ marginBottom: 16 }}>

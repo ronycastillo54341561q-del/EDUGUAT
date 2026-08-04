@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Search, School } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
@@ -68,7 +69,7 @@ const SedeSelector = () => {
         {!cargando && !error && (
           <>
             <div className="auth-buscador">
-              <span className="auth-buscador__icono" aria-hidden="true">🔎</span>
+              <span className="auth-buscador__icono" aria-hidden="true"><Search size={18} /></span>
               <input
                 type="text"
                 placeholder="Busca tu academia o sede…"
@@ -105,7 +106,7 @@ const SedeSelector = () => {
                     onClick={() => elegir(s)}
                     type="button"
                   >
-                    <span className="auth-sede__icono" aria-hidden="true">🏫</span>
+                    <span className="auth-sede__icono" aria-hidden="true"><School size={22} /></span>
                     <span className="auth-sede__nombre">{s.nombre}</span>
                     {s.info && <span className="auth-sede__info">{s.info}</span>}
                     <span className="auth-sede__id">{s.id}</span>

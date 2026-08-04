@@ -361,7 +361,7 @@ const Alumnos = () => {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>👨‍🎓 Gestión de Alumnos</h1>
+        <h1>Gestión de Alumnos</h1>
         <p className="subtitle">Administra el listado completo de estudiantes</p>
 
         <div className="asist-filtros">
@@ -437,7 +437,7 @@ const Alumnos = () => {
             <input
               className="search-input"
               type="text"
-              placeholder="🔍 Buscar por clave/código/nombre..."
+              placeholder="Buscar por clave/código/nombre..."
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
             />

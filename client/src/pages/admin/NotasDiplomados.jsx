@@ -162,7 +162,7 @@ export default function NotasDiplomados() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>🎓 Notas Diplomados</h1>
+        <h1>Notas Diplomados</h1>
         <p className="subtitle">Selecciona el diplomado y edita las notas. Los exámenes (columnas) y su orden se gestionan en <strong>Diplomados → Exámenes</strong>.</p>
 
         <div className="asist-filtros">

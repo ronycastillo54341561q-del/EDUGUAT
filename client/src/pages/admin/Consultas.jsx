@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { FolderOpen, Pencil, Users, Trash2, Phone, User, GraduationCap, Hash, UserCog, School, MapPin, Clock3 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
@@ -304,19 +305,19 @@ const TarjetaAlumno = ({ alumno, seg, onSeg, onObsAdd, onObsUpdate, onObsDelete,
           )}
         </div>
         <div className="cq-header-meta">
-          {alumno.telefono        && <span>📞 {alumno.telefono}</span>}
-          {alumno.encargado       && <span>👤 {alumno.encargado}</span>}
+          {alumno.telefono        && <span><Phone size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.telefono}</span>}
+          {alumno.encargado       && <span><User size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.encargado}</span>}
           {esInstitucion ? (
             <>
-              {alumno.grado        && <span>🎓 {alumno.grado}</span>}
-              {alumno.seccion      && <span>🔠 Sección {alumno.seccion}</span>}
-              {alumno.maestro_guia && <span>🧑‍🏫 {alumno.maestro_guia}</span>}
+              {alumno.grado        && <span><GraduationCap size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.grado}</span>}
+              {alumno.seccion      && <span><Hash size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />Sección {alumno.seccion}</span>}
+              {alumno.maestro_guia && <span><UserCog size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.maestro_guia}</span>}
             </>
           ) : (
             <>
-              {alumno.establecimiento && <span>🏫 {alumno.establecimiento}</span>}
-              {alumno.tac             && <span>📍 {alumno.tac}</span>}
-              {horarioFull            && <span>🕐 {horarioFull}</span>}
+              {alumno.establecimiento && <span><School size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.establecimiento}</span>}
+              {alumno.tac             && <span><MapPin size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.tac}</span>}
+              {horarioFull            && <span><Clock3 size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{horarioFull}</span>}
             </>
           )}
         </div>
@@ -465,12 +466,12 @@ const SeccionReportes = ({ reportes, reporteActivoId, onCargar, onEliminar, onRe
                       {r.nombre}
                       {compartidoConmigo && (
                         <span style={{ marginLeft:6, fontSize:'0.7rem', color:'#7e57c2', fontWeight:600 }}>
-                          🤝 Compartido por {r.owner_nombre || 'otro usuario'}
+                          Compartido por {r.owner_nombre || 'otro usuario'}
                         </span>
                       )}
                       {esPropio && Array.isArray(r.compartidos) && r.compartidos.length > 0 && (
                         <span style={{ marginLeft:6, fontSize:'0.7rem', color:'#3949ab', fontWeight:600 }}>
-                          🤝 Compartido con {r.compartidos.length}
+                          Compartido con {r.compartidos.length}
                         </span>
                       )}
                     </span>
@@ -478,12 +479,12 @@ const SeccionReportes = ({ reportes, reporteActivoId, onCargar, onEliminar, onRe
                   <span className="cq-rep-meta">{r.desc} · {r.count} alumnos · {r.fecha}</span>
                 </div>
                 <div className="cq-rep-actions">
-                  <button title="Abrir reporte" onClick={() => { onCargar(r); setAbierto(false); }}>📂</button>
-                  {esPropio && <button title="Renombrar" onClick={() => iniciarEdit(r)}>✏️</button>}
-                  {esPropio && <button title="Compartir con otros usuarios" onClick={() => onCompartir(r)}>👥</button>}
+                  <button title="Abrir reporte" onClick={() => { onCargar(r); setAbierto(false); }}><FolderOpen size={15} /></button>
+                  {esPropio && <button title="Renombrar" onClick={() => iniciarEdit(r)}><Pencil size={15} /></button>}
+                  {esPropio && <button title="Compartir con otros usuarios" onClick={() => onCompartir(r)}><Users size={15} /></button>}
                   {esPropio
-                    ? <button title="Eliminar" onClick={() => onEliminar(r)}>🗑</button>
-                    : <button title="Solo el creador puede eliminar" disabled style={{ opacity:0.35, cursor:'not-allowed' }}>🗑</button>
+                    ? <button title="Eliminar" onClick={() => onEliminar(r)}><Trash2 size={15} /></button>
+                    : <button title="Solo el creador puede eliminar" disabled style={{ opacity:0.35, cursor:'not-allowed' }}><Trash2 size={15} /></button>
                   }
                 </div>
               </div>
@@ -514,7 +515,7 @@ const ModalCompartir = ({ reporte, usuarios, onConfirmar, onCancelar }) => {
   return (
     <div className="cq-modal-overlay" onClick={onCancelar}>
       <div className="cq-modal" onClick={e => e.stopPropagation()} style={{ maxWidth:520 }}>
-        <h3 className="cq-modal-title">👥 Compartir reporte</h3>
+        <h3 className="cq-modal-title">Compartir reporte</h3>
         <p className="cq-modal-sub">
           <strong>{reporte.nombre}</strong><br/>
           Los usuarios seleccionados podrán abrirlo y marcar verificados / observaciones, pero no podrán renombrarlo ni eliminarlo.
@@ -566,7 +567,7 @@ const ModalConfirmEliminar = ({ reporte, onConfirmar, onCancelar }) => {
   return (
     <div className="cq-modal-overlay" onClick={onCancelar}>
       <div className="cq-modal" onClick={e => e.stopPropagation()} style={{ maxWidth:440 }}>
-        <h3 className="cq-modal-title" style={{ color:'#c62828' }}>🗑 Eliminar reporte</h3>
+        <h3 className="cq-modal-title" style={{ color:'#c62828' }}>Eliminar reporte</h3>
         <p className="cq-modal-sub" style={{ color:'#333', fontSize:'0.95rem' }}>
           ¿Seguro que quieres eliminar <strong>{reporte.nombre}</strong>?<br/><br/>
           Se perderá su seguimiento (verificados, observaciones).
@@ -574,7 +575,7 @@ const ModalConfirmEliminar = ({ reporte, onConfirmar, onCancelar }) => {
             <>
               <br/><br/>
               <span style={{ color:'#c62828', fontWeight:600 }}>
-                ⚠️ Este reporte está compartido con {compartidos} usuario{compartidos !== 1 ? 's' : ''}; también dejarán de verlo.
+                Este reporte está compartido con {compartidos} usuario{compartidos !== 1 ? 's' : ''}; también dejarán de verlo.
               </span>
             </>
           )}
@@ -604,7 +605,7 @@ const ModalGuardar = ({ filtros, count, reporteActivo, onConfirmar, onCancelar }
   return (
     <div className="cq-modal-overlay" onClick={onCancelar}>
       <div className="cq-modal" onClick={e => e.stopPropagation()}>
-        <h3 className="cq-modal-title">💾 Guardar Reporte</h3>
+        <h3 className="cq-modal-title">Guardar Reporte</h3>
         <p className="cq-modal-sub">{descFiltro(filtros)} · {count} alumnos</p>
         <input
           ref={inputRef}
@@ -915,10 +916,10 @@ export default function Consultas() {
         {/* ── Topbar ── */}
         <div className="cq-topbar">
           <div>
-            <h1 style={{ margin:0, fontSize:'1.3rem', color:'#1a237e', fontWeight:700 }}>🔎 Consultas</h1>
+            <h1 style={{ margin:0, fontSize:'1.3rem', color:'#1a237e', fontWeight:700 }}>Consultas</h1>
             {reporteActivo && (
               <p style={{ margin:'2px 0 0', fontSize:'0.8rem', color:'#3949ab' }}>
-                📂 {reporteActivo.nombre}
+                {reporteActivo.nombre}
               </p>
             )}
           </div>
@@ -926,13 +927,13 @@ export default function Consultas() {
             {resultado !== null && (
               <>
                 <button className="cq-btn-export" onClick={() => exportarExcel(resultado, seguimiento, filtros, esInstitucion)}>
-                  📊 Excel
+                  Excel
                 </button>
                 <button className="cq-btn-export" onClick={() => exportarPDF(resultado, seguimiento, filtros, esInstitucion)}>
-                  🖨️ PDF
+                  PDF
                 </button>
                 <button className="cq-btn-guardar" onClick={() => setModalGuardar(true)}>
-                  💾 {reporteActivo ? 'Actualizar reporte' : 'Guardar reporte'}
+                  {reporteActivo ? 'Actualizar reporte' : 'Guardar reporte'}
                 </button>
               </>
             )}
@@ -1053,7 +1054,7 @@ export default function Consultas() {
             )}
             <div className="cq-fg" style={{ alignSelf:'flex-end' }}>
               <button className="btn-primary" onClick={generar} disabled={cargando} style={{ width:'100%', padding:'0.5rem' }}>
-                {cargando ? 'Buscando...' : '🔍 Buscar'}
+                {cargando ? 'Buscando...' : 'Buscar'}
               </button>
             </div>
           </div>
@@ -1109,7 +1110,7 @@ export default function Consultas() {
           <div style={{ textAlign:'center', padding:'3rem', color:'#bbb' }}>
             {reporteActivo
               ? <p>Cargando reporte <strong>{reporteActivo.nombre}</strong>…</p>
-              : <p>Configura el filtro y presiona <strong>🔍 Buscar</strong></p>}
+              : <p>Configura el filtro y presiona <strong>Buscar</strong></p>}
           </div>
         )}
       </div>

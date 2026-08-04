@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  GraduationCap, UserMinus, UserPlus, Award, TrendingUp, Banknote,
+  ClipboardList, Wallet, CalendarDays, LineChart as LineChartIcon,
+  CalendarRange, CheckCircle2, BarChart3, Trophy, School,
+} from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { useAniosFiltros } from '../../lib/anios';
@@ -254,7 +259,7 @@ const Card = ({ title, icon, iconBg, children, style, accion }) => (
   <div className="stat-card" style={{ flexDirection:'column', alignItems:'stretch', gap:'0.6rem', padding:'1.1rem', ...style }}>
     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-        {icon && <span style={{ fontSize:'1.1rem', background:iconBg, borderRadius:8, padding:'4px 6px' }}>{icon}</span>}
+        {icon && <span style={{ display:'inline-flex', alignItems:'center', color:'#1a237e', background:iconBg, borderRadius:8, padding:5 }}>{icon}</span>}
         <span style={{ fontWeight:700, color:'#1a237e', fontSize:'0.95rem' }}>{title}</span>
       </div>
       {accion}
@@ -445,30 +450,30 @@ const Dashboard = () => {
             {/* ── Fila 1: KPIs ── */}
             <div className="stats-grid" style={{ gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))', marginBottom:'1rem' }}>
               <div className="stat-card">
-                <div className="stat-icon blue">👨‍🎓</div>
+                <div className="stat-icon blue"><GraduationCap size={24} /></div>
                 <div className="stat-info"><h3>{fmtN(s.total_alumnos)}</h3><p>Alumnos activos</p></div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon" style={{ background:'#fce4ec', fontSize:'1.6rem', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>📉</div>
+                <div className="stat-icon" style={{ background:'#fce4ec', color:'#c2185b', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}><UserMinus size={24} /></div>
                 <div className="stat-info"><h3>{fmtN(s.alumnos_retirados)}</h3><p>Alumnos retirados</p></div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon" style={{ background:'#e8f5e9', fontSize:'1.6rem', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>🆕</div>
+                <div className="stat-icon" style={{ background:'#e8f5e9', color:'#2e7d32', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}><UserPlus size={24} /></div>
                 <div className="stat-info"><h3>{fmtN(s.alumnos_nuevos_anio)}</h3><p>Inscritos {anio}</p></div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon purple">🎓</div>
+                <div className="stat-icon purple"><Award size={24} /></div>
                 <div className="stat-info"><h3>{fmtN(s.diplomados_activos)}</h3><p>Con diplomado</p></div>
               </div>
               <div className="stat-card" title="Suma de todos los recibos no anulados emitidos en el año (coincide con el módulo de Recibos).">
-                <div className="stat-icon" style={{ background:'#e0f7fa', fontSize:'1.6rem', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>📈</div>
+                <div className="stat-icon" style={{ background:'#e0f7fa', color:'#00838f', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}><TrendingUp size={24} /></div>
                 <div className="stat-info">
                   <h3>{fmtQ0(s.ingresos_anio)}</h3>
                   <p>Ingresos {anio} <Delta valor={f.delta_pct} /></p>
                 </div>
               </div>
               <div className="stat-card" title="Sólo colegiaturas (mensualidades pagadas) — subconjunto de ingresos totales.">
-                <div className="stat-icon" style={{ background:'#fff8e1', fontSize:'1.6rem', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>💵</div>
+                <div className="stat-icon" style={{ background:'#fff8e1', color:'#e65100', width:48, height:48, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}><Banknote size={24} /></div>
                 <div className="stat-info"><h3>{fmtQ0(s.ingresos_colegiaturas)}</h3><p>Colegiaturas {anio}</p></div>
               </div>
             </div>
@@ -478,7 +483,7 @@ const Dashboard = () => {
 
               {/* Asistencia hoy (sólo si es año actual) */}
               {esActual ? (
-                <Card title="Asistencia hoy" icon="📋" iconBg="#fff3e0">
+                <Card title="Asistencia hoy" icon={<ClipboardList size={16} />} iconBg="#fff3e0">
                   <p style={{ fontSize:'0.8rem', color:'#777', margin:0 }}>
                     {ordenSem ? `${CAP(ordenSem)} semana de ${mesLabel} · ${diaLabel}` : `${mesLabel} · ${diaLabel}`}
                   </p>
@@ -503,7 +508,7 @@ const Dashboard = () => {
                   )}
                 </Card>
               ) : (
-                <Card title="Asistencia" icon="📋" iconBg="#fff3e0">
+                <Card title="Asistencia" icon={<ClipboardList size={16} />} iconBg="#fff3e0">
                   <p style={{ fontSize:'0.82rem', color:'#888', margin:0 }}>
                     Vista histórica del año {anio} — revisa el gráfico de asistencia mensual abajo.
                   </p>
@@ -511,7 +516,7 @@ const Dashboard = () => {
               )}
 
               {/* Pagos mes actual */}
-              <Card title={`Colegiaturas — ${CAP(s.mes_actual || mesLabel)}`} icon="💰" iconBg="#e8f5e9">
+              <Card title={`Colegiaturas — ${CAP(s.mes_actual || mesLabel)}`} icon={<Wallet size={16} />} iconBg="#e8f5e9">
                 <div style={{ fontSize:'1.6rem', fontWeight:800, color:'#1a237e', lineHeight:1 }}>
                   {fmtN(s.pagados_mes ?? 0)}
                   <span style={{ fontSize:'1rem', color:'#888', fontWeight:500 }}> / {fmtN(s.total_mes ?? 0)}</span>
@@ -528,7 +533,7 @@ const Dashboard = () => {
               </Card>
 
               {/* Pagos mes anterior */}
-              <Card title={`Colegiaturas — ${CAP(s.mes_anterior || mesAntLabel)}`} icon="🗓️" iconBg="#f3e5f5">
+              <Card title={`Colegiaturas — ${CAP(s.mes_anterior || mesAntLabel)}`} icon={<CalendarDays size={16} />} iconBg="#f3e5f5">
                 <div style={{ fontSize:'1.6rem', fontWeight:800, color:'#1a237e', lineHeight:1 }}>
                   {fmtN(s.pagados_mes_ant ?? 0)}
                   <span style={{ fontSize:'1rem', color:'#888', fontWeight:500 }}> / {fmtN(s.total_mes_ant ?? 0)}</span>
@@ -549,7 +554,7 @@ const Dashboard = () => {
             <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:'1rem', marginBottom:'1rem' }} className="dash-grid-2-1">
               <Card
                 title={`Ingresos mensuales — ${anio}`}
-                icon="📊"
+                icon={<LineChartIcon size={16} />}
                 iconBg="#e8eaf6"
                 accion={<span style={{ fontSize:'0.78rem', color:'#666' }}>
                   Total: <strong style={{ color:'#1a237e' }}>{fmtQ0(f.total_anio)}</strong>
@@ -567,7 +572,7 @@ const Dashboard = () => {
                 />
               </Card>
 
-              <Card title={`Comparativo anual`} icon="📅" iconBg="#fff3e0">
+              <Card title={`Comparativo anual`} icon={<CalendarRange size={16} />} iconBg="#fff3e0">
                 {dataAnios.length === 0 ? (
                   <p style={{ fontSize:'0.82rem', color:'#999' }}>Sin datos para comparar.</p>
                 ) : (
@@ -585,7 +590,7 @@ const Dashboard = () => {
             {/* ── Fila 4: Colegiaturas mensuales (% cumplimiento) + Semanas ── */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1rem' }} className="dash-grid-1-1">
 
-              <Card title={`Cumplimiento de colegiaturas — ${anio}`} icon="✅" iconBg="#e0f7fa">
+              <Card title={`Cumplimiento de colegiaturas — ${anio}`} icon={<CheckCircle2 size={16} />} iconBg="#e0f7fa">
                 <BarChart
                   data={dataColegMes}
                   x="label" y="pagadas"
@@ -599,7 +604,7 @@ const Dashboard = () => {
                 </div>
               </Card>
 
-              <Card title="Ingresos por semana (últimas 12)" icon="📆" iconBg="#fce4ec">
+              <Card title="Ingresos por semana (últimas 12)" icon={<BarChart3 size={16} />} iconBg="#fce4ec">
                 <BarChart data={dataSemanas} x="label" y="monto" color="#ec407a" fmt={fmtQ0} height={200} />
                 <div style={{ fontSize:'0.74rem', color:'#777', marginTop:4 }}>
                   Cada barra representa una semana (de lunes a domingo).
@@ -608,7 +613,7 @@ const Dashboard = () => {
             </div>
 
             {/* ── Fila 5: Ingresos diarios ── */}
-            <Card title="Ingresos diarios (últimos 30 días)" icon="📅" iconBg="#e8f5e9" style={{ marginBottom:'1rem' }}>
+            <Card title="Ingresos diarios (últimos 30 días)" icon={<CalendarDays size={16} />} iconBg="#e8f5e9" style={{ marginBottom:'1rem' }}>
               <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:'1rem', alignItems:'stretch' }} className="dash-grid-2-1">
                 <div>
                   <BarChart data={dataDias} x="label" y="monto" color="#43a047" fmt={fmtQ0} height={200} />
@@ -634,7 +639,7 @@ const Dashboard = () => {
             </Card>
 
             {/* ── Fila 6: Asistencia mensual ── */}
-            <Card title={`Asistencia mensual — ${anio}`} icon="📋" iconBg="#fff3e0" style={{ marginBottom:'1rem' }}>
+            <Card title={`Asistencia mensual — ${anio}`} icon={<ClipboardList size={16} />} iconBg="#fff3e0" style={{ marginBottom:'1rem' }}>
               <StackedBarChart
                 data={dataAsist}
                 x="label"
@@ -653,7 +658,7 @@ const Dashboard = () => {
 
             {/* ── Fila 7: Top diplomados + Top alumnos ── */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1rem' }} className="dash-grid-1-1">
-              <Card title={`Top diplomados por ingresos ${anio}`} icon="🎓" iconBg="#e8eaf6">
+              <Card title={`Top diplomados por ingresos ${anio}`} icon={<Award size={16} />} iconBg="#e8eaf6">
                 {(f.top_diplomados || []).length === 0 ? (
                   <p style={{ fontSize:'0.82rem', color:'#999' }}>Sin datos.</p>
                 ) : (
@@ -661,7 +666,7 @@ const Dashboard = () => {
                 )}
               </Card>
 
-              <Card title={`Top alumnos por pagos ${anio}`} icon="🏆" iconBg="#fff8e1">
+              <Card title={`Top alumnos por pagos ${anio}`} icon={<Trophy size={16} />} iconBg="#fff8e1">
                 {(f.top_alumnos || []).length === 0 ? (
                   <p style={{ fontSize:'0.82rem', color:'#999' }}>Sin recibos en el año.</p>
                 ) : (
@@ -701,7 +706,7 @@ const Dashboard = () => {
                   <Card
                     key={lab}
                     title={lab === '__sin__' ? 'Sin laboratorio' : `Laboratorio ${lab}`}
-                    icon="🏫" iconBg="#e3f2fd"
+                    icon={<School size={16} />} iconBg="#e3f2fd"
                   >
                     <div style={{ fontSize:'0.78rem', color:'#666' }}>
                       {grupos.length} grupo(s) · <strong style={{ color:'#1a237e' }}>{total}</strong> alumno(s)
@@ -731,12 +736,12 @@ const Dashboard = () => {
             {/* ── Fila 9: Distribuciones de alumnos ── */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'1rem' }}>
               {(s.por_diplomado || []).length > 0 && (
-                <Card title="Alumnos por diplomado" icon="🎓" iconBg="#e8eaf6">
+                <Card title="Alumnos por diplomado" icon={<Award size={16} />} iconBg="#e8eaf6">
                   <HBarChart data={s.por_diplomado} label="diplomado" value="total" color="#5c6bc0" fmt={fmtN} />
                 </Card>
               )}
               {(s.por_tac || []).length > 0 && (
-                <Card title="Alumnos por TAC" icon="🏫" iconBg="#fbe9e7">
+                <Card title="Alumnos por TAC" icon={<School size={16} />} iconBg="#fbe9e7">
                   <HBarChart data={s.por_tac} label="tac" value="total" color="#ef6c00" fmt={fmtN} />
                 </Card>
               )}

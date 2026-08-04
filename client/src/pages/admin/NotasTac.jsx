@@ -587,7 +587,7 @@ export default function NotasTac() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📝 Notas TAC</h1>
+        <h1>Notas TAC</h1>
         <p className="subtitle">Ingresa las 4 notas por alumno. El promedio se calcula automáticamente.</p>
 
         <div className="asist-filtros">
@@ -631,7 +631,7 @@ export default function NotasTac() {
                 fontSize: '0.88rem', fontWeight: 600, color: '#1b5e20',
               }}
             >
-              {exportando ? 'Generando...' : '📄 Exportar notas (PDF)'}
+              {exportando ? 'Generando...' : 'Exportar notas (PDF)'}
             </button>
           )}
         </div>

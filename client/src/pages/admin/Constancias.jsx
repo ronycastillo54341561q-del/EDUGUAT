@@ -103,7 +103,7 @@ export default function Constancias() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📜 Constancias de Inscripción</h1>
+        <h1>Constancias de Inscripción</h1>
         <p className="subtitle">
           Genera constancias en PDF (tamaño carta) para uno o varios alumnos a partir
           de plantillas reutilizables.  Las plantillas usan variables como
@@ -532,7 +532,7 @@ function SeccionGenerar() {
             </label>
           </div>
           <button className="btn-primary" style={{marginTop:8}} onClick={buscarAlumnos}>
-            🔍 Buscar alumnos
+            Buscar alumnos
           </button>
         </div>
 
@@ -575,11 +575,11 @@ function SeccionGenerar() {
           <div className="gen-foot">
             <button className="btn-primary btn-pdf" disabled={generando || !seleccionados.length || !plantilla}
                     onClick={generarPDF}>
-              {generando ? 'Generando…' : `📄 Generar PDF (${seleccionados.length})`}
+              {generando ? 'Generando…' : `Generar PDF (${seleccionados.length})`}
             </button>
             <button className="btn-edit btn-pdf" disabled={generando || !seleccionados.length || !plantilla}
                     onClick={generarWord}>
-              {generando ? 'Generando…' : `📝 Exportar Word (${seleccionados.length})`}
+              {generando ? 'Generando…' : `Exportar Word (${seleccionados.length})`}
             </button>
             {seleccionados.length > 1 && (
               <span className="gen-hint">Un solo archivo con {seleccionados.length} páginas (una por alumno).</span>

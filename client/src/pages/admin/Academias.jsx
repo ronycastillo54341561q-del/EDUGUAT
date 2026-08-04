@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { PlusCircle, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
@@ -168,7 +169,7 @@ export default function Academias() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>🏫 Academias / Sedes</h1>
+        <h1>Academias / Sedes</h1>
         <p className="subtitle">
           Crea, edita y habilita academias.  Cada sede tiene su propia base de datos
           y módulos seleccionables.  Las sedes deshabilitadas no aparecen en el
@@ -267,7 +268,7 @@ export default function Academias() {
               </p>
               <div className="acad-tipo-grid">
                 <button type="button" className="acad-tipo-card" onClick={() => elegirTipo('nueva')}>
-                  <div className="acad-tipo-emoji">🆕</div>
+                  <div className="acad-tipo-emoji"><PlusCircle size={34} /></div>
                   <h3>Academia nueva</h3>
                   <p>
                     Empieza desde cero. Te recomendamos descargar el manual
@@ -275,7 +276,7 @@ export default function Academias() {
                   </p>
                 </button>
                 <button type="button" className="acad-tipo-card" onClick={() => elegirTipo('existente')}>
-                  <div className="acad-tipo-emoji">📦</div>
+                  <div className="acad-tipo-emoji"><Package size={34} /></div>
                   <h3>Academia existente</h3>
                   <p>
                     Vas a importar datos de una academia que ya tiene alumnos.
@@ -291,7 +292,7 @@ export default function Academias() {
                   className="btn-primary"
                   onClick={() => { cerrar(); navigate('/admin/manual'); }}
                 >
-                  📖 Ver manual
+                  Ver manual
                 </button>
               </div>
             </div>
@@ -519,7 +520,7 @@ function WizardImportar({ wizard, setWizard, onCerrar, onIrAImportar }) {
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={onCerrar}>Saltar</button>
                 <button type="button" className="btn-primary" onClick={onIrAImportar}>
-                  📥 Ir al módulo Importar
+                  Ir al módulo Importar
                 </button>
                 <button type="button" className="btn-primary" onClick={() => set({ paso: 2 })}>
                   Continuar →
@@ -654,7 +655,7 @@ function WizardImportar({ wizard, setWizard, onCerrar, onIrAImportar }) {
 
               <button type="button" className="btn-primary" onClick={aplicarAbono}
                 disabled={wizard.guardandoAbono} style={{ marginTop: '0.5rem' }}>
-                {wizard.guardandoAbono ? 'Aplicando…' : '💰 Aplicar abono'}
+                {wizard.guardandoAbono ? 'Aplicando…' : 'Aplicar abono'}
               </button>
 
               {wizard.abonos.length > 0 && (

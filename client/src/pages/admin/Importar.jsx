@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { GraduationCap, ClipboardList, FileEdit, Award, Keyboard, Wallet, CreditCard, Receipt } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
@@ -112,7 +113,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   alumnos: {
     label: 'Alumnos',
-    icon: '👨‍🎓',
+    icon: <GraduationCap size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/alumnos',
     sheet: 'alumnos',
     filename: 'plantilla_importar_alumnos.xlsx',
@@ -189,7 +190,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   asistencia: {
     label: 'Asistencia',
-    icon: '📋',
+    icon: <ClipboardList size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/asistencia',
     sheet: 'asistencia',
     filename: 'plantilla_importar_asistencia.xlsx',
@@ -262,7 +263,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   notasTac: {
     label: 'Notas TAC',
-    icon: '📝',
+    icon: <FileEdit size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/notas-tac',
     sheet: 'notas_tac',
     filename: 'plantilla_importar_notas_tac.xlsx',
@@ -302,7 +303,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   notasDiplomado: {
     label: 'Notas Diplomado',
-    icon: '🎓',
+    icon: <Award size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/notas-diplomados',
     sheet: 'notas_diplomado',
     filename: 'plantilla_importar_notas_diplomado.xlsx',
@@ -344,7 +345,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   mecanografia: {
     label: 'Mecanografía',
-    icon: '⌨️',
+    icon: <Keyboard size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/mecanografia',
     sheet: 'mecanografia',
     filename: 'plantilla_importar_mecanografia.xlsx',
@@ -395,7 +396,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   pagos: {
     label: 'Pagos colegiatura',
-    icon: '💰',
+    icon: <Wallet size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/pagos',
     sheet: 'pagos',
     filename: 'plantilla_importar_pagos.xlsx',
@@ -448,7 +449,7 @@ const TIPOS = {
   // ─────────────────────────────────────────────────────────────
   pagosMensualidades: {
     label: 'Pagos mensualidades',
-    icon: '🗓️',
+    icon: <CreditCard size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/pagos-mensualidades',
     sheet: 'pagos_mensualidades',
     filename: 'plantilla_importar_pagos_mensualidades.xlsx',
@@ -506,7 +507,7 @@ const TIPOS = {
 
   recibosDiplomados: {
     label: 'Recibos diplomados',
-    icon: '🧾',
+    icon: <Receipt size={16} style={{ verticalAlign: '-3px' }} />,
     endpoint: '/importacion/recibos-diplomados',
     sheet: 'recibos_diplomados',
     filename: 'plantilla_importar_recibos_diplomados.xlsx',
@@ -963,7 +964,7 @@ const Importar = () => {
       <div className="admin-layout">
         <Sidebar />
         <div className="admin-content">
-          <h1>📥 Importar Datos</h1>
+          <h1>Importar Datos</h1>
           <div className="imp-banner">
             Esta sección sólo está disponible para usuarios con rol Administrador.
           </div>
@@ -976,7 +977,7 @@ const Importar = () => {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📥 Importar Datos desde Excel</h1>
+        <h1>Importar Datos desde Excel</h1>
         <p className="subtitle">
           Selecciona qué deseas importar.  Sigue los pasos: descarga la plantilla,
           llénala, súbela y revisa la previsualización antes de confirmar.
@@ -999,7 +1000,7 @@ const Importar = () => {
         </div>
 
         <div className="imp-banner">
-          ⚠️ La importación se ejecuta sobre la sede actual: <strong>{sede?.nombre}</strong>.
+          La importación se ejecuta sobre la sede actual: <strong>{sede?.nombre}</strong>.
           {tipo.needsYear && (
             <> Las filas se asociarán al año seleccionado y los alumnos deben existir
               previamente (búsqueda por id, clave o código de estudiante).</>
@@ -1113,7 +1114,7 @@ const Importar = () => {
 
             <div className="imp-actions">
               <button className="btn-primary" onClick={() => descargarPlantilla(tipoKey)}>
-                📄 Descargar {tipo.filename}
+                Descargar {tipo.filename}
               </button>
             </div>
           </div>
@@ -1139,7 +1140,7 @@ const Importar = () => {
                 onChange={onSelect}
               />
               {fileName
-                ? <strong>📎 {fileName}</strong>
+                ? <strong>{fileName}</strong>
                 : <span>Arrastra el .xlsx aquí o haz clic para elegir</span>}
               <div style={{ fontSize: '0.78rem', color: '#888', marginTop: 8 }}>
                 Sólo se lee la primera hoja

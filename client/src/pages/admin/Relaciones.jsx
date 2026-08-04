@@ -79,7 +79,7 @@ export default function Relaciones() {
     <div className="admin-layout">
       <Sidebar />
       <main className="admin-content">
-        <h1>🔗 Relaciones de la Base de Datos</h1>
+        <h1>Relaciones de la Base de Datos</h1>
         <p className="subtitle">
           Vista de todas las relaciones lógicas entre tablas
           {data?.base_datos && <> de <strong>{data.base_datos}</strong></>}.
@@ -126,7 +126,7 @@ export default function Relaciones() {
                     background: vista === 'detalle' ? '#3949ab' : '#fff',
                     color:      vista === 'detalle' ? '#fff'    : '#3949ab',
                   }}
-                >📋 Detalle</button>
+                >Detalle</button>
                 <button
                   onClick={() => setVista('resumen')}
                   style={{
@@ -134,7 +134,7 @@ export default function Relaciones() {
                     background: vista === 'resumen' ? '#3949ab' : '#fff',
                     color:      vista === 'resumen' ? '#fff'    : '#3949ab',
                   }}
-                >📊 Resumen por tabla</button>
+                >Resumen por tabla</button>
               </div>
 
               <input
@@ -165,7 +165,7 @@ export default function Relaciones() {
                   padding:'0.5rem 0.9rem', border:'none', borderRadius:8,
                   background:'#1b5e20', color:'#fff', fontWeight:600, cursor:'pointer',
                 }}
-              >📊 Exportar CSV</button>
+              >Exportar CSV</button>
             </div>
 
             {/* ── Vista detalle ── */}
@@ -250,7 +250,7 @@ export default function Relaciones() {
                     }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6 }}>
                         <h3 style={{ margin:0, color:'#1a237e', fontSize:'1rem' }}>
-                          📦 {r.tabla_destino}
+                          {r.tabla_destino}
                         </h3>
                         <span style={{ fontSize:'0.74rem', color:'#888' }}>
                           {filas != null ? `${filas} fila(s)` : '—'}

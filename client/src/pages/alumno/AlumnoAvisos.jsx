@@ -43,7 +43,7 @@ const AlumnoAvisos = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>📣 Avisos</h1>
+        <h1>Avisos</h1>
         <p className="subtitle">Mensajes que aplican a ti, tu grupo, tu horario o tu diplomado</p>
 
         {cargando ? (
@@ -72,9 +72,9 @@ const AlumnoAvisos = () => {
                     {a.mensaje}
                   </p>
                   <div style={{ fontSize: '.75rem', color: '#888', display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
-                    <span>👤 {ROL_LABEL[a.autor_rol] || a.autor_rol}: <strong>{a.autor_nombre}</strong></span>
-                    <span>🕒 {fmtFecha(a.created_at)}</span>
-                    {a.expira_at && <span>⏳ Vence: {fmtFecha(a.expira_at)}</span>}
+                    <span>{ROL_LABEL[a.autor_rol] || a.autor_rol}: <strong>{a.autor_nombre}</strong></span>
+                    <span>{fmtFecha(a.created_at)}</span>
+                    {a.expira_at && <span>Vence: {fmtFecha(a.expira_at)}</span>}
                   </div>
                 </div>
               );

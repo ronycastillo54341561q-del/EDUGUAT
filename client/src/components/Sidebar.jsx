@@ -1,31 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, GraduationCap, School, ClipboardList, Clock, CalendarDays,
+  Keyboard, FileEdit, ListChecks, Award, BarChart3, Search, Printer,
+  ScrollText, Table2, CreditCard, Calculator, Wallet, Receipt, Paperclip,
+  Briefcase, Megaphone, Users, Shield, Settings, Building2, Download,
+  BookOpen, HardDrive, Link2, LogOut, BookMarked,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { can, ROLE_LABEL, isSuperAdmin } from '../lib/permissions';
 import InstallAppButton from './InstallAppButton';
 import logo from '../assets/eduguat-logo-blanco-transparente.png';
 import './Sidebar.css';
 
-// Icono inline de "cerrar sesión" (flecha saliendo de un rectángulo).
-// Es el patrón estándar usado por Heroicons / Material Icons para logout.
-const LogoutIcon = ({ size = 20 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-    <polyline points="16 17 21 12 16 7" />
-    <line x1="21" y1="12" x2="9" y2="12" />
-  </svg>
-);
+const LogoutIcon = ({ size = 20 }) => <LogOut size={size} aria-hidden="true" />;
 
 // Módulos que sólo se muestran al super-admin (admin de la sede semilla).
 const SUPER_ADMIN_MODULES = new Set(['academias']);
@@ -34,51 +22,53 @@ const SUPER_ADMIN_MODULES = new Set(['academias']);
 // Aunque una academia tenga modulos=null (todos), estos no deben aparecer.
 const INSTITUCION_MODULES = new Set(['nominas', 'horarios']);
 
+const NAV_ICON_SIZE = 17;
+
 const NAV = [
   { section: 'PRINCIPAL', items: [
-    { to: '/admin/dashboard',       icon: '🏠', label: 'Dashboard',        modulo: 'dashboard' },
+    { to: '/admin/dashboard',       icon: <LayoutDashboard size={NAV_ICON_SIZE} />, label: 'Dashboard',        modulo: 'dashboard' },
   ]},
   { section: 'GESTIÓN', items: [
-    { to: '/admin/alumnos',         icon: '👨‍🎓', label: 'Alumnos',          modulo: 'alumnos' },
-    { to: '/admin/diplomados',      icon: '🏫', label: 'Diplomados',       modulo: 'diplomados' },
-    { to: '/admin/asistencia',       icon: '📋', label: 'Asistencia',      modulo: 'asistencia' },
-    { to: '/admin/horarios',         icon: '⏰', label: 'Horarios de Clase', modulo: 'horarios' },
-    { to: '/admin/planificaciones',  icon: '🗓️', label: 'Planificaciones', modulo: 'planificaciones' },
-    { to: '/admin/mecanografia',    icon: '⌨️', label: 'Mecanografía',     modulo: 'mecanografia' },
+    { to: '/admin/alumnos',         icon: <GraduationCap size={NAV_ICON_SIZE} />, label: 'Alumnos',          modulo: 'alumnos' },
+    { to: '/admin/diplomados',      icon: <School size={NAV_ICON_SIZE} />,        label: 'Diplomados',       modulo: 'diplomados' },
+    { to: '/admin/asistencia',       icon: <ClipboardList size={NAV_ICON_SIZE} />, label: 'Asistencia',      modulo: 'asistencia' },
+    { to: '/admin/horarios',         icon: <Clock size={NAV_ICON_SIZE} />,         label: 'Horarios de Clase', modulo: 'horarios' },
+    { to: '/admin/planificaciones',  icon: <CalendarDays size={NAV_ICON_SIZE} />,  label: 'Planificaciones', modulo: 'planificaciones' },
+    { to: '/admin/mecanografia',    icon: <Keyboard size={NAV_ICON_SIZE} />,      label: 'Mecanografía',     modulo: 'mecanografia' },
   ]},
   { section: 'NOTAS', items: [
-    { to: '/admin/notas-tac',       icon: '📝', label: 'Notas TAC',         modulo: 'notasTac' },
-    { to: '/admin/inscritos-tac',   icon: '📋', label: 'Inscritos TAC',     modulo: 'inscritosTac' },
-    { to: '/admin/notas-diplomados',icon: '🎓', label: 'Notas Diplomados',  modulo: 'notasDiplomados' },
+    { to: '/admin/notas-tac',       icon: <FileEdit size={NAV_ICON_SIZE} />,   label: 'Notas TAC',         modulo: 'notasTac' },
+    { to: '/admin/inscritos-tac',   icon: <ListChecks size={NAV_ICON_SIZE} />, label: 'Inscritos TAC',     modulo: 'inscritosTac' },
+    { to: '/admin/notas-diplomados',icon: <Award size={NAV_ICON_SIZE} />,      label: 'Notas Diplomados',  modulo: 'notasDiplomados' },
   ]},
   { section: 'REPORTES', items: [
-    { to: '/admin/reporte-alumno', icon: '📊', label: 'Reporte Alumno', modulo: 'reporteAlumno' },
-    { to: '/admin/consultas',      icon: '🔎', label: 'Consultas',      modulo: 'consultas' },
-    { to: '/admin/impresion',      icon: '🖨️', label: 'Impresión',      modulo: 'impresion' },
-    { to: '/admin/constancias',    icon: '📜', label: 'Constancias',    modulo: 'constancias' },
-    { to: '/admin/mis-tablas',     icon: '🗂️', label: 'Mis Tablas',     modulo: 'misTablas' },
+    { to: '/admin/reporte-alumno', icon: <BarChart3 size={NAV_ICON_SIZE} />,  label: 'Reporte Alumno', modulo: 'reporteAlumno' },
+    { to: '/admin/consultas',      icon: <Search size={NAV_ICON_SIZE} />,     label: 'Consultas',      modulo: 'consultas' },
+    { to: '/admin/impresion',      icon: <Printer size={NAV_ICON_SIZE} />,    label: 'Impresión',      modulo: 'impresion' },
+    { to: '/admin/constancias',    icon: <ScrollText size={NAV_ICON_SIZE} />, label: 'Constancias',    modulo: 'constancias' },
+    { to: '/admin/mis-tablas',     icon: <Table2 size={NAV_ICON_SIZE} />,     label: 'Mis Tablas',     modulo: 'misTablas' },
   ]},
   { section: 'FINANZAS', items: [
-    { to: '/admin/nuevo-pago',      icon: '💳', label: 'Nuevo Pago',   modulo: 'nuevoPago' },
-    { to: '/admin/otros-pagos',     icon: '🧮', label: 'Otros Pagos',  modulo: 'otrosPagos' },
-    { to: '/admin/pagos',           icon: '💰', label: 'Pagos',        modulo: 'pagos' },
-    { to: '/admin/recibos',         icon: '🧾', label: 'Recibos',      modulo: 'recibos' },
-    { to: '/admin/papeleria',       icon: '📎', label: 'Papelería',    modulo: 'papeleria' },
-    { to: '/admin/nominas',         icon: '💼', label: 'Nóminas',      modulo: 'nominas' },
+    { to: '/admin/nuevo-pago',      icon: <CreditCard size={NAV_ICON_SIZE} />, label: 'Nuevo Pago',   modulo: 'nuevoPago' },
+    { to: '/admin/otros-pagos',     icon: <Calculator size={NAV_ICON_SIZE} />, label: 'Otros Pagos',  modulo: 'otrosPagos' },
+    { to: '/admin/pagos',           icon: <Wallet size={NAV_ICON_SIZE} />,     label: 'Pagos',        modulo: 'pagos' },
+    { to: '/admin/recibos',         icon: <Receipt size={NAV_ICON_SIZE} />,    label: 'Recibos',      modulo: 'recibos' },
+    { to: '/admin/papeleria',       icon: <Paperclip size={NAV_ICON_SIZE} />,  label: 'Papelería',    modulo: 'papeleria' },
+    { to: '/admin/nominas',         icon: <Briefcase size={NAV_ICON_SIZE} />,  label: 'Nóminas',      modulo: 'nominas' },
   ]},
   { section: 'COMUNICACIÓN', items: [
-    { to: '/admin/avisos',          icon: '📣', label: 'Avisos',        modulo: 'avisos' },
+    { to: '/admin/avisos',          icon: <Megaphone size={NAV_ICON_SIZE} />, label: 'Avisos',        modulo: 'avisos' },
   ]},
   { section: 'SISTEMA', items: [
-    { to: '/admin/usuarios',        icon: '👥', label: 'Usuarios',      modulo: 'usuarios' },
-    { to: '/admin/roles',           icon: '🛡️', label: 'Roles',         modulo: 'roles' },
-    { to: '/admin/configuracion',   icon: '⚙️', label: 'Configuración', modulo: 'configuracion' },
-    { to: '/admin/academias',       icon: '🏢', label: 'Academias',     modulo: 'academias' },
-    { to: '/admin/importar',        icon: '📥', label: 'Importar Datos', modulo: 'importar' },
-    { to: '/admin/bitacora',        icon: '📒', label: 'Bitácora',      modulo: 'bitacora' },
-    { to: '/admin/backups',         icon: '💾', label: 'Backups',       modulo: 'backups' },
-    { to: '/admin/relaciones',      icon: '🔗', label: 'Relaciones BD', modulo: 'relaciones' },
-    { to: '/admin/manual',          icon: '📖', label: 'Manual',        modulo: 'manual' },
+    { to: '/admin/usuarios',        icon: <Users size={NAV_ICON_SIZE} />,     label: 'Usuarios',      modulo: 'usuarios' },
+    { to: '/admin/roles',           icon: <Shield size={NAV_ICON_SIZE} />,    label: 'Roles',         modulo: 'roles' },
+    { to: '/admin/configuracion',   icon: <Settings size={NAV_ICON_SIZE} />,  label: 'Configuración', modulo: 'configuracion' },
+    { to: '/admin/academias',       icon: <Building2 size={NAV_ICON_SIZE} />, label: 'Academias',     modulo: 'academias' },
+    { to: '/admin/importar',        icon: <Download size={NAV_ICON_SIZE} />,  label: 'Importar Datos', modulo: 'importar' },
+    { to: '/admin/bitacora',        icon: <BookMarked size={NAV_ICON_SIZE} />, label: 'Bitácora',     modulo: 'bitacora' },
+    { to: '/admin/backups',         icon: <HardDrive size={NAV_ICON_SIZE} />, label: 'Backups',       modulo: 'backups' },
+    { to: '/admin/relaciones',      icon: <Link2 size={NAV_ICON_SIZE} />,     label: 'Relaciones BD', modulo: 'relaciones' },
+    { to: '/admin/manual',          icon: <BookOpen size={NAV_ICON_SIZE} />,  label: 'Manual',        modulo: 'manual' },
   ]},
 ];
 
@@ -201,7 +191,7 @@ const Sidebar = () => {
           <p className="nav-text">{usuario?.nombre}</p>
           <span className="rol-badge nav-text">{ROLE_LABEL[rol] || rol}</span>
           {sede && (
-            <span className="sede-badge nav-text" title={sede.id}>📍 {sede.nombre}</span>
+            <span className="sede-badge nav-text" title={sede.id}>{sede.nombre}</span>
           )}
           <button
             type="button"

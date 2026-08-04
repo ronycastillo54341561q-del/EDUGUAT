@@ -59,7 +59,7 @@ export default function Configuracion() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>⚙️ Panel de Configuración</h1>
+        <h1>Panel de Configuración</h1>
         <p className="subtitle">
           Administra los catálogos del sistema. Los cambios aquí <strong>no afectan</strong> a los registros
           de alumnos ya creados, sólo a los nuevos que se inscriban.
@@ -1390,7 +1390,7 @@ function SeccionMembretes() {
 
           <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
             <button className="btn-primary" onClick={guardar} disabled={guardando}>
-              {guardando ? 'Guardando...' : '💾 Guardar membrete'}
+              {guardando ? 'Guardando...' : 'Guardar membrete'}
             </button>
             <button className="btn-cancel" onClick={restaurar} disabled={guardando}>
               Restaurar predeterminado
@@ -1532,7 +1532,7 @@ function SeccionAnios() {
 
           <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
             <button className="btn-primary" onClick={guardar} disabled={guardando}>
-              {guardando ? 'Guardando...' : '💾 Guardar'}
+              {guardando ? 'Guardando...' : 'Guardar'}
             </button>
             <button className="btn-cancel" onClick={restaurar} disabled={guardando}>
               Restaurar predeterminado

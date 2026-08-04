@@ -487,7 +487,7 @@ export default function Planificaciones() {
                         }}
                         title="Exportar la planificación completa como PDF"
                       >
-                        {exportandoId === d.id ? 'Generando…' : '📄 Exportar PDF'}
+                        {exportandoId === d.id ? 'Generando…' : 'Exportar PDF'}
                       </button>
                     </div>
 

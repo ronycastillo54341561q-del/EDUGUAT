@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Settings2, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
@@ -386,7 +387,7 @@ const MisTablas = () => {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📊 Mis Tablas</h1>
+        <h1>Mis Tablas</h1>
         <p className="subtitle">
           Tablas compartidas por todos los usuarios con acceso al módulo.
           Las tablas desactivadas se conservan {DIAS_RETENCION} días antes de eliminarse.
@@ -440,7 +441,7 @@ const MisTablas = () => {
                     {inactiva ? (
                       <>
                         <button className="mt-btn primary" onClick={() => reactivarTabla(t.id)}>
-                          ♻ Reactivar
+                          Reactivar
                         </button>
                         <button className="mt-btn danger" onClick={() => eliminarDefinitivo(t.id, t.nombre)}>
                           Eliminar
@@ -449,7 +450,7 @@ const MisTablas = () => {
                     ) : (
                       <>
                         <button className="mt-btn primary" onClick={() => abrirTabla(t.id)}>Abrir</button>
-                        <button className="mt-btn success" onClick={() => exportarDesdeListado(t.id)} title="Descargar como Excel">📊 Excel</button>
+                        <button className="mt-btn success" onClick={() => exportarDesdeListado(t.id)} title="Descargar como Excel">Excel</button>
                         <button className="mt-btn danger"  onClick={() => desactivarTabla(t.id, t.nombre)}>
                           Desactivar
                         </button>
@@ -525,13 +526,13 @@ const Wizard = ({ wizard, setWizard, onCancelar, onGenerar, esInstitucion, colsC
                 className={`mt-btn ${w.conAlumnos === true ? 'primary' : 'secondary'}`}
                 onClick={() => set({ conAlumnos: true })}
               >
-                📥 Sí, con datos de alumnos
+                Sí, con datos de alumnos
               </button>
               <button
                 className={`mt-btn ${w.conAlumnos === false ? 'primary' : 'secondary'}`}
                 onClick={() => set({ conAlumnos: false })}
               >
-                ⬜ No, tabla vacía
+                No, tabla vacía
               </button>
             </div>
 
@@ -1050,12 +1051,12 @@ const EditorTabla = ({ tabla, onCerrar }) => {
             disabled={columnas.length === 0}
             title="Descargar como Excel con diseño"
           >
-            📊 Exportar a Excel
+            Exportar a Excel
           </button>
           <span className={`mt-save-status ${saveState}`}>
-            {saveState === 'saving' && '💾 Guardando...'}
+            {saveState === 'saving' && 'Guardando...'}
             {saveState === 'saved'  && '✓ Guardado'}
-            {saveState === 'error'  && '⚠ Error al guardar'}
+            {saveState === 'error'  && 'Error al guardar'}
           </span>
         </div>
 
@@ -1123,7 +1124,7 @@ const EditorTabla = ({ tabla, onCerrar }) => {
                             {sortIcon}
                           </button>
                           <button title="Renombrar" onClick={() => renombrarColumna(i)}>✎</button>
-                          <button title="Cambiar tipo" onClick={() => cambiarTipoColumna(i)}>⚙</button>
+                          <button title="Cambiar tipo" onClick={() => cambiarTipoColumna(i)}><Settings2 size={13} /></button>
                           <button title="Eliminar" onClick={() => eliminarColumna(i)}>✕</button>
                         </span>
                       </th>
@@ -1155,7 +1156,7 @@ const EditorTabla = ({ tabla, onCerrar }) => {
                       );
                     })}
                     <td style={{ textAlign: 'center' }}>
-                      <button className="mt-row-delete" title="Eliminar fila" onClick={() => eliminarFila(ri)}>🗑</button>
+                      <button className="mt-row-delete" title="Eliminar fila" onClick={() => eliminarFila(ri)}><Trash2 size={14} /></button>
                     </td>
                   </tr>
                 ))}

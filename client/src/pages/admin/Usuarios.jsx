@@ -157,7 +157,7 @@ export default function Usuarios() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>👥 Usuarios y Roles</h1>
+        <h1>Usuarios y Roles</h1>
         <p className="subtitle">
           Crea cuentas para personal de oficina y maestros. Solo el administrador puede acceder a este módulo.
         </p>
@@ -254,7 +254,7 @@ export default function Usuarios() {
               width: 460, maxWidth: '95vw', boxShadow: '0 8px 32px rgba(0,0,0,0.18)'
             }}>
               <h2 style={{ margin: '0 0 1.25rem', color: '#1a237e', fontSize: '1.1rem' }}>
-                {editando ? '✏️ Editar Usuario' : '➕ Nuevo Usuario'}
+                {editando ? 'Editar Usuario' : 'Nuevo Usuario'}
               </h2>
 
               <form onSubmit={guardar}>

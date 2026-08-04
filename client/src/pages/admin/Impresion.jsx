@@ -369,16 +369,16 @@ export default function Impresion() {
 
         {/* Encabezado — solo visible en pantalla */}
         <div className="no-print">
-          <h1>🖨️ Panel de Impresión</h1>
+          <h1>Panel de Impresión</h1>
           <p className="subtitle">Genera e imprime listados en formato horizontal (A4 apaisado).</p>
 
           {/* Tabs */}
           <div className="imp-tabs">
             <button className={`imp-tab${tab === 'mec' ? ' active' : ''}`} onClick={() => setTab('mec')}>
-              ⌨️ Mecanografía
+             Mecanografía
             </button>
             <button className={`imp-tab${tab === 'asist' ? ' active' : ''}`} onClick={() => setTab('asist')}>
-              📋 Asistencia
+              Asistencia
             </button>
           </div>
 
@@ -426,10 +426,10 @@ export default function Impresion() {
           {/* Acciones */}
           <div className="imp-actions">
             <button className="btn-primary" onClick={tab === 'mec' ? exportMec : exportAsist}>
-              📥 Exportar Excel (.xlsx)
+              Exportar Excel (.xlsx)
             </button>
             <button className="imp-print-btn" onClick={exportarPDF} disabled={cargando || alumnos.length === 0}>
-              📄 Exportar PDF
+              Exportar PDF
             </button>
             <span style={{ fontSize: '0.8rem', color: '#888' }}>
               {alumnos.length} alumno(s) · Año {anio}

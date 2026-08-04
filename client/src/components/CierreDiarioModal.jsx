@@ -140,7 +140,7 @@ export default function CierreDiarioModal({ modulo, fecha: fechaProp, onClose, o
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 720 }}>
         <div className="modal-header">
-          <h2>📊 Cierre Diario · {tituloModulo}</h2>
+          <h2>Cierre Diario · {tituloModulo}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
@@ -173,7 +173,7 @@ export default function CierreDiarioModal({ modulo, fecha: fechaProp, onClose, o
                   <div style={{ fontSize: '0.72rem', color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>Estado</div>
                   <div style={{ fontWeight: 700 }}>
                     {!cierre && <span style={{ color: '#888' }}>Sin cierre</span>}
-                    {cierre?.estado === 'pendiente' && <span style={{ color: '#e65100' }}>⏳ Pendiente de revisión</span>}
+                    {cierre?.estado === 'pendiente' && <span style={{ color: '#e65100' }}>Pendiente de revisión</span>}
                     {cierre?.estado === 'revisado' && <span style={{ color: '#2e7d32' }}>✓ Revisado</span>}
                   </div>
                 </div>
@@ -338,7 +338,7 @@ export default function CierreDiarioModal({ modulo, fecha: fechaProp, onClose, o
                               <td style={{ padding: '6px 8px' }}>
                                 {h.estado === 'revisado'
                                   ? <span style={{ color: '#2e7d32', fontWeight: 600 }}>✓ Revisado</span>
-                                  : <span style={{ color: '#e65100', fontWeight: 600 }}>⏳ Pendiente</span>}
+                                  : <span style={{ color: '#e65100', fontWeight: 600 }}>Pendiente</span>}
                               </td>
                               {esAdmin && (
                                 <td style={{ padding: '6px 8px' }}>

@@ -201,7 +201,7 @@ export default function Pagos() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>💰 Pagos y Mensualidades</h1>
+        <h1>Pagos y Mensualidades</h1>
         <p className="subtitle">
           Verde = pagado · Naranja = abono parcial · Ingresa número de recibo por mes.
         </p>
@@ -247,7 +247,7 @@ export default function Pagos() {
                 cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: '#3949ab'
               }}
             >
-              ⚙ Configuración de pagos
+              Configuración de pagos
             </button>
           )}
           {verInstitucion && (
@@ -265,7 +265,7 @@ export default function Pagos() {
                 cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: '#3949ab'
               }}
             >
-              🪪 Membrete de recibos
+              Membrete de recibos
             </button>
           )}
         </div>

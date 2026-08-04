@@ -132,7 +132,7 @@ export default function Avisos() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📣 Avisos</h1>
+        <h1>Avisos</h1>
         <p className="subtitle">
           Publica mensajes para los alumnos. Pueden ser generales o dirigidos a un horario, laboratorio, diplomado, día o alumno específico.
         </p>
@@ -207,7 +207,7 @@ export default function Avisos() {
               boxShadow: '0 8px 32px rgba(0,0,0,0.18)'
             }}>
               <h2 style={{ margin: '0 0 1.25rem', color: '#1a237e', fontSize: '1.1rem' }}>
-                ➕ Nuevo Aviso
+                Nuevo Aviso
               </h2>
               <form onSubmit={guardar}>
                 <Field label="Título">

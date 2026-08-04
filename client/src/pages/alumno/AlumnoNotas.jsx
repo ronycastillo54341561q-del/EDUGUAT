@@ -63,7 +63,7 @@ const AlumnoNotas = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>📝 Mis Notas</h1>
+        <h1>Mis Notas</h1>
         <p className="subtitle">Calificaciones de TAC y Diplomado</p>
 
         <div className="asist-filtros" style={{ marginBottom: '1.5rem' }}>

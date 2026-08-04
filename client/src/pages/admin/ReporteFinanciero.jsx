@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Phone, User, School, MapPin, Clock3 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import './admin.css';
@@ -117,11 +118,11 @@ const TarjetaAlumno = ({ alumno, anio, mesActual }) => {
           )}
         </div>
         <div className="rf-header-meta">
-          {alumno.telefono && <span>📞 {alumno.telefono}</span>}
-          {alumno.encargado && <span>👤 {alumno.encargado}</span>}
-          {alumno.establecimiento && <span>🏫 {alumno.establecimiento}</span>}
-          {alumno.tac && <span>📍 TAC: {alumno.tac}</span>}
-          <span>🕐 {horarioLabel(alumno)}</span>
+          {alumno.telefono && <span><Phone size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.telefono}</span>}
+          {alumno.encargado && <span><User size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.encargado}</span>}
+          {alumno.establecimiento && <span><School size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{alumno.establecimiento}</span>}
+          {alumno.tac && <span><MapPin size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />TAC: {alumno.tac}</span>}
+          <span><Clock3 size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{horarioLabel(alumno)}</span>
         </div>
       </div>
 
@@ -228,7 +229,7 @@ export default function ReporteFinanciero() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>💸 Reporte Financiero</h1>
+        <h1>Reporte Financiero</h1>
         <p className="subtitle">Genera un listado de alumnos según sus condiciones de pago, con detalle de mensualidades y asistencia.</p>
 
         {/* Panel de filtros */}
@@ -309,7 +310,7 @@ export default function ReporteFinanciero() {
 
             <div style={{ display:'flex', alignItems:'flex-end' }}>
               <button className="btn-primary" onClick={generar} disabled={cargando} style={{ width:'100%', padding:'0.55rem 1rem' }}>
-                {cargando ? 'Generando...' : '🔍 Generar Reporte'}
+                {cargando ? 'Generando...' : 'Generar Reporte'}
               </button>
             </div>
           </div>

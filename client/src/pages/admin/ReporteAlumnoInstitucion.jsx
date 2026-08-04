@@ -236,7 +236,7 @@ const ReporteAlumnoInstitucion = () => {
     <div className="admin-layout">
       <Sidebar />
       <main className="admin-content">
-        <h1>📊 Reporte de Alumno</h1>
+        <h1>Reporte de Alumno</h1>
         <p className="subtitle">Busca un alumno y genera su reporte de inscripción, asistencia, cursos y pagos</p>
 
         {/* Buscador */}
@@ -278,13 +278,13 @@ const ReporteAlumnoInstitucion = () => {
             </div>
 
             <button className="btn-primary" onClick={generarReporte} disabled={!alumnoSel || cargando}>
-              {cargando ? '⏳ Generando…' : '📄 Generar Reporte'}
+              {cargando ? 'Generando…' : 'Generar Reporte'}
             </button>
           </div>
 
           {alumnoSel && (
             <div className="rpt-sel-chip">
-              ✅ Seleccionado: <strong>{alumnoSel.nombre} {alumnoSel.apellido}</strong> — {alumnoSel.clave}{alumnoSel.codigo_estudiante ? ` (${alumnoSel.codigo_estudiante})` : ''}
+              Seleccionado: <strong>{alumnoSel.nombre} {alumnoSel.apellido}</strong> — {alumnoSel.clave}{alumnoSel.codigo_estudiante ? ` (${alumnoSel.codigo_estudiante})` : ''}
             </div>
           )}
         </div>
@@ -310,7 +310,7 @@ const ReporteAlumnoInstitucion = () => {
             {/* Datos personales + Inscripción */}
             <div className="rpt-grid-2">
               <div className="rpt-card">
-                <h3 className="rpt-card-title">👤 Datos Personales</h3>
+                <h3 className="rpt-card-title">Datos Personales</h3>
                 <div className="rpt-card-body">
                   <div className="rpt-info-grid">
                     <div className="rpt-info-item">
@@ -344,7 +344,7 @@ const ReporteAlumnoInstitucion = () => {
               </div>
 
               <div className="rpt-card">
-                <h3 className="rpt-card-title">🏫 Información de Inscripción</h3>
+                <h3 className="rpt-card-title">Información de Inscripción</h3>
                 <div className="rpt-card-body">
                   <div className="rpt-info-grid">
                     <div className="rpt-info-item">
@@ -395,7 +395,7 @@ const ReporteAlumnoInstitucion = () => {
             {/* Acceso al sistema */}
             <div className="rpt-card">
               <button type="button" className="rpt-section-toggle" onClick={() => setAccesoAbierto(v => !v)} aria-expanded={accesoAbierto}>
-                <span className="rpt-section-toggle-title">🔐 Acceso al Sistema</span>
+                <span className="rpt-section-toggle-title">Acceso al Sistema</span>
                 <span className="rpt-section-toggle-action">
                   <span className="rpt-section-toggle-text">{accesoAbierto ? 'Ocultar' : 'Ver'}</span>
                   <span className={`rpt-section-toggle-icon ${accesoAbierto ? 'open' : ''}`}>▼</span>
@@ -410,7 +410,7 @@ const ReporteAlumnoInstitucion = () => {
                     </div>
                     <div className="rpt-info-item">
                       <span className="rpt-info-label">Contraseña</span>
-                      <span className="rpt-info-value pass-val">🔒 Protegida (cifrada)</span>
+                      <span className="rpt-info-value pass-val">Protegida (cifrada)</span>
                     </div>
                   </div>
                 </div>
@@ -419,7 +419,7 @@ const ReporteAlumnoInstitucion = () => {
 
             {/* Cursos del grado */}
             <div className="rpt-card">
-              <h3 className="rpt-card-title">📚 Cursos {al.grado ? `— ${al.grado}` : ''}</h3>
+              <h3 className="rpt-card-title">Cursos {al.grado ? `— ${al.grado}` : ''}</h3>
               <div className="rpt-card-body">
                 {!al.grado ? (
                   <div style={{ color: '#999', fontSize: '0.88rem' }}>El alumno no tiene grado asignado.</div>
@@ -432,10 +432,10 @@ const ReporteAlumnoInstitucion = () => {
                     {cursos.map(c => (
                       <div key={c.id} className="rpt-curso-card">
                         <div className="rpt-curso-nombre">{c.nombre}</div>
-                        <div className="rpt-curso-info">👨‍🏫 {c.maestro || 'Sin maestro asignado'}</div>
+                        <div className="rpt-curso-info">{c.maestro || 'Sin maestro asignado'}</div>
                         {(c.dias?.length > 0 || fmtHorarioCurso(c)) && (
                           <div className="rpt-curso-info">
-                            🗓️ {[(c.dias || []).join(', '), fmtHorarioCurso(c)].filter(Boolean).join(' · ')}
+                            {[(c.dias || []).join(', '), fmtHorarioCurso(c)].filter(Boolean).join(' · ')}
                           </div>
                         )}
                       </div>
@@ -447,7 +447,7 @@ const ReporteAlumnoInstitucion = () => {
 
             {/* Asistencia (calendario por mes) */}
             <div className="rpt-card">
-              <h3 className="rpt-card-title">📅 Asistencia — {anio}</h3>
+              <h3 className="rpt-card-title">Asistencia — {anio}</h3>
               <div className="rpt-card-body">
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -516,7 +516,7 @@ const ReporteAlumnoInstitucion = () => {
 
             {/* Pagos */}
             <div className="rpt-card">
-              <h3 className="rpt-card-title">💰 Pagos — Año {anio}</h3>
+              <h3 className="rpt-card-title">Pagos — Año {anio}</h3>
               {pagVisibles.length === 0 ? (
                 <div className="rpt-card-body" style={{ color: '#999', fontSize: '0.88rem' }}>
                   Sin registros de pago para {anio}.
@@ -525,7 +525,7 @@ const ReporteAlumnoInstitucion = () => {
                 <>
                   {proximoPago && (
                     <div style={{ margin: '0.75rem 1.25rem 0', padding: '0.6rem 1rem', background: '#e3f2fd', border: '1.5px solid #90caf9', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, color: '#0d47a1' }}>
-                      📅 Próximo mes a pagar: <strong style={{ textTransform: 'capitalize' }}>{proximoPago.mes}</strong> — Q {montoReal(proximoPago).toFixed(2)}
+                      Próximo mes a pagar: <strong style={{ textTransform: 'capitalize' }}>{proximoPago.mes}</strong> — Q {montoReal(proximoPago).toFixed(2)}
                     </div>
                   )}
                   <div className="pagos-grid">

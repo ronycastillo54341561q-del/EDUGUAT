@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { User } from 'lucide-react';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
 import '../admin/admin.css';
@@ -32,7 +33,7 @@ const AlumnoPerfil = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>👤 Mi Perfil</h1>
+        <h1>Mi Perfil</h1>
         <p className="subtitle">Información personal y datos de matrícula</p>
 
         {cargando ? (
@@ -52,7 +53,7 @@ const AlumnoPerfil = () => {
                 background: 'rgba(255,255,255,0.2)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '1.8rem', flexShrink: 0
-              }}>👤</div>
+              }}><User size={30} /></div>
               <div>
                 <h2 style={{ color: '#fff', fontSize: '1.3rem' }}>{perfil.nombre} {perfil.apellido}</h2>
                 <p style={{ color: '#c5cae9', fontSize: '0.88rem', marginTop: '2px' }}>

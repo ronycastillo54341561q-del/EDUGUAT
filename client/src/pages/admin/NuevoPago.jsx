@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { loadMembrete } from '../../lib/membrete';
@@ -332,7 +333,7 @@ export default function NuevoPago() {
         {/* ── Éxito ── */}
         {recibo && (
           <div className="np-success-card">
-            <div className="np-success-icon">✅</div>
+            <div className="np-success-icon"><CheckCircle2 size={46} /></div>
             <h2>Pago registrado exitosamente</h2>
             <p>Recibo generado:</p>
             <div className="recibo-num">#{recibo.no_recibo}</div>
@@ -364,13 +365,13 @@ export default function NuevoPago() {
                   <li key={i}>
                     <span>
                       {d.tipo === 'completo'
-                        ? <>✅ <strong>{cap(d.mes)}</strong>
+                        ? <><strong>{cap(d.mes)}</strong>
                             {d.abonoPrevio > 0
                               ? <> — completa pago (tenía abono de {fmtQ(d.abonoPrevio)})</>
                               : <> — pago completo</>
                             }
                           </>
-                        : <>🔶 <strong>{cap(d.mes)}</strong> — abono ({fmtQ(d.monto)} de {fmtQ(d.cuota)})</>
+                        : <><strong>{cap(d.mes)}</strong> — abono ({fmtQ(d.monto)} de {fmtQ(d.cuota)})</>
                       }
                     </span>
                     <span style={{ fontWeight: 600 }}>{fmtQ(d.monto)}</span>

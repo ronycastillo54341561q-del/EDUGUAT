@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { CheckCircle2, Clock3, Banknote } from 'lucide-react';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
 import '../admin/admin.css';
@@ -43,7 +44,7 @@ const AlumnoPagos = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>💰 Mis Pagos</h1>
+        <h1>Mis Pagos</h1>
         <p className="subtitle">Estado de mensualidades</p>
 
         <div className="asist-filtros" style={{ marginBottom: '1.5rem' }}>
@@ -55,9 +56,9 @@ const AlumnoPagos = () => {
         {/* Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {[
-            { label: 'Pagadas',   value: pagadas,           color: '#2e7d32', icon: '✅' },
-            { label: 'Pendientes', value: pendientes,        color: '#e65100', icon: '⏳' },
-            { label: 'Total pagado', value: `Q ${totalPagado.toFixed(2)}`, color: '#1a237e', icon: '💵' },
+            { label: 'Pagadas',   value: pagadas,           color: '#2e7d32', icon: <CheckCircle2 size={20} /> },
+            { label: 'Pendientes', value: pendientes,        color: '#e65100', icon: <Clock3 size={20} /> },
+            { label: 'Total pagado', value: `Q ${totalPagado.toFixed(2)}`, color: '#1a237e', icon: <Banknote size={20} /> },
           ].map(({ label, value, color, icon }) => (
             <div key={label} className="card" style={{ textAlign: 'center', padding: '1rem 0.5rem' }}>
               <div style={{ fontSize: '1.4rem' }}>{icon}</div>

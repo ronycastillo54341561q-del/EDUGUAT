@@ -286,7 +286,7 @@ export default function Horarios() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>⏰ Horarios de Clase</h1>
+        <h1>Horarios de Clase</h1>
         <p className="subtitle">
           Arma la parrilla por grado y sección: define las franjas, elige un grado y rellena cada
           casilla con el curso. El maestro se completa solo desde el curso.
@@ -314,7 +314,7 @@ export default function Horarios() {
             <input type="checkbox" checked={verSabado} onChange={e => setVerSabado(e.target.checked)} /> Incluir sábado
           </label>
           {gradoSel && franjas.length > 0 && (
-            <button className="btn-edit" onClick={imprimir}>🖨️ Imprimir horario</button>
+            <button className="btn-edit" onClick={imprimir}>Imprimir horario</button>
           )}
         </div>
 
@@ -335,7 +335,7 @@ export default function Horarios() {
           <div className="table-container">
             {puedeEditar && (
               <p style={{ fontSize: '0.82rem', color: '#666', margin: '0 0 8px' }}>
-                💡 Haz clic en cualquier casilla para asignar el curso y el maestro. Las casillas en
+                Haz clic en cualquier casilla para asignar el curso y el maestro. Las casillas en
                 <span style={{ color: '#b71c1c', fontWeight: 700 }}> rojo</span> indican que ese maestro ya está
                 ocupado en otro grado/sección a esa misma hora.
               </p>
@@ -361,7 +361,7 @@ export default function Horarios() {
                         <td
                           key={d.key}
                           onClick={() => abrirCelda(f, d)}
-                          title={choque ? `⚠ ${c.maestro} ya tiene clase a esta hora en otro grupo` : (puedeEditar ? 'Clic para editar' : '')}
+                          title={choque ? `${c.maestro} ya tiene clase a esta hora en otro grupo` : (puedeEditar ? 'Clic para editar' : '')}
                           style={{
                             cursor: puedeEditar ? 'pointer' : 'default',
                             padding: '6px 8px', textAlign: 'center', verticalAlign: 'middle',

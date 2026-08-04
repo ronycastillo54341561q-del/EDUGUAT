@@ -388,7 +388,7 @@ export default function Roles() {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>🛡️ Roles y permisos</h1>
+        <h1>Roles y permisos</h1>
         <p className="subtitle">
           Definí qué módulos puede ver/editar/exportar cada rol y en qué horario el sistema le permite iniciar sesión.
           El rol "admin" no tiene restricción de horario.
@@ -549,7 +549,7 @@ export default function Roles() {
               boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
             }}>
               <h2 style={{ margin: '0 0 1rem', color: '#1a237e', fontSize: '1.15rem' }}>
-                {editando ? '✏️ Editar Rol' : '➕ Nuevo Rol'}
+                {editando ? 'Editar Rol' : 'Nuevo Rol'}
               </h2>
 
               <form onSubmit={guardar}>
@@ -721,7 +721,7 @@ export default function Roles() {
               boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
             }}>
               <h2 style={{ margin: '0 0 0.5rem', color: '#1a237e', fontSize: '1.15rem' }}>
-                ✏️ Editar permisos — {modalBase.nombre}
+                Editar permisos — {modalBase.nombre}
               </h2>
               <p className="subtitle" style={{ marginTop: 0, fontSize: '0.85rem' }}>
                 Ajustá qué módulos puede ver, editar y exportar este rol. Los cambios aplican a todos los usuarios con rol <strong>{modalBase.slug}</strong>.

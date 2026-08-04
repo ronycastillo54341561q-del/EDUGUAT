@@ -137,7 +137,7 @@ const InscritosTac = () => {
     <div className="admin-layout">
       <Sidebar />
       <div className="admin-content">
-        <h1>📋 Inscritos TAC</h1>
+        <h1>Inscritos TAC</h1>
         <p className="subtitle">
           Marca quién está inscrito por año y nivel.  Los cambios entre niveles
           se conservan en el historial: si un alumno estuvo en TAC1 en 2025 y ahora
@@ -160,7 +160,7 @@ const InscritosTac = () => {
           <input
             className="search-input"
             type="text"
-            placeholder="🔍 Buscar por nombre, clave o código..."
+            placeholder="Buscar por nombre, clave o código..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             style={{ flex: 1, minWidth: 220 }}

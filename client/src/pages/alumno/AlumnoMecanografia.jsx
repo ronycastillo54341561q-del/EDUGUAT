@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BookOpen, CheckCircle2, Clock3, Star, Flag } from 'lucide-react';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
 import '../admin/admin.css';
@@ -37,7 +38,7 @@ const AlumnoMecanografia = () => {
     <div className="admin-layout">
       <AlumnoSidebar />
       <div className="admin-content">
-        <h1>⌨️ Mecanografía</h1>
+        <h1>Mecanografía</h1>
         <p className="subtitle">Lecciones del año {anio}</p>
 
         <div className="asist-filtros" style={{ marginBottom: '1.5rem' }}>
@@ -49,11 +50,11 @@ const AlumnoMecanografia = () => {
         {/* Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {[
-            { label: 'Total lecciones', value: 20,                       color: '#1a237e', icon: '📚' },
-            { label: 'Completadas',     value: completadas,              color: '#2e7d32', icon: '✅' },
-            { label: 'Pendientes',      value: 20 - completadas,         color: '#e65100', icon: '📖' },
-            { label: 'Promedio',        value: promedio ?? '—',          color: '#6a1b9a', icon: '⭐' },
-            { label: 'Examen',          value: examen != null ? examen : '—', color: examen != null && examen >= 60 ? '#2e7d32' : '#c62828', icon: '🏁' },
+            { label: 'Total lecciones', value: 20,                       color: '#1a237e', icon: <BookOpen size={20} /> },
+            { label: 'Completadas',     value: completadas,              color: '#2e7d32', icon: <CheckCircle2 size={20} /> },
+            { label: 'Pendientes',      value: 20 - completadas,         color: '#e65100', icon: <Clock3 size={20} /> },
+            { label: 'Promedio',        value: promedio ?? '—',          color: '#6a1b9a', icon: <Star size={20} /> },
+            { label: 'Examen',          value: examen != null ? examen : '—', color: examen != null && examen >= 60 ? '#2e7d32' : '#c62828', icon: <Flag size={20} /> },
           ].map(({ label, value, color, icon }) => (
             <div key={label} className="card" style={{ textAlign: 'center', padding: '1rem 0.5rem' }}>
               <div style={{ fontSize: '1.4rem' }}>{icon}</div>
@@ -117,7 +118,7 @@ const AlumnoMecanografia = () => {
                     </tr>
                   ))}
                   <tr>
-                    <td style={{ fontWeight: 700, color: '#1a237e' }}>🏁 Examen final</td>
+                    <td style={{ fontWeight: 700, color: '#1a237e' }}>Examen final</td>
                     <td style={{ textAlign: 'center' }}>
                       <span style={{
                         fontWeight: 700,

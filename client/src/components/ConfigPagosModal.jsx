@@ -131,7 +131,7 @@ export default function ConfigPagosModal({ anio, onClose, filtros, alumnos }) {
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-          <h2 style={{ margin: 0, color: '#1a237e' }}>⚙ Configuración de pagos — {anio}</h2>
+          <h2 style={{ margin: 0, color: '#1a237e' }}>Configuración de pagos — {anio}</h2>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#666' }}>✕</button>
         </div>
         <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>

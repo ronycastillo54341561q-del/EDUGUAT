@@ -35,9 +35,9 @@ const Manual = () => {
       <Sidebar />
       <div className="admin-content manual-content">
         <div className="manual-toolbar no-print">
-          <h1>📖 Manual de uso</h1>
+          <h1>Manual de uso</h1>
           <button className="btn-primary" onClick={() => window.print()}>
-            🖨️ Imprimir / Guardar como PDF
+            Imprimir / Guardar como PDF
           </button>
         </div>
 
@@ -141,7 +141,7 @@ const Manual = () => {
               <li>Ajustar espacios y mostrar/ocultar fecha.</li>
             </ul>
             <p className="tip">
-              💡 Desde el módulo <em>Pagos</em> hay un botón directo
+              Desde el módulo <em>Pagos</em> hay un botón directo
               <strong>"Membrete de recibos"</strong> que te lleva ahí.
             </p>
           </section>
@@ -248,7 +248,7 @@ const Manual = () => {
               </li>
             </ul>
             <p className="tip">
-              💡 Los meses anteriores al "mes inicio" configurado quedan
+              Los meses anteriores al "mes inicio" configurado quedan
               automáticamente bloqueados (gris oscuro) en la rejilla de
               <em>Pagos</em>. Eso impide cobrarlos por error.
             </p>
@@ -257,7 +257,7 @@ const Manual = () => {
           <section id="pagos-config">
             <h2>7. Configuración de pagos por año</h2>
             <p>
-              Desde <em>Pagos → ⚙ Configuración de pagos</em> defines
+              Desde <em>Pagos → Configuración de pagos</em> defines
               "reglas" de cuándo y cuánto cobra cada grupo:
             </p>
             <ul>

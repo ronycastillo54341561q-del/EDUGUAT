@@ -452,7 +452,7 @@ const ReporteAlumnoAcademia = () => {
     <div className="admin-layout">
       <Sidebar />
       <main className="admin-content">
-        <h1>📊 Reporte de Alumno</h1>
+        <h1>Reporte de Alumno</h1>
         <p className="subtitle">Busca un alumno y genera su reporte completo de información académica y financiera</p>
 
         {/* ── Buscador ── */}
@@ -504,13 +504,13 @@ const ReporteAlumnoAcademia = () => {
               onClick={generarReporte}
               disabled={!alumnoSel || cargando}
             >
-              {cargando ? '⏳ Generando…' : '📄 Generar Reporte'}
+              {cargando ? 'Generando…' : 'Generar Reporte'}
             </button>
           </div>
 
           {alumnoSel && (
             <div className="rpt-sel-chip">
-              ✅ Seleccionado: <strong>{alumnoSel.nombre} {alumnoSel.apellido}</strong> — {alumnoSel.clave}{alumnoSel.codigo_estudiante ? ` (${alumnoSel.codigo_estudiante})` : ''}
+              Seleccionado: <strong>{alumnoSel.nombre} {alumnoSel.apellido}</strong> — {alumnoSel.clave}{alumnoSel.codigo_estudiante ? ` (${alumnoSel.codigo_estudiante})` : ''}
             </div>
           )}
         </div>
@@ -535,7 +535,7 @@ const ReporteAlumnoAcademia = () => {
             {/* ── Datos personales + Académico (siempre visibles) ── */}
             <div className="rpt-grid-2">
               <div className="rpt-card">
-                <h3 className="rpt-card-title">👤 Datos Personales</h3>
+                <h3 className="rpt-card-title">Datos Personales</h3>
                 <div className="rpt-card-body">
                   <div className="rpt-info-grid">
                     <div className="rpt-info-item">
@@ -573,7 +573,7 @@ const ReporteAlumnoAcademia = () => {
               </div>
 
               <div className="rpt-card">
-                <h3 className="rpt-card-title">🎓 Información Académica</h3>
+                <h3 className="rpt-card-title">Información Académica</h3>
                 <div className="rpt-card-body">
                   <div className="rpt-info-grid">
                     <div className="rpt-info-item">
@@ -621,7 +621,7 @@ const ReporteAlumnoAcademia = () => {
 
             {/* ── Acceso al sistema (colapsable) ── */}
             <SeccionColapsable
-              titulo="🔐 Acceso al Sistema"
+              titulo="Acceso al Sistema"
               abierta={seccionAbierta.acceso}
               onToggle={() => toggleSeccion('acceso')}
             >
@@ -632,14 +632,14 @@ const ReporteAlumnoAcademia = () => {
                 </div>
                 <div className="rpt-info-item">
                   <span className="rpt-info-label">Contraseña</span>
-                  <span className="rpt-info-value pass-val">🔒 Protegida (cifrada)</span>
+                  <span className="rpt-info-value pass-val">Protegida (cifrada)</span>
                 </div>
               </div>
             </SeccionColapsable>
 
             {/* ── Mecanografía (colapsable) ── */}
             <SeccionColapsable
-              titulo="⌨️ Notas de Mecanografía"
+              titulo="Notas de Mecanografía"
               badge={
                 <span className="rpt-section-badge">
                   {mec.length === 0 ? 'sin registros' : `${mec.length} año(s)`}
@@ -679,7 +679,7 @@ const ReporteAlumnoAcademia = () => {
                       </div>
                       {m.examen != null && (
                         <div className="mec-examen-row">
-                          <span>📝 Examen Final</span>
+                          <span>Examen Final</span>
                           <span className="mec-examen-nota">{parseFloat(m.examen).toFixed(2)}</span>
                         </div>
                       )}
@@ -691,7 +691,7 @@ const ReporteAlumnoAcademia = () => {
 
             {/* ── Notas TAC (colapsable) ── */}
             <SeccionColapsable
-              titulo="📝 Notas TAC"
+              titulo="Notas TAC"
               badge={(() => {
                 const filas = [1, 2, 3].reduce((s, n) => s + (tacPorNivel[n]?.length || 0), 0);
                 return (
@@ -760,7 +760,7 @@ const ReporteAlumnoAcademia = () => {
             {/* ── Notas Diplomados — una sección colapsable por diplomado ── */}
             {dipPorTipo.length === 0 ? (
               <div className="rpt-card">
-                <h3 className="rpt-card-title">🎓 Notas de Diplomados</h3>
+                <h3 className="rpt-card-title">Notas de Diplomados</h3>
                 <div className="rpt-card-body" style={{ color: '#999', fontSize: '0.88rem' }}>
                   No hay diplomados configurados.
                 </div>
@@ -778,7 +778,7 @@ const ReporteAlumnoAcademia = () => {
                       aria-expanded={abierta}
                     >
                       <span className="rpt-section-toggle-title">
-                        🎓 Diplomado: {d.nombre}
+                        Diplomado: {d.nombre}
                         {esActual && <span className="dip-tipo-badge">Actual</span>}
                         <span className="rpt-section-badge">
                           {aniosTipo.length === 0 ? 'sin registros' : `${aniosTipo.length} año(s)`}
@@ -844,7 +844,7 @@ const ReporteAlumnoAcademia = () => {
                               onClick={() => setMostrarGrafs(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
                               style={{ borderTop: '1px solid #f0f0f0', background: '#f8f9ff', borderBottom: mostrarG ? '2px solid #e8eaf6' : 'none' }}
                             >
-                              <span className="rpt-grafico-toggle-label">📈 Gráfico de Desempeño</span>
+                              <span className="rpt-grafico-toggle-label">Gráfico de Desempeño</span>
                               <span className={`rpt-grafico-toggle-icon ${mostrarG ? 'open' : ''}`}>▼</span>
                             </button>
                             {mostrarG && (
@@ -863,7 +863,7 @@ const ReporteAlumnoAcademia = () => {
 
             {/* ── Pagos ── */}
             <div className="rpt-card">
-              <h3 className="rpt-card-title">💰 Pagos — Año {anio}</h3>
+              <h3 className="rpt-card-title">Pagos — Año {anio}</h3>
 
               {pagVisibles.length === 0 ? (
                 <div className="rpt-card-body" style={{ color: '#999', fontSize: '0.88rem' }}>
@@ -882,7 +882,7 @@ const ReporteAlumnoAcademia = () => {
                       fontWeight: 600,
                       color: '#0d47a1'
                     }}>
-                      📅 Próximo mes a pagar: <strong style={{ textTransform: 'capitalize' }}>{proximoPago.mes}</strong>
+                      Próximo mes a pagar: <strong style={{ textTransform: 'capitalize' }}>{proximoPago.mes}</strong>
                       {' '}— Q {montoReal(proximoPago).toFixed(2)}
                     </div>
                   )}
@@ -947,7 +947,7 @@ const ReporteAlumnoAcademia = () => {
                                 cursor: 'pointer', fontWeight: 600,
                               }}
                             >
-                              🎁 Regalar
+                              Regalar
                             </button>
                           )}
                           {puedeQuitarRegalo && (
@@ -988,7 +988,7 @@ const ReporteAlumnoAcademia = () => {
 
             {/* ── Asistencia del año del reporte ── */}
             <div className="rpt-card">
-              <h3 className="rpt-card-title">📅 Asistencia — {anio}</h3>
+              <h3 className="rpt-card-title">Asistencia — {anio}</h3>
               {asistRaw.length === 0 ? (
                 <div className="rpt-card-body" style={{ color: '#999', fontSize: '0.88rem' }}>
                   Sin registros de asistencia para {anio}.
@@ -1071,7 +1071,7 @@ const ReporteAlumnoAcademia = () => {
                 boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
               }}
             >
-              <h2 style={{ marginTop: 0, color: '#1a237e' }}>🎁 Regalar mes</h2>
+              <h2 style={{ marginTop: 0, color: '#1a237e' }}>Regalar mes</h2>
               <p style={{ color: '#444', fontSize: '0.92rem' }}>
                 Vas a acreditar <strong style={{ textTransform: 'capitalize' }}>{regalando.p.mes}</strong> de {anio} para
                 <strong> {al.nombre} {al.apellido}</strong>. El mes no se cobrará y aparecerá con el mensaje en su estado de pagos.
