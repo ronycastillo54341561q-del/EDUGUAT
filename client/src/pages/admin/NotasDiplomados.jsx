@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
+import FiltroFinalizacion from '../../components/FiltroFinalizacion';
 import { useAuth } from '../../context/AuthContext';
 import { can } from '../../lib/permissions';
 import { useAniosFiltros } from '../../lib/anios';
@@ -35,6 +36,9 @@ export default function NotasDiplomados() {
   const [fLaboratorio, setFLaboratorio] = useState(() => ls('dip_lab',     ''));
   const [fDia,         setFDia]         = useState(() => ls('dip_dia',     ''));
   const [tipoActivo,   setTipoActivo]   = useState(() => ls('dip_tipo',    ''));
+  // Mes/anio en que el alumno termina su diplomado
+  const [fMesFin,      setFMesFin]      = useState(() => ls('dip_mes_fin',  ''));
+  const [fAnioFin,     setFAnioFin]     = useState(() => ls('dip_anio_fin', ''));
   const [filtros,      setFiltros]      = useState({ horarios: [], laboratorios: [], dias: [] });
   const [alumnos,      setAlumnos]      = useState([]);
   const [cargando,     setCargando]     = useState(false);
@@ -48,6 +52,8 @@ export default function NotasDiplomados() {
   useEffect(() => { localStorage.setItem('dip_lab',     fLaboratorio); }, [fLaboratorio]);
   useEffect(() => { localStorage.setItem('dip_dia',     fDia);         }, [fDia]);
   useEffect(() => { localStorage.setItem('dip_tipo',    tipoActivo);   }, [tipoActivo]);
+  useEffect(() => { localStorage.setItem('dip_mes_fin',  fMesFin);     }, [fMesFin]);
+  useEffect(() => { localStorage.setItem('dip_anio_fin', fAnioFin);    }, [fAnioFin]);
 
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setFiltros(data)).catch(console.error);
@@ -69,11 +75,13 @@ export default function NotasDiplomados() {
       if (fHorario)     p.append('horario',      fHorario);
       if (fLaboratorio) p.append('laboratorio',  fLaboratorio);
       if (fDia)         p.append('dia',          fDia);
+      if (fMesFin)      p.append('mes_fin',      fMesFin);
+      if (fAnioFin)     p.append('anio_fin',     fAnioFin);
       const { data } = await API.get(`/notas-diplomados/anual?${p}`);
       setAlumnos(data);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
-  }, [anio, fEstado, fHorario, fLaboratorio, fDia]);
+  }, [anio, fEstado, fHorario, fLaboratorio, fDia, fMesFin, fAnioFin]);
 
   useEffect(() => { cargar(); }, [cargar]);
 
@@ -188,6 +196,7 @@ export default function NotasDiplomados() {
             <option value="">Todos los laboratorios</option>
             {filtros.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
+          <FiltroFinalizacion mes={fMesFin} anio={fAnioFin} onMes={setFMesFin} onAnio={setFAnioFin} compacto />
         </div>
 
         {diplomados.length === 0 ? (

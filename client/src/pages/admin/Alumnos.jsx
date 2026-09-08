@@ -4,6 +4,9 @@ import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { can } from '../../lib/permissions';
+import FiltroFinalizacion from '../../components/FiltroFinalizacion';
+import { MESES_FINALIZACION, etiquetaFinalizacion, SIN_DEFINIR } from '../../lib/finalizacion';
+import { useAniosFiltros } from '../../lib/anios';
 import './admin.css';
 
 const uniq = (arr, k) => [...new Set(arr.map(a => a[k]).filter(Boolean))].sort();
@@ -26,6 +29,7 @@ const previewCredenciales = (form) => {
 
 const camposIniciales = {
   codigo_estudiante: '', nombre: '', apellido: '', fecha_inicio: '',
+  mes_finalizacion: '', anio_finalizacion: '',
   fecha_nacimiento: '', encargado: '', telefono: '', diplomado: '',
   tac: '', asesor: '', direccion: '', establecimiento: '', observaciones: '',
   dia_clases1: 'lunes', dia_clases2: '', horario: '', laboratorio: '',
@@ -53,7 +57,7 @@ const fmtFecha = d => d ? String(d).slice(0,10) : '—';
 
 const COL_DEFAULTS = {
   no:44, clave:90, alumno:200, cod:95, encargado:150, tel:110, email:175,
-  finicio:105, fnac:105, dip:150, tac:80, asesor:140, hor:90, lab:80, dias:110,
+  finicio:105, ffin:120, fnac:105, dip:150, tac:80, asesor:140, hor:90, lab:80, dias:110,
   est:80, cuota:75, dir:170, estab:150, obs:160, acc:145,
   // Instituciones
   grado:120, secc:80, mguia:150, plan:160
@@ -61,6 +65,7 @@ const COL_DEFAULTS = {
 
 const Alumnos = () => {
   const { usuario, sede } = useAuth();
+  const { anios: ANIOS, anioActual } = useAniosFiltros();
   const esInstitucion = sede?.tipo === 'institucion';
   const puedeEditar = can(usuario?.rol, 'alumnos', 'edit');
   const esAdmin     = usuario?.rol === 'admin';
@@ -107,6 +112,9 @@ const Alumnos = () => {
   const [fGrado,           setFGrado]           = useState(() => localStorage.getItem('alum_grado')   ?? '');
   const [fSeccion,         setFSeccion]         = useState(() => localStorage.getItem('alum_seccion') ?? '');
   const [fPlan,            setFPlan]            = useState(() => localStorage.getItem('alum_plan')    ?? '');
+  // Mes/año de finalización (aplican a academias e instituciones por igual)
+  const [fMesFin,          setFMesFin]          = useState(() => localStorage.getItem('alum_mesfin')  ?? '');
+  const [fAnioFin,         setFAnioFin]         = useState(() => localStorage.getItem('alum_aniofin') ?? '');
 
   useEffect(() => { localStorage.setItem('alum_estado',        fEstado);          }, [fEstado]);
   useEffect(() => { localStorage.setItem('alum_horario_combo', fHorarioCombo);    }, [fHorarioCombo]);
@@ -118,6 +126,8 @@ const Alumnos = () => {
   useEffect(() => { localStorage.setItem('alum_grado',         fGrado);           }, [fGrado]);
   useEffect(() => { localStorage.setItem('alum_seccion',       fSeccion);         }, [fSeccion]);
   useEffect(() => { localStorage.setItem('alum_plan',          fPlan);            }, [fPlan]);
+  useEffect(() => { localStorage.setItem('alum_mesfin',        fMesFin);          }, [fMesFin]);
+  useEffect(() => { localStorage.setItem('alum_aniofin',       fAnioFin);         }, [fAnioFin]);
 
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setFiltros(data)).catch(console.error);
@@ -179,6 +189,10 @@ const Alumnos = () => {
       if (fDiplomado       && a.diplomado       !== fDiplomado)                     return false;
       if (fEstablecimiento && a.establecimiento !== fEstablecimiento)               return false;
     }
+    if (fMesFin === SIN_DEFINIR) { if (a.mes_finalizacion != null) return false; }
+    else if (fMesFin && String(a.mes_finalizacion) !== String(fMesFin))   return false;
+    if (fAnioFin === SIN_DEFINIR) { if (a.anio_finalizacion != null) return false; }
+    else if (fAnioFin && String(a.anio_finalizacion) !== String(fAnioFin)) return false;
     if (busqueda && !`${a.nombre} ${a.apellido} ${a.clave||''} ${a.codigo_estudiante||''} ${a.direccion||''} ${a.establecimiento||''} ${a.grado||''} ${a.seccion||''}`.toLowerCase().includes(busqueda.toLowerCase())) return false;
     return true;
   });
@@ -193,6 +207,8 @@ const Alumnos = () => {
         fecha_inicio: alumno.fecha_inicio?.split('T')[0] || '',
         fecha_nacimiento: alumno.fecha_nacimiento?.split('T')[0] || '',
         dia_clases2: alumno.dia_clases2 || '',
+        mes_finalizacion:  alumno.mes_finalizacion  ?? '',
+        anio_finalizacion: alumno.anio_finalizacion ?? '',
       });
     } else {
       setEditando(null);
@@ -312,10 +328,12 @@ const Alumnos = () => {
   const colDir    = { key: 'dir', label: 'Dirección', align: 'left', render: (a) => a.direccion || '—' };
   const colObs    = { key: 'obs', label: 'Observaciones', align: 'left', render: (a) => a.observaciones || '—' };
   const colAcc    = { key: 'acc', label: 'Acciones', align: 'center', render: renderAcciones };
+  const colFin    = { key: 'ffin', label: 'Finalización', align: 'left', render: (a) => etiquetaFinalizacion(a.mes_finalizacion, a.anio_finalizacion) };
 
   const columnasAcademia = [
     colNo, colClave, colAlumno, colCod, colEncargado, colTel, colEmail,
     { key: 'finicio', label: 'Fecha Inicio', align: 'left', render: (a) => fmtFecha(a.fecha_inicio) },
+    colFin,
     colFnac,
     { key: 'dip',    label: 'Diplomado',  align: 'left', render: (a) => a.diplomado || '—' },
     { key: 'tac',    label: 'TAC',        align: 'left', render: (a) => a.tac || '—' },
@@ -337,6 +355,7 @@ const Alumnos = () => {
   const columnasInstitucion = [
     colNo, colClave, colAlumno, colCod, colEncargado, colTel, colEmail,
     { key: 'finicio', label: 'Fecha Inscripción', align: 'left', render: (a) => fmtFecha(a.fecha_inicio) },
+    colFin,
     colFnac,
     { key: 'grado', label: 'Grado',       align: 'left', render: (a) => a.grado || '—' },
     { key: 'secc',  label: 'Sección',     align: 'left', render: (a) => a.seccion || '—' },
@@ -425,6 +444,7 @@ const Alumnos = () => {
               )}
             </>
           )}
+          <FiltroFinalizacion mes={fMesFin} anio={fAnioFin} onMes={setFMesFin} onAnio={setFAnioFin} />
           <select value={fCodigoEstado} onChange={e => setFCodigoEstado(e.target.value)}>
             <option value="">Código (todos)</option>
             <option value="ingresado">Con código</option>
@@ -601,6 +621,22 @@ const Alumnos = () => {
                   <div className="form-group">
                     <label>Fecha de nacimiento</label>
                     <input type="date" name="fecha_nacimiento" value={form.fecha_nacimiento} onChange={handleChange} />
+                  </div>
+                  <div className="form-group">
+                    <label>Mes de finalización</label>
+                    <select name="mes_finalizacion" value={form.mes_finalizacion ?? ''} onChange={handleChange}>
+                      <option value="">— Sin definir —</option>
+                      {MESES_FINALIZACION.map(m => <option key={m.num} value={m.num}>{m.nombre}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Año de finalización</label>
+                    <select name="anio_finalizacion" value={form.anio_finalizacion ?? ''} onChange={handleChange}>
+                      <option value="">— Sin definir —</option>
+                      {(ANIOS.includes(anioActual) ? ANIOS : [anioActual, ...ANIOS]).map(a => (
+                        <option key={a} value={a}>{a}</option>
+                      ))}
+                    </select>
                   </div>
                   {esInstitucion ? (
                     <>

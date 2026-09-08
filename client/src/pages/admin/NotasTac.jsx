@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
+import FiltroFinalizacion from '../../components/FiltroFinalizacion';
 import { useAuth } from '../../context/AuthContext';
 import { can, canExport } from '../../lib/permissions';
 import { loadMembrete, drawMembrete } from '../../lib/membrete';
@@ -417,6 +418,9 @@ export default function NotasTac() {
   const [fDia,             setFDia]             = useState(() => ls('tac_dia',     ''));
   const [fTac,             setFTac]             = useState(() => ls('tac_tac',     ''));
   const [fEstablecimiento, setFEstablecimiento] = useState(() => ls('tac_estab',   ''));
+  // Mes/anio en que el alumno termina su diplomado
+  const [fMesFin,          setFMesFin]          = useState(() => ls('tac_mes_fin',  ''));
+  const [fAnioFin,         setFAnioFin]         = useState(() => ls('tac_anio_fin', ''));
   const [filtros,          setFiltros]          = useState({ horarios: [], laboratorios: [], dias: [] });
   const [alumnos,          setAlumnos]          = useState([]);
   const [cargando,         setCargando]         = useState(false);
@@ -432,6 +436,8 @@ export default function NotasTac() {
   useEffect(() => { localStorage.setItem('tac_dia',     fDia);         }, [fDia]);
   useEffect(() => { localStorage.setItem('tac_tac',     fTac);         }, [fTac]);
   useEffect(() => { localStorage.setItem('tac_estab',   fEstablecimiento); }, [fEstablecimiento]);
+  useEffect(() => { localStorage.setItem('tac_mes_fin',  fMesFin);  }, [fMesFin]);
+  useEffect(() => { localStorage.setItem('tac_anio_fin', fAnioFin); }, [fAnioFin]);
 
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setFiltros(data)).catch(console.error);
@@ -445,12 +451,14 @@ export default function NotasTac() {
       if (fHorario)     p.append('horario',     fHorario);
       if (fLaboratorio) p.append('laboratorio', fLaboratorio);
       if (fDia)         p.append('dia',         fDia);
+      if (fMesFin)      p.append('mes_fin',     fMesFin);
+      if (fAnioFin)     p.append('anio_fin',    fAnioFin);
       // tac y establecimiento se filtran en cliente para ver histórico por año
       const { data } = await API.get(`/notas-tac/anual?${p}`);
       setAlumnos(data);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
-  }, [anio, fEstado, fHorario, fLaboratorio, fDia]);
+  }, [anio, fEstado, fHorario, fLaboratorio, fDia, fMesFin, fAnioFin]);
 
   useEffect(() => { cargar(); }, [cargar]);
 
@@ -615,6 +623,7 @@ export default function NotasTac() {
             <option value="">Todos los laboratorios</option>
             {filtros.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
+          <FiltroFinalizacion mes={fMesFin} anio={fAnioFin} onMes={setFMesFin} onAnio={setFAnioFin} compacto />
           {establecimientos.length > 0 && (
             <select value={fEstablecimiento} onChange={e => setFEstablecimiento(e.target.value)}>
               <option value="">Todos los establecimientos</option>

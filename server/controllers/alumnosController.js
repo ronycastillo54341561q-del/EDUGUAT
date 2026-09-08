@@ -2,6 +2,7 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const { log } = require('../utils/bitacora');
 const { generarClave } = require('../utils/generarClave');
+const { normalizarMes, normalizarAnioFin } = require('../utils/filtroFinalizacion');
 
 const normalizar = s =>
   (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -50,6 +51,8 @@ const crearAlumno = async (req, res) => {
     encargado, telefono, diplomado, tac, asesor, direccion, establecimiento,
     observaciones, dia_clases1, dia_clases2, horario, laboratorio,
     estado, cuota_mensual,
+    // Mes/año en que termina el diplomado o ciclo (ambos opcionales)
+    mes_finalizacion, anio_finalizacion,
     // Campos de instituciones (nullables; las academias no los envían)
     grado, seccion, maestro_guia, plan_clases, dias_clase
   } = req.body;
@@ -58,6 +61,13 @@ const crearAlumno = async (req, res) => {
   if (codigoEst && !CODIGO_REGEX.test(codigoEst)) {
     return res.status(400).json({ message: 'Código de estudiante inválido. Formato esperado: A000AAA (letra, 3 dígitos, 3 letras).' });
   }
+
+  const mesFin  = normalizarMes(mes_finalizacion);
+  const anioFin = normalizarAnioFin(anio_finalizacion);
+  if (mes_finalizacion && mesFin === null)
+    return res.status(400).json({ message: 'Mes de finalización inválido (debe ser de 1 a 12).' });
+  if (anio_finalizacion && anioFin === null)
+    return res.status(400).json({ message: 'Año de finalización inválido.' });
 
   const conn = await db.getConnection();
   try {
@@ -80,13 +90,15 @@ const crearAlumno = async (req, res) => {
     const [alumnoResult] = await conn.query(`
       INSERT INTO alumnos
       (clave, codigo_estudiante, nombre, apellido, fecha_inicio, fecha_nacimiento,
+       mes_finalizacion, anio_finalizacion,
        encargado, telefono, diplomado, tac, asesor, direccion, establecimiento,
        observaciones, dia_clases1, dia_clases2, horario, laboratorio,
        grado, seccion, maestro_guia, plan_clases, dias_clase,
        estado, cuota_mensual, usuario_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       clave, codigoEst, nombre, apellido, fecha_inicio || null, fecha_nacimiento || null,
+      mesFin, anioFin,
       encargado, telefono, diplomado, tac, asesor || null, direccion, establecimiento,
       observaciones, dia_clases1, dia_clases2 || null, horario, laboratorio,
       grado || null, seccion || null, maestro_guia || null, plan_clases || null, dias_clase || null,
@@ -148,6 +160,8 @@ const editarAlumno = async (req, res) => {
     encargado, telefono, diplomado, tac, asesor, direccion, establecimiento,
     observaciones, dia_clases1, dia_clases2, horario, laboratorio,
     estado, cuota_mensual,
+    // Mes/año en que termina el diplomado o ciclo (ambos opcionales)
+    mes_finalizacion, anio_finalizacion,
     // Campos de instituciones (nullables; las academias no los envían)
     grado, seccion, maestro_guia, plan_clases, dias_clase
   } = req.body;
@@ -157,10 +171,18 @@ const editarAlumno = async (req, res) => {
     return res.status(400).json({ message: 'Código de estudiante inválido. Formato esperado: A000AAA (letra, 3 dígitos, 3 letras).' });
   }
 
+  const mesFin  = normalizarMes(mes_finalizacion);
+  const anioFin = normalizarAnioFin(anio_finalizacion);
+  if (mes_finalizacion && mesFin === null)
+    return res.status(400).json({ message: 'Mes de finalización inválido (debe ser de 1 a 12).' });
+  if (anio_finalizacion && anioFin === null)
+    return res.status(400).json({ message: 'Año de finalización inválido.' });
+
   try {
     await db.query(`
       UPDATE alumnos SET
         codigo_estudiante=?, nombre=?, apellido=?, fecha_inicio=?, fecha_nacimiento=?,
+        mes_finalizacion=?, anio_finalizacion=?,
         encargado=?, telefono=?, diplomado=?, tac=?, asesor=?, direccion=?, establecimiento=?,
         observaciones=?, dia_clases1=?, dia_clases2=?, horario=?, laboratorio=?,
         grado=?, seccion=?, maestro_guia=?, plan_clases=?, dias_clase=?,
@@ -168,6 +190,7 @@ const editarAlumno = async (req, res) => {
       WHERE id=?
     `, [
       codigoEst, nombre, apellido, fecha_inicio || null, fecha_nacimiento || null,
+      mesFin, anioFin,
       encargado, telefono, diplomado, tac, asesor || null, direccion, establecimiento,
       observaciones, dia_clases1, dia_clases2 || null, horario, laboratorio,
       grado || null, seccion || null, maestro_guia || null, plan_clases || null, dias_clase || null,

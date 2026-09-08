@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { log } = require('../utils/bitacora');
+const { aplicarFiltroFinalizacion } = require('../utils/filtroFinalizacion');
 
 // Todos los alumnos con su nota de diplomado
 const getNotasDiplomados = async (req, res) => {
@@ -58,11 +59,13 @@ const getNotasDiplomadosAnual = async (req, res) => {
   if (req.query.horario)     { conds.push('al.horario=?');     params.push(req.query.horario); }
   if (req.query.laboratorio) { conds.push('al.laboratorio=?'); params.push(req.query.laboratorio); }
   if (req.query.dia)         { conds.push('(al.dia_clases1=? OR al.dia_clases2=?)'); params.push(req.query.dia, req.query.dia); }
+  aplicarFiltroFinalizacion(req.query, 'al', conds, params);
   const where = conds.join(' AND ') || '1=1';
   try {
     const [alumnos] = await db.query(`
       SELECT al.id, al.clave, al.codigo_estudiante, al.nombre, al.apellido,
-             al.estado, al.horario, al.laboratorio, al.dia_clases1, al.dia_clases2, al.diplomado
+             al.estado, al.horario, al.laboratorio, al.dia_clases1, al.dia_clases2, al.diplomado,
+             al.mes_finalizacion, al.anio_finalizacion
       FROM alumnos al WHERE ${where} ORDER BY al.id ASC
     `, params);
     if (!alumnos.length) return res.json([]);

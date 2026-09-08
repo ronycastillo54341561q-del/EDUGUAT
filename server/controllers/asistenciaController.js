@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { log } = require('../utils/bitacora');
+const { aplicarFiltroFinalizacion } = require('../utils/filtroFinalizacion');
 
 const MESES_COD = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
@@ -200,12 +201,15 @@ const getGridAsistencia = async (req, res) => {
     params.push(dia, dia);
   }
 
+  aplicarFiltroFinalizacion(req.query, 'al', conditions, params);
+
   const where = conditions.length ? conditions.join(' AND ') : '1=1';
 
   try {
     const [alumnos] = await db.query(`
       SELECT al.id, al.clave, al.codigo_estudiante, al.nombre, al.apellido,
-             al.horario, al.laboratorio, al.dia_clases1, al.dia_clases2, al.estado
+             al.horario, al.laboratorio, al.dia_clases1, al.dia_clases2, al.estado,
+             al.mes_finalizacion, al.anio_finalizacion
       FROM alumnos al WHERE ${where}
       ORDER BY al.id ASC
     `, params);

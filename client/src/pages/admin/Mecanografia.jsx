@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
+import FiltroFinalizacion from '../../components/FiltroFinalizacion';
 import { useAniosFiltros } from '../../lib/anios';
 import './admin.css';
 
@@ -37,6 +38,10 @@ export default function Mecanografia() {
   // Padrón completo para alimentar las opciones de los selects según estado.
   const [todosAlumnos, setTodosAlumnos] = useState([]);
   const [cargando,     setCargando]     = useState(false);
+  // Mes/anio en que el alumno termina su diplomado
+  const [fMesFin,      setFMesFin]      = useState(() => localStorage.getItem('mec_mes_fin')  ?? '');
+  const [fAnioFin,     setFAnioFin]     = useState(() => localStorage.getItem('mec_anio_fin') ?? '');
+
   const [pending,      setPending]      = useState({});
   const [guardando,    setGuardando]    = useState(false);
   const [msg,          setMsg]          = useState('');
@@ -51,6 +56,8 @@ export default function Mecanografia() {
   useEffect(() => { localStorage.setItem('mec_estado',  fEstado);     }, [fEstado]);
   useEffect(() => { localStorage.setItem('mec_combo',   fCombo);      }, [fCombo]);
   useEffect(() => { localStorage.setItem('mec_lab',     fLaboratorio);}, [fLaboratorio]);
+  useEffect(() => { localStorage.setItem('mec_mes_fin',  fMesFin);    }, [fMesFin]);
+  useEffect(() => { localStorage.setItem('mec_anio_fin', fAnioFin);   }, [fAnioFin]);
 
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setFiltros(data)).catch(console.error);
@@ -82,11 +89,13 @@ export default function Mecanografia() {
       if (fLaboratorio) p.append('laboratorio', fLaboratorio);
       if (fDia)         p.append('dia',         fDia);
       if (fDia2)        p.append('dia2',        fDia2);
+      if (fMesFin)      p.append('mes_fin',     fMesFin);
+      if (fAnioFin)     p.append('anio_fin',    fAnioFin);
       const { data } = await API.get(`/mecanografia/notas?${p}`);
       setAlumnos(data);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
-  }, [anio, fEstado, fHorario, fLaboratorio, fDia, fDia2]);
+  }, [anio, fEstado, fHorario, fLaboratorio, fDia, fDia2, fMesFin, fAnioFin]);
 
   useEffect(() => { cargar(); }, [cargar]);
 
@@ -184,6 +193,7 @@ export default function Mecanografia() {
               .filter(l => labsActivosSet.has(l))
               .map(l => <option key={l} value={l}>{l}</option>)}
           </select>
+          <FiltroFinalizacion mes={fMesFin} anio={fAnioFin} onMes={setFMesFin} onAnio={setFAnioFin} compacto />
         </div>
 
         {hasChanges && (

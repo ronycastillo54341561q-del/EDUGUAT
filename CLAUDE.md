@@ -162,6 +162,29 @@ Cada feature ("módulo") es una vertical. Para `foo`:
 
 Rutas alumno usan `<PrivateRoute rol="alumno">` y viven en `client/src/pages/alumno/`.
 
+## Mes/anio de finalizacion del alumno
+
+Cuando termina el alumno su diplomado o ciclo. Dos columnas nullables en
+`alumnos`: `mes_finalizacion` (TINYINT 1..12, **no** el nombre del mes) y
+`anio_finalizacion` (SMALLINT), con indice `idx_finalizacion`. Aplica a
+academias e instituciones por igual. Los alumnos que ya existian quedaron en
+NULL a proposito: NULL = "sin definir", y los filtros lo exponen como opcion
+para encontrar a quien le falta el dato.
+
+- **Nombres de mes**: viven solo en `client/src/lib/finalizacion.js`
+  (`MESES_FINALIZACION`, `etiquetaFinalizacion`). La BD nunca guarda texto.
+- **Filtro backend**: `server/utils/filtroFinalizacion.js` →
+  `aplicarFiltroFinalizacion(req.query, alias, conds, params)`. Lee los params
+  `mes_fin` y `anio_fin` (o el centinela `sin` = IS NULL) y valida rangos.
+  **No dupliques la condicion**: llama al helper. Ya lo usan asistencia,
+  mecanografia, notas TAC, notas de diplomados, mis tablas y constancias.
+- **Filtro frontend**: componente compartido
+  `client/src/components/FiltroFinalizacion.jsx` (par de selects mes + anio).
+  Constancias y Mis Tablas arman los selects a mano porque su markup usa
+  `<label>`/`mt-field` en vez de `asist-filtros`.
+- **Captura**: dos combos en el formulario de Alumnos. El anio sale de
+  `useAniosFiltros()` (rango configurable), no de una lista fija.
+
 ## Convenciones
 
 - Comentarios y mensajes de usuario en **español**.

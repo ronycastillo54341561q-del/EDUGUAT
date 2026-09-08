@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Settings2, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
+import { MESES_FINALIZACION, SIN_DEFINIR, etiquetaFinalizacion } from '../../lib/finalizacion';
+import { useAniosFiltros } from '../../lib/anios';
 import { useAuth } from '../../context/AuthContext';
 import { canExport } from '../../lib/permissions';
 import * as XLSX from 'xlsx-js-style';
@@ -50,6 +52,7 @@ const COLS_ALUMNO = [
   { key: 'apellido',          label: 'Apellido',         tipo: 'texto'   },
   { key: 'fecha_nacimiento',  label: 'F. Nacimiento',    tipo: 'fecha'   },
   { key: 'fecha_inicio',      label: 'F. Inicio',        tipo: 'fecha'   },
+  { key: 'finalizacion',      label: 'Finalización',      tipo: 'texto'   },
   { key: 'encargado',         label: 'Encargado',        tipo: 'texto'   },
   { key: 'telefono',          label: 'Teléfono',         tipo: 'texto'   },
   { key: 'email',             label: 'Email',            tipo: 'texto'   },
@@ -74,6 +77,7 @@ const COLS_ALUMNO_INST = [
   { key: 'apellido',          label: 'Apellido',         tipo: 'texto'   },
   { key: 'fecha_nacimiento',  label: 'F. Nacimiento',    tipo: 'fecha'   },
   { key: 'fecha_inicio',      label: 'F. Inscripción',   tipo: 'fecha'   },
+  { key: 'finalizacion',      label: 'Finalización',      tipo: 'texto'   },
   { key: 'encargado',         label: 'Encargado',        tipo: 'texto'   },
   { key: 'telefono',          label: 'Teléfono',         tipo: 'texto'   },
   { key: 'email',             label: 'Email',            tipo: 'texto'   },
@@ -265,7 +269,7 @@ const MisTablas = () => {
       descripcion: '',
       encabezado: '',
       conAlumnos: null,
-      filtros: { estado: 'activo', horario: '', laboratorio: '', dia: '', tac: '', diplomado: '', establecimiento: '', grado: '', seccion: '', plan: '' },
+      filtros: { estado: 'activo', horario: '', laboratorio: '', dia: '', tac: '', diplomado: '', establecimiento: '', grado: '', seccion: '', plan: '', mes_fin: '', anio_fin: '' },
       colsSeleccionadas: ['codigo_estudiante', 'nombre', 'apellido'],
       alumnosPreview: [],
       guardando: false,
@@ -351,7 +355,10 @@ const MisTablas = () => {
       filas = alumnosOrden.map(a => {
         const row = {};
         for (const c of columnas) {
-          let val = a[c.key];
+          // `finalizacion` es derivada: la BD guarda mes y año por separado.
+          let val = c.key === 'finalizacion'
+            ? etiquetaFinalizacion(a.mes_finalizacion, a.anio_finalizacion)
+            : a[c.key];
           if (c.tipo === 'fecha') val = fmtDate(val);
           row[c.key] = val ?? '';
         }
@@ -485,6 +492,7 @@ const MisTablas = () => {
 
 /* ══════════════════════════ Wizard ══════════════════════════ */
 const Wizard = ({ wizard, setWizard, onCancelar, onGenerar, esInstitucion, colsCat }) => {
+  const { anios: ANIOS_FIN } = useAniosFiltros();
   const w = wizard;
   const set = (patch) => setWizard({ ...w, ...patch });
 
@@ -569,6 +577,22 @@ const Wizard = ({ wizard, setWizard, onCancelar, onGenerar, esInstitucion, colsC
                   <option value="">Todos</option>
                   <option value="activo">Activos</option>
                   <option value="retirado">Retirados</option>
+                </select>
+              </div>
+              <div className="mt-field">
+                <label>Mes de finalización</label>
+                <select value={w.filtros.mes_fin} onChange={e => set({ filtros: { ...w.filtros, mes_fin: e.target.value } })}>
+                  <option value="">Todos</option>
+                  {MESES_FINALIZACION.map(m => <option key={m.num} value={m.num}>{m.nombre}</option>)}
+                  <option value={SIN_DEFINIR}>Sin definir</option>
+                </select>
+              </div>
+              <div className="mt-field">
+                <label>Año de finalización</label>
+                <select value={w.filtros.anio_fin} onChange={e => set({ filtros: { ...w.filtros, anio_fin: e.target.value } })}>
+                  <option value="">Todos</option>
+                  {ANIOS_FIN.map(a => <option key={a} value={a}>{a}</option>)}
+                  <option value={SIN_DEFINIR}>Sin definir</option>
                 </select>
               </div>
               {esInstitucion ? (

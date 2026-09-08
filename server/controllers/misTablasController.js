@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { log } = require('../utils/bitacora');
+const { aplicarFiltroFinalizacion } = require('../utils/filtroFinalizacion');
 
 const parseJSON = (val, fallback) => {
   if (val == null) return fallback;
@@ -91,9 +92,11 @@ const alumnosFiltrados = async (req, res) => {
     if (grado)           { where.push('a.grado = ?');           params.push(grado); }
     if (seccion)         { where.push('a.seccion = ?');         params.push(seccion); }
     if (plan)            { where.push('a.plan_clases = ?');     params.push(plan); }
+    aplicarFiltroFinalizacion(req.query, 'a', where, params);
 
     const sql = `
       SELECT a.id, a.clave, a.codigo_estudiante, a.nombre, a.apellido, a.fecha_inicio, a.fecha_nacimiento,
+             a.mes_finalizacion, a.anio_finalizacion,
              a.encargado, a.telefono, a.diplomado, a.tac, a.direccion, a.establecimiento,
              a.observaciones, a.dia_clases1, a.dia_clases2, a.horario, a.laboratorio,
              a.grado, a.seccion, a.maestro_guia, a.plan_clases, a.dias_clase,

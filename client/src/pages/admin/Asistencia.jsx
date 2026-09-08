@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
+import FiltroFinalizacion from '../../components/FiltroFinalizacion';
 import { useAuth } from '../../context/AuthContext';
 import { useAniosFiltros } from '../../lib/anios';
 import AsistenciaInstitucion from './AsistenciaInstitucion';
@@ -149,6 +150,10 @@ function AsistenciaAcademia() {
   const [programas, setProgramas] = useState([]);
   const [cargando,  setCargando]  = useState(false);
 
+  // Mes/anio en que el alumno termina su diplomado
+  const [mesFin,    setMesFin]    = useState(() => localStorage.getItem('asist_mes_fin')  ?? '');
+  const [anioFin,   setAnioFin]   = useState(() => localStorage.getItem('asist_anio_fin') ?? '');
+
   const [pending,   setPending]   = useState({});
   const [guardando, setGuardando] = useState(false);
   const [msg,       setMsg]       = useState('');
@@ -165,6 +170,8 @@ function AsistenciaAcademia() {
   useEffect(() => { localStorage.setItem('asist_mes_ini', String(mesInicio));           }, [mesInicio]);
   useEffect(() => { localStorage.setItem('asist_dips',    JSON.stringify(dipSelIds));   }, [dipSelIds]);
   useEffect(() => { localStorage.setItem('asist_show_plan', String(showPlan));          }, [showPlan]);
+  useEffect(() => { localStorage.setItem('asist_mes_fin',  mesFin);                     }, [mesFin]);
+  useEffect(() => { localStorage.setItem('asist_anio_fin', anioFin);                    }, [anioFin]);
 
   useEffect(() => {
     API.get('/asistencia/filtros').then(({ data }) => setFiltros(data)).catch(console.error);
@@ -274,11 +281,13 @@ function AsistenciaAcademia() {
       if (estadoFiltro) p.append('estado',       estadoFiltro);
       if (dia)          p.append('dia',          dia);
       if (dia2Combo)    p.append('dia2',         dia2Combo);
+      if (mesFin)       p.append('mes_fin',      mesFin);
+      if (anioFin)      p.append('anio_fin',     anioFin);
       const { data } = await API.get(`/asistencia/grid?${p}`);
       setAlumnos(data);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
-  }, [anio, horarioCombo, laboratorio, estadoFiltro, dia, dia2Combo]);
+  }, [anio, horarioCombo, laboratorio, estadoFiltro, dia, dia2Combo, mesFin, anioFin]);
 
   useEffect(() => { cargarGrid(); }, [cargarGrid]);
 
@@ -445,6 +454,7 @@ function AsistenciaAcademia() {
               .filter(l => labsActivosSet.has(l))
               .map(l => <option key={l} value={l}>{l}</option>)}
           </select>
+          <FiltroFinalizacion mes={mesFin} anio={anioFin} onMes={setMesFin} onAnio={setAnioFin} compacto />
         </div>
 
         {/* Leyenda */}

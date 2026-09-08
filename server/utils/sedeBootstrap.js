@@ -118,6 +118,8 @@ const initDb = async (pool) => {
        nombre            VARCHAR(100) NOT NULL,
        apellido          VARCHAR(100) NOT NULL,
        fecha_inicio      DATE NULL,
+       mes_finalizacion  TINYINT NULL,
+       anio_finalizacion SMALLINT NULL,
        fecha_nacimiento  DATE NULL,
        encargado         VARCHAR(150) NULL,
        telefono          VARCHAR(80)  NULL,
@@ -661,6 +663,13 @@ const initDb = async (pool) => {
     `ALTER TABLE alumnos ADD COLUMN maestro_guia VARCHAR(150) NULL AFTER seccion`,
     `ALTER TABLE alumnos ADD COLUMN plan_clases  VARCHAR(80)  NULL AFTER maestro_guia`,
     `ALTER TABLE alumnos ADD COLUMN dias_clase   VARCHAR(160) NULL AFTER plan_clases`,
+    // Mes/año en que el alumno termina su diplomado o ciclo. Nullable a
+    // propósito: los alumnos que ya existían quedan en NULL ("sin definir")
+    // y la oficina los va llenando. `mes_finalizacion` es 1..12 (no el
+    // nombre) para que ordene y filtre bien; el nombre lo pone el front.
+    `ALTER TABLE alumnos ADD COLUMN mes_finalizacion  TINYINT  NULL AFTER fecha_inicio`,
+    `ALTER TABLE alumnos ADD COLUMN anio_finalizacion SMALLINT NULL AFTER mes_finalizacion`,
+    `ALTER TABLE alumnos ADD INDEX idx_finalizacion (anio_finalizacion, mes_finalizacion)`,
     `ALTER TABLE constancia_plantillas ADD COLUMN espacio_post_encabezado TINYINT NOT NULL DEFAULT 3`,
     `ALTER TABLE constancia_plantillas ADD COLUMN espacio_post_fecha      TINYINT NOT NULL DEFAULT 2`,
     `ALTER TABLE constancia_plantillas ADD COLUMN espacio_post_saludo     TINYINT NOT NULL DEFAULT 1`,

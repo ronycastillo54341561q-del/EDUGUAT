@@ -5,6 +5,7 @@
 //     que hacer queries adicionales por cada constancia.
 
 const db = require('../config/db');
+const { aplicarFiltroFinalizacion } = require('../utils/filtroFinalizacion');
 
 /* ─── PLANTILLAS ─────────────────────────────────────────────── */
 
@@ -140,13 +141,15 @@ const listarAlumnos = async (req, res) => {
     where.push('(a.dia_clases1 = ? OR a.dia_clases2 = ?)');
     args.push(dia, dia);
   }
+  aplicarFiltroFinalizacion(req.query, 'a', where, args);
 
   try {
     const [rows] = await db.query(
       `SELECT id, clave, codigo_estudiante, nombre, apellido,
               fecha_inicio, fecha_nacimiento, encargado, telefono,
               diplomado, tac, asesor, direccion, establecimiento,
-              dia_clases1, dia_clases2, horario, laboratorio, cuota_mensual
+              dia_clases1, dia_clases2, horario, laboratorio, cuota_mensual,
+              mes_finalizacion, anio_finalizacion
          FROM alumnos a
         WHERE ${where.join(' AND ')}
         ORDER BY apellido, nombre`,

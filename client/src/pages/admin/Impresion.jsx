@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
+import FiltroFinalizacion from '../../components/FiltroFinalizacion';
 import { useAniosFiltros } from '../../lib/anios';
 import { useAuth } from '../../context/AuthContext';
 import { canExport } from '../../lib/permissions';
@@ -51,6 +52,9 @@ export default function Impresion() {
   const [estado,      setEstado]      = useState('activo');
   const [dia,         setDia]         = useState('');
   const [filtros,     setFiltros]     = useState({ horarios: [], laboratorios: [], dias: [] });
+  // Mes/anio en que el alumno termina su diplomado
+  const [mesFin,      setMesFin]      = useState('');
+  const [anioFin,     setAnioFin]     = useState('');
   const [alumnos,     setAlumnos]     = useState([]);
   const [cargando,    setCargando]    = useState(false);
   const [modoAsist,   setModoAsist]   = useState('datos');
@@ -66,12 +70,14 @@ export default function Impresion() {
       if (horario)     p.append('horario',     horario);
       if (laboratorio) p.append('laboratorio', laboratorio);
       if (dia)         p.append('dia',         dia);
+      if (mesFin)      p.append('mes_fin',     mesFin);
+      if (anioFin)     p.append('anio_fin',    anioFin);
       const url = tab === 'mec' ? `/mecanografia/notas?${p}` : `/asistencia/grid?${p}`;
       const { data } = await API.get(url);
       setAlumnos(data);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
-  }, [tab, anio, horario, laboratorio, estado, dia]);
+  }, [tab, anio, horario, laboratorio, estado, dia, mesFin, anioFin]);
 
   useEffect(() => { cargar(); }, [cargar]);
 
@@ -413,6 +419,7 @@ export default function Impresion() {
               <option value="">Todos los laboratorios</option>
               {filtros.laboratorios.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
+            <FiltroFinalizacion mes={mesFin} anio={anioFin} onMes={setMesFin} onAnio={setAnioFin} compacto />
 
             {tab === 'asist' && (
               <div className="imp-modo">

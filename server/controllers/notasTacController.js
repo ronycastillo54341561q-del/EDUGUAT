@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { log } = require('../utils/bitacora');
+const { aplicarFiltroFinalizacion } = require('../utils/filtroFinalizacion');
 
 // Todos los alumnos con sus notas TAC
 const getNotasTac = async (req, res) => {
@@ -54,12 +55,14 @@ const getNotasTacAnual = async (req, res) => {
   if (req.query.dia)         { conds.push('(al.dia_clases1=? OR al.dia_clases2=?)'); params.push(req.query.dia, req.query.dia); }
   if (req.query.tac)         { conds.push('al.tac=?');         params.push(req.query.tac); }
   if (req.query.establecimiento) { conds.push('al.establecimiento=?'); params.push(req.query.establecimiento); }
+  aplicarFiltroFinalizacion(req.query, 'al', conds, params);
   const where = conds.join(' AND ') || '1=1';
   try {
     const [alumnos] = await db.query(`
       SELECT al.id, al.clave, al.codigo_estudiante, al.nombre, al.apellido,
              al.estado, al.horario, al.laboratorio, al.dia_clases1, al.dia_clases2,
-             al.tac, al.establecimiento
+             al.tac, al.establecimiento,
+             al.mes_finalizacion, al.anio_finalizacion
       FROM alumnos al WHERE ${where} ORDER BY al.id ASC
     `, params);
     if (!alumnos.length) return res.json([]);

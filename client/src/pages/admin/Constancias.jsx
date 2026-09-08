@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { jsPDF } from 'jspdf';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
+import { MESES_FINALIZACION, SIN_DEFINIR } from '../../lib/finalizacion';
+import { useAniosFiltros } from '../../lib/anios';
 import { loadMembrete, drawMembrete, membreteHTML } from '../../lib/membrete';
 import { useAuth } from '../../context/AuthContext';
 import { canExport } from '../../lib/permissions';
@@ -362,9 +364,11 @@ function SeccionGenerar() {
   const [mctx, setMctx]             = useState(null);
   const [plantillas, setPlantillas] = useState([]);
   const [filtros, setFiltros]       = useState(null);
+  const { anios: ANIOS_FIN } = useAniosFiltros();
   const [seleccion, setSeleccion]   = useState({
     establecimiento: '', tac: '', horario: '',
     diplomado: '', laboratorio: '', dia: '',
+    mes_fin: '', anio_fin: '',
   });
   const [alumnos, setAlumnos]       = useState([]);
   const [seleccionAlumnos, setSel]  = useState(new Set());
@@ -534,6 +538,20 @@ function SeccionGenerar() {
                 {['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].map(d=>(
                   <option key={d} value={d}>{d}</option>
                 ))}
+              </select>
+            </label>
+            <label>Mes de finalización
+              <select value={seleccion.mes_fin} onChange={e=>setSeleccion(s=>({...s,mes_fin:e.target.value}))}>
+                <option value="">— Todos —</option>
+                {MESES_FINALIZACION.map(m => <option key={m.num} value={m.num}>{m.nombre}</option>)}
+                <option value={SIN_DEFINIR}>Sin definir</option>
+              </select>
+            </label>
+            <label>Año de finalización
+              <select value={seleccion.anio_fin} onChange={e=>setSeleccion(s=>({...s,anio_fin:e.target.value}))}>
+                <option value="">— Todos —</option>
+                {ANIOS_FIN.map(a => <option key={a} value={a}>{a}</option>)}
+                <option value={SIN_DEFINIR}>Sin definir</option>
               </select>
             </label>
           </div>
