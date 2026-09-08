@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { loadMembrete, drawMembrete } from '../../lib/membrete';
+import { useAuth } from '../../context/AuthContext';
+import { canExport } from '../../lib/permissions';
 import './admin.css';
 
 // Paleta de colores para los encabezados de programa
@@ -354,6 +356,8 @@ export default function Planificaciones() {
   const [cargando,        setCargando]        = useState(false);
   const [verContenido,    setVerContenido]    = useState(null);
   const [exportandoId,    setExportandoId]    = useState(null);
+  const { usuario } = useAuth();
+  const puedeExportar = canExport(usuario?.rol, 'planificaciones');
 
   useEffect(() => {
     setCargando(true);
@@ -364,6 +368,7 @@ export default function Planificaciones() {
   }, []);
 
   const exportar = async (d) => {
+    if (!puedeExportar) return;
     setExportandoId(d.id);
     try {
       const mctx = await loadMembrete('planificaciones');
@@ -474,6 +479,7 @@ export default function Planificaciones() {
                       >
                         {isOpen ? '▲ Ocultar planificación' : '▼ Ver planificación de programas'}
                       </button>
+                      {puedeExportar && (
                       <button
                         onClick={() => exportar(d)}
                         disabled={programasOrd.length === 0 || exportandoId === d.id}
@@ -489,6 +495,7 @@ export default function Planificaciones() {
                       >
                         {exportandoId === d.id ? 'Generando…' : 'Exportar PDF'}
                       </button>
+                      )}
                     </div>
 
                     {/* Panel desplegable con todo el contenido */}

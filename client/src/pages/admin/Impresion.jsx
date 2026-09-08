@@ -5,6 +5,8 @@ import autoTable from 'jspdf-autotable';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { useAniosFiltros } from '../../lib/anios';
+import { useAuth } from '../../context/AuthContext';
+import { canExport } from '../../lib/permissions';
 import './admin.css';
 
 const anioActual = new Date().getFullYear();
@@ -40,6 +42,8 @@ const ASIST_LEYENDA = [
 
 export default function Impresion() {
   const { anios: ANIOS } = useAniosFiltros();
+  const { usuario } = useAuth();
+  const puedeExportar = canExport(usuario?.rol, 'impresion');
   const [tab,         setTab]         = useState('mec');
   const [anio,        setAnio]        = useState(anioActual);
   const [horario,     setHorario]     = useState('');
@@ -73,6 +77,7 @@ export default function Impresion() {
 
   // ── Exportar Mecanografía ─────────────────────────────────────────────────
   const exportMec = () => {
+    if (!puedeExportar) return;
     const wb = XLSX.utils.book_new();
     const totalCols = 23; // No + Código + Alumno + 20 lecciones + Examen
     const rows = [
@@ -127,6 +132,7 @@ export default function Impresion() {
   };
 
   const exportarPDF = () => {
+    if (!puedeExportar) return;
     if (alumnos.length === 0) {
       alert('No hay alumnos para exportar. Ajusta los filtros.');
       return;
@@ -328,6 +334,7 @@ export default function Impresion() {
 
   // ── Exportar Asistencia ───────────────────────────────────────────────────
   const exportAsist = () => {
+    if (!puedeExportar) return;
     const wb = XLSX.utils.book_new();
     const totalCols = 63; // No + Código + Alumno + 60 celdas
     const subInfo = `Año ${anio}${horario ? ' · Horario: ' + horario : ''}${laboratorio ? ' · Lab: ' + laboratorio : ''}${modoAsist === 'vacio' ? ' · VACÍO (para llenar)' : ' · Con datos guardados'}`;
@@ -425,12 +432,16 @@ export default function Impresion() {
 
           {/* Acciones */}
           <div className="imp-actions">
-            <button className="btn-primary" onClick={tab === 'mec' ? exportMec : exportAsist}>
-              Exportar Excel (.xlsx)
-            </button>
-            <button className="imp-print-btn" onClick={exportarPDF} disabled={cargando || alumnos.length === 0}>
-              Exportar PDF
-            </button>
+            {puedeExportar && (
+              <>
+                <button className="btn-primary" onClick={tab === 'mec' ? exportMec : exportAsist}>
+                  Exportar Excel (.xlsx)
+                </button>
+                <button className="imp-print-btn" onClick={exportarPDF} disabled={cargando || alumnos.length === 0}>
+                  Exportar PDF
+                </button>
+              </>
+            )}
             <span style={{ fontSize: '0.8rem', color: '#888' }}>
               {alumnos.length} alumno(s) · Año {anio}
             </span>

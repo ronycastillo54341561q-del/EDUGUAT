@@ -3,6 +3,7 @@ import { Settings2, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
+import { canExport } from '../../lib/permissions';
 import * as XLSX from 'xlsx-js-style';
 import './admin.css';
 import './MisTablas.css';
@@ -184,7 +185,8 @@ const tiempoRestante = (desactivadoAt, ahora) => {
 };
 
 const MisTablas = () => {
-  const { sede } = useAuth();
+  const { sede, usuario } = useAuth();
+  const puedeExportar = canExport(usuario?.rol, 'misTablas');
   const esInstitucion = sede?.tipo === 'institucion';
   const colsCat = esInstitucion ? COLS_ALUMNO_INST : COLS_ALUMNO;
   const [tablas, setTablas]       = useState([]);
@@ -248,6 +250,7 @@ const MisTablas = () => {
   };
 
   const exportarDesdeListado = async (id) => {
+    if (!puedeExportar) return;
     try {
       const { data } = await API.get(`/mis-tablas/${id}`);
       exportarExcel(data);
@@ -450,7 +453,9 @@ const MisTablas = () => {
                     ) : (
                       <>
                         <button className="mt-btn primary" onClick={() => abrirTabla(t.id)}>Abrir</button>
+                        {puedeExportar && (
                         <button className="mt-btn success" onClick={() => exportarDesdeListado(t.id)} title="Descargar como Excel">Excel</button>
+                        )}
                         <button className="mt-btn danger"  onClick={() => desactivarTabla(t.id, t.nombre)}>
                           Desactivar
                         </button>
@@ -862,6 +867,8 @@ const exportarExcel = ({ nombre, descripcion, encabezado, columnas, filas }) => 
 
 /* ══════════════════════════ Editor ══════════════════════════ */
 const EditorTabla = ({ tabla, onCerrar }) => {
+  const { usuario } = useAuth();
+  const puedeExportar = canExport(usuario?.rol, 'misTablas');
   const [nombre, setNombre]         = useState(tabla.nombre);
   const [descripcion, setDescripcion] = useState(tabla.descripcion || '');
   const [encabezado, setEncabezado] = useState(tabla.encabezado || '');
@@ -1045,6 +1052,7 @@ const EditorTabla = ({ tabla, onCerrar }) => {
             onFocus={e => e.target.style.borderBottomColor = '#1a237e'}
             onBlur={e => e.target.style.borderBottomColor = 'transparent'}
           />
+          {puedeExportar && (
           <button
             className="mt-btn success"
             onClick={() => exportarExcel({ nombre, descripcion, encabezado, columnas, filas })}
@@ -1053,6 +1061,7 @@ const EditorTabla = ({ tabla, onCerrar }) => {
           >
             Exportar a Excel
           </button>
+          )}
           <span className={`mt-save-status ${saveState}`}>
             {saveState === 'saving' && 'Guardando...'}
             {saveState === 'saved'  && '✓ Guardado'}

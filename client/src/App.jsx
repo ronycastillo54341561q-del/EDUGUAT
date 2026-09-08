@@ -41,7 +41,8 @@ import Constancias from './pages/admin/Constancias';
 import Importar from './pages/admin/Importar';
 import InscritosTac from './pages/admin/InscritosTac';
 import Backups from './pages/admin/Backups';
-import Relaciones from './pages/admin/Relaciones';
+// Módulo "Relaciones BD" desactivado.
+// import Relaciones from './pages/admin/Relaciones';
 import Manual from './pages/admin/Manual';
 // Alumno
 import AlumnoDashboard from './pages/alumno/AlumnoDashboard';
@@ -110,7 +111,7 @@ function App() {
           <Route path="/admin/constancias"      element={<PrivateRoute modulo="constancias"><Constancias /></PrivateRoute>} />
           <Route path="/admin/importar"         element={<PrivateRoute modulo="importar"><Importar /></PrivateRoute>} />
           <Route path="/admin/backups"          element={<PrivateRoute modulo="backups"><Backups /></PrivateRoute>} />
-          <Route path="/admin/relaciones"       element={<PrivateRoute modulo="relaciones"><Relaciones /></PrivateRoute>} />
+          {/* Módulo "Relaciones BD" desactivado: ruta deshabilitada. */}
           <Route path="/admin/manual"           element={<PrivateRoute modulo="manual"><Manual /></PrivateRoute>} />
 
           {/* Alumno */}

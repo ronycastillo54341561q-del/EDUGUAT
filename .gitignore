@@ -38,3 +38,12 @@ yarn-error.log*
 
 # Misc
 .claude/
+
+# Backups de base de datos (no versionar: contienen datos reales)
+server/backups/
+
+# Builds antiguos y archivos .bak de despliegue
+client/dist_old_*/
+*.bak
+*.bak-*
+*.bak.*

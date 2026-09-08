@@ -15,6 +15,9 @@ const DIAS = [
   { v: 6, label: 'Sáb' },
 ];
 
+// Módulos que no se ofrecen al crear/editar roles (opción retirada de la UI).
+const MODULOS_OCULTOS = new Set(['academias', 'pagosInstitucion']);
+
 const ROLES_BASE_OPTS = [
   { value: 'oficina', label: 'Oficina (heredar)' },
   { value: 'maestro', label: 'Maestro (heredar)' },
@@ -144,7 +147,7 @@ export default function Roles() {
         API.get('/roles'),
         API.get('/roles/base'),
       ]);
-      setModulos(m.data);
+      setModulos((m.data || []).filter(x => !MODULOS_OCULTOS.has(x)));
       setRoles(r.data);
       setBaseOverridesState(b.data || { admin: [], oficina: [], maestro: [] });
     } catch (e) {

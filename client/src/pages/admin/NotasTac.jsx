@@ -3,7 +3,7 @@ import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { can } from '../../lib/permissions';
+import { can, canExport } from '../../lib/permissions';
 import { loadMembrete, drawMembrete } from '../../lib/membrete';
 import { useAniosFiltros } from '../../lib/anios';
 import './admin.css';
@@ -408,6 +408,7 @@ async function exportarNotasPDF({ alumnos, pending = {}, anio, establecimiento, 
 export default function NotasTac() {
   const { usuario } = useAuth();
   const puedeEditar = can(usuario?.rol, 'notasTac', 'edit');
+  const puedeExportar = canExport(usuario?.rol, 'notasTac');
   const { anios: ANIOS } = useAniosFiltros();
   const [anio,             setAnio]             = useState(() => parseInt(ls('tac_anio', anioActual)) || anioActual);
   const [fEstado,          setFEstado]          = useState(() => ls('tac_estado',  'activo'));
@@ -533,6 +534,7 @@ export default function NotasTac() {
   );
 
   const exportar = async () => {
+    if (!puedeExportar) return;
     if (!fEstablecimiento || !alumnosEstab.length) return;
     setExportando(true);
     try {
@@ -619,7 +621,7 @@ export default function NotasTac() {
               {establecimientos.map(e => <option key={e} value={e}>{e}</option>)}
             </select>
           )}
-          {fEstablecimiento && (
+          {fEstablecimiento && puedeExportar && (
             <button
               onClick={exportar}
               disabled={exportando || alumnosEstab.length === 0}

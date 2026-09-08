@@ -3,6 +3,7 @@ import { FolderOpen, Pencil, Users, Trash2, Phone, User, GraduationCap, Hash, Us
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
+import { canExport } from '../../lib/permissions';
 import { useAniosFiltros } from '../../lib/anios';
 import './admin.css';
 
@@ -630,7 +631,8 @@ const ModalGuardar = ({ filtros, count, reporteActivo, onConfirmar, onCancelar }
 /* ══════════════ Página principal ══════════════ */
 export default function Consultas() {
   const { anios: ANIOS } = useAniosFiltros();
-  const { sede } = useAuth();
+  const { sede, usuario } = useAuth();
+  const puedeExportar = canExport(usuario?.rol, 'consultas');
   const esInstitucion = sede?.tipo === 'institucion';
   const [filtros,       setFiltros]       = useState(lsFiltro);
   const [resultado,     setResultado]     = useState(null);
@@ -926,12 +928,16 @@ export default function Consultas() {
           <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap', alignItems:'center' }}>
             {resultado !== null && (
               <>
-                <button className="cq-btn-export" onClick={() => exportarExcel(resultado, seguimiento, filtros, esInstitucion)}>
-                  Excel
-                </button>
-                <button className="cq-btn-export" onClick={() => exportarPDF(resultado, seguimiento, filtros, esInstitucion)}>
-                  PDF
-                </button>
+                {puedeExportar && (
+                  <>
+                    <button className="cq-btn-export" onClick={() => exportarExcel(resultado, seguimiento, filtros, esInstitucion)}>
+                      Excel
+                    </button>
+                    <button className="cq-btn-export" onClick={() => exportarPDF(resultado, seguimiento, filtros, esInstitucion)}>
+                      PDF
+                    </button>
+                  </>
+                )}
                 <button className="cq-btn-guardar" onClick={() => setModalGuardar(true)}>
                   {reporteActivo ? 'Actualizar reporte' : 'Guardar reporte'}
                 </button>

@@ -63,9 +63,30 @@ const cargarRolCustom = async (pool, slug) => {
 
 // Devuelve true si la fecha (Date) cae dentro del horario configurado.
 // `dias` es CSV con valores 0..6 (0=Domingo, 1=Lunes, ..., 6=Sábado).
+// El servidor corre en UTC, pero el negocio opera en horario de Guatemala
+// (GMT-6, sin horario de verano). Evaluamos día/hora en esa zona.
 const dentroDeHorario = (horario, ahora = new Date()) => {
   if (!horario || !horario.activo) return true;
-  const dia = ahora.getDay(); // 0..6
+
+  let dia, ahoraMin;
+  try {
+    const p = Object.fromEntries(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Guatemala',
+        weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false,
+      }).formatToParts(ahora).map(x => [x.type, x.value])
+    );
+    const MAP = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    dia = MAP[p.weekday];
+    const hh = parseInt(p.hour, 10) % 24; // en-US puede devolver "24" a medianoche
+    ahoraMin = hh * 60 + parseInt(p.minute, 10);
+  } catch {
+    // Fallback: offset fijo GMT-6 si el runtime no tuviera datos de zona.
+    const gt = new Date(ahora.getTime() - 6 * 60 * 60 * 1000);
+    dia = gt.getUTCDay();
+    ahoraMin = gt.getUTCHours() * 60 + gt.getUTCMinutes();
+  }
+
   const dias = String(horario.dias || '').split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
   if (dias.length && !dias.includes(dia)) return false;
 
@@ -73,7 +94,6 @@ const dentroDeHorario = (horario, ahora = new Date()) => {
     const [h, m] = String(hhmm).split(':').map(n => parseInt(n, 10) || 0);
     return h * 60 + m;
   };
-  const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
   const ini = toMin(horario.hora_inicio);
   const fin = toMin(horario.hora_fin);
   if (ini <= fin) return ahoraMin >= ini && ahoraMin <= fin;

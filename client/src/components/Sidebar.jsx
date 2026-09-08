@@ -67,7 +67,8 @@ const NAV = [
     { to: '/admin/importar',        icon: <Download size={NAV_ICON_SIZE} />,  label: 'Importar Datos', modulo: 'importar' },
     { to: '/admin/bitacora',        icon: <BookMarked size={NAV_ICON_SIZE} />, label: 'Bitácora',     modulo: 'bitacora' },
     { to: '/admin/backups',         icon: <HardDrive size={NAV_ICON_SIZE} />, label: 'Backups',       modulo: 'backups' },
-    { to: '/admin/relaciones',      icon: <Link2 size={NAV_ICON_SIZE} />,     label: 'Relaciones BD', modulo: 'relaciones' },
+    // Módulo "Relaciones BD" desactivado: no debe mostrarse.
+    // { to: '/admin/relaciones',      icon: <Link2 size={NAV_ICON_SIZE} />,     label: 'Relaciones BD', modulo: 'relaciones' },
     { to: '/admin/manual',          icon: <BookOpen size={NAV_ICON_SIZE} />,  label: 'Manual',        modulo: 'manual' },
   ]},
 ];

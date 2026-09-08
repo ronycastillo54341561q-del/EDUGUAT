@@ -3,6 +3,8 @@ import { jsPDF } from 'jspdf';
 import Sidebar from '../../components/Sidebar';
 import API from '../../api/axios';
 import { loadMembrete, drawMembrete, membreteHTML } from '../../lib/membrete';
+import { useAuth } from '../../context/AuthContext';
+import { canExport } from '../../lib/permissions';
 import './admin.css';
 import './Configuracion.css';
 import './Constancias.css';
@@ -354,6 +356,8 @@ function SeccionPlantillas() {
    PESTAÑA: GENERAR
    ════════════════════════════════════════════ */
 function SeccionGenerar() {
+  const { usuario } = useAuth();
+  const puedeExportar = canExport(usuario?.rol, 'constancias');
   const [config, setConfig]         = useState(null);
   const [mctx, setMctx]             = useState(null);
   const [plantillas, setPlantillas] = useState([]);
@@ -420,6 +424,7 @@ function SeccionGenerar() {
   const seleccionados = alumnos.filter(a => seleccionAlumnos.has(a.id));
 
   const generarPDF = () => {
+    if (!puedeExportar) return;
     if (!plantilla) { alert('Selecciona una plantilla'); return; }
     if (!seleccionados.length) { alert('Selecciona al menos un alumno'); return; }
 
@@ -447,6 +452,7 @@ function SeccionGenerar() {
   };
 
   const generarWord = () => {
+    if (!puedeExportar) return;
     if (!plantilla) { alert('Selecciona una plantilla'); return; }
     if (!seleccionados.length) { alert('Selecciona al menos un alumno'); return; }
 
@@ -573,14 +579,18 @@ function SeccionGenerar() {
           )}
 
           <div className="gen-foot">
-            <button className="btn-primary btn-pdf" disabled={generando || !seleccionados.length || !plantilla}
-                    onClick={generarPDF}>
-              {generando ? 'Generando…' : `Generar PDF (${seleccionados.length})`}
-            </button>
-            <button className="btn-edit btn-pdf" disabled={generando || !seleccionados.length || !plantilla}
-                    onClick={generarWord}>
-              {generando ? 'Generando…' : `Exportar Word (${seleccionados.length})`}
-            </button>
+            {puedeExportar && (
+              <>
+                <button className="btn-primary btn-pdf" disabled={generando || !seleccionados.length || !plantilla}
+                        onClick={generarPDF}>
+                  {generando ? 'Generando…' : `Generar PDF (${seleccionados.length})`}
+                </button>
+                <button className="btn-edit btn-pdf" disabled={generando || !seleccionados.length || !plantilla}
+                        onClick={generarWord}>
+                  {generando ? 'Generando…' : `Exportar Word (${seleccionados.length})`}
+                </button>
+              </>
+            )}
             {seleccionados.length > 1 && (
               <span className="gen-hint">Un solo archivo con {seleccionados.length} páginas (una por alumno).</span>
             )}

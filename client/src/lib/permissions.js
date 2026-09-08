@@ -45,7 +45,7 @@ const PERMS = {
     constancias:      { view: true,  edit: true  },
     importar:         { view: true,  edit: true  },
     backups:          { view: true,  edit: true  },
-    relaciones:       { view: true,  edit: false },
+    relaciones:       { view: false, edit: false },   // módulo desactivado
     manual:           { view: true,  edit: false },
   },
   oficina: {

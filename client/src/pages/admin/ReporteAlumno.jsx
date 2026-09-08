@@ -3,6 +3,7 @@ import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
+import { can } from '../../lib/permissions';
 import { useAniosFiltros } from '../../lib/anios';
 import ReporteAlumnoInstitucion from './ReporteAlumnoInstitucion';
 import './admin.css';
@@ -198,6 +199,9 @@ const ReporteAlumno = () => {
 
 // ─── Componente principal (academias) ────────────────────────────────────────
 const ReporteAlumnoAcademia = () => {
+  const { usuario } = useAuth();
+  // Regalar / quitar regalo son acciones de escritura: solo con permiso de edicion.
+  const puedeEditar = can(usuario?.rol, 'reporteAlumno', 'edit');
   const { anios: ANIOS_FILTRO } = useAniosFiltros();
   const [busqueda,     setBusqueda]     = useState('');
   const [sugerencias,  setSugerencias]  = useState([]);
@@ -904,8 +908,8 @@ const ReporteAlumnoAcademia = () => {
                       else if (esProximo)                { cardCls += ' proximo';   badgeCls = 'proximo-b';   badgeTxt = 'Pendiente'; }
                       else                              { cardCls += ' pendiente'; badgeCls = 'pendiente-b'; badgeTxt = 'Pendiente'; }
 
-                      const puedeRegalar = tipoPago === 'pendiente' || tipoPago === 'abono';
-                      const puedeQuitarRegalo = tipoPago === 'acreditado';
+                      const puedeRegalar = puedeEditar && (tipoPago === 'pendiente' || tipoPago === 'abono');
+                      const puedeQuitarRegalo = puedeEditar && tipoPago === 'acreditado';
 
                       return (
                         <div key={p.id || p.mes} className={cardCls} style={{ position: 'relative' }}>
