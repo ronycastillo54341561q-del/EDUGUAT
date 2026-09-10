@@ -321,7 +321,7 @@ export default function Papeleria() {
           </button>
           <button
             className="btn-primary"
-            onClick={() => setCierreModal({ fecha: new Date().toISOString().slice(0,10) })}
+            onClick={() => setCierreModal({ fecha: hoyStr() })}
             style={{
               background: cierreHoy?.cierre?.estado === 'revisado' ? '#2e7d32'
                         : cierreHoy?.cierre ? '#e65100' : '#1a237e',

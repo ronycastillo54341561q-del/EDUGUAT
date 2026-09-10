@@ -9,6 +9,7 @@ router.post('/upload-drive', verifyToken, verifyRole('admin','oficina'), ctrl.su
 router.post('/limpiar-duplicados', verifyToken, verifyRole('admin'), ctrl.limpiarDuplicadosRecibos);
 router.put('/:id', verifyToken, verifyRole('admin','oficina'), ctrl.actualizarRecibo);
 router.post('/:id/anular', verifyToken, verifyRole('admin','oficina'), ctrl.anularRecibo);
+router.post('/:id/reimpresion', verifyToken, verifyRole('admin','oficina'), ctrl.registrarReimpresion);
 router.delete('/:id', verifyToken, verifyRole('admin'), ctrl.eliminarRecibo);
 
 module.exports = router;

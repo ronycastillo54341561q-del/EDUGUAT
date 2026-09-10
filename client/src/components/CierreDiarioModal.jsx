@@ -3,7 +3,13 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const Q = (n) => `Q ${(parseFloat(n) || 0).toFixed(2)}`;
-const hoyISO = () => new Date().toISOString().slice(0, 10);
+// Fecha local YYYY-MM-DD. `toISOString()` es UTC y en Guatemala (UTC-6) después
+// de las 6pm devuelve el día siguiente: el cierre se abría sobre la fecha
+// equivocada justo en las horas de cierre de caja.
+const hoyISO = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
 
 // Modal de cierre diario reutilizable para los módulos de Recibos y Papelería.
 // Pasa { modulo: 'recibos' | 'papeleria', fecha? } y onClose / onSaved callbacks.

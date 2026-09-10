@@ -1,9 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Printer } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import CierreDiarioModal from '../../components/CierreDiarioModal';
+import ReciboPreviewModal from '../../components/ReciboPreviewModal';
 import API from '../../api/axios';
 import useUnsavedGuard from '../../hooks/useUnsavedGuard';
+import { useAuth } from '../../context/AuthContext';
+import { can, canExport } from '../../lib/permissions';
 import './admin.css';
 
 const PAGE_SIZE = 100;
@@ -29,6 +33,18 @@ const tieneDatos = (d) =>
 const BORDER_SEP = '2.5px solid #5c6bc0';
 
 export default function Recibos() {
+  const { usuario } = useAuth();
+  const rol = usuario?.rol;
+  // Tres niveles de permiso sobre el mismo módulo:
+  //   view   → entra a la pantalla, consulta y REIMPRIME en pantalla
+  //   export → además descarga el PDF de la copia
+  //   edit   → además puede modificar los campos del recibo
+  // Anular (solo el mismo día) y el cierre del día NO dependen de `edit`:
+  // son tareas de caja que hace quien cobra, aunque no pueda editar recibos.
+  const puedeEditar   = can(rol, 'recibos', 'edit');
+  const puedeExportar = canExport(rol, 'recibos');
+  const esAdmin       = rol === 'admin';
+
   const [registros,  setRegistros]  = useState([]);
   const [alumnos,    setAlumnos]    = useState([]);
   const [cargando,   setCargando]   = useState(false);
@@ -46,6 +62,7 @@ export default function Recibos() {
   const [cierres,     setCierres]     = useState([]);
   const [anulando,    setAnulando]    = useState(null); // recibo a confirmar
   const [anulandoMsg, setAnulandoMsg] = useState('');
+  const [reimprimir,  setReimprimir]  = useState(null); // recibo a reimprimir
   const firstRender = useRef(true);
 
   useEffect(() => { localStorage.setItem('rec_busq', busqueda); }, [busqueda]);
@@ -134,10 +151,13 @@ export default function Recibos() {
     return r[campo] ?? '';
   };
 
-  const setEdit = (id, campo, valor) =>
+  const setEdit = (id, campo, valor) => {
+    if (!puedeEditar) return;
     setPending(prev => ({ ...prev, [id]: { ...(prev[id] || {}), [campo]: valor } }));
+  };
 
   const handleAlumnoEdit = (id, txt) => {
+    if (!puedeEditar) return;
     const found = findAlumno(txt);
     setPending(prev => ({
       ...prev,
@@ -146,15 +166,18 @@ export default function Recibos() {
   };
 
   const updateDraft = (key, patch) => {
+    if (!puedeEditar) return;
     setDrafts(prev => prev.map(d => d._key === key ? { ...d, ...patch } : d));
   };
 
   const handleDraftAlumno = (key, txt) => {
+    if (!puedeEditar) return;
     const found = findAlumno(txt);
     updateDraft(key, { alumno_txt: txt, alumno_id: found?.id ?? null });
   };
 
   const agregarFila = () => {
+    if (!puedeEditar) return;
     setDrafts(prev => [...prev, nuevoDraft()]);
     setPagina(totalPag);
   };
@@ -166,6 +189,7 @@ export default function Recibos() {
   useUnsavedGuard(hasChanges || hayDrafts);
 
   const guardar = async () => {
+    if (!puedeEditar) return;
     if (!hasChanges && !hayDrafts) return;
     setGuardando(true);
     try {
@@ -331,7 +355,9 @@ export default function Recibos() {
       <div className="admin-content">
         <h1>Recibos</h1>
         <p className="subtitle">
-          Registra los recibos de pago de mensualidades. Agrega tantas filas como necesites; las filas vacías no se guardarán.
+          {puedeEditar
+            ? 'Registra los recibos de pago de mensualidades. Agrega tantas filas como necesites; las filas vacías no se guardarán.'
+            : 'Consulta de recibos emitidos. Tu rol no permite editarlos, pero sí reimprimirlos, anular los del día y hacer el cierre.'}
         </p>
 
         <div className="asist-filtros">
@@ -346,22 +372,28 @@ export default function Recibos() {
           <span style={{ fontSize: '0.82rem', color: '#666', whiteSpace: 'nowrap' }}>
             {filtrados.length} registro(s)
           </span>
-          <button className="btn-primary" onClick={agregarFila} style={{ marginLeft: 'auto' }}>
-            + Agregar fila
-          </button>
-          <button
-            className="btn-cancel"
-            onClick={limpiarDuplicados}
-            title="Borra recibos con el mismo no_recibo, conservando el de menor id"
-          >
-            Limpiar duplicados
-          </button>
+          {puedeEditar && (
+            <button className="btn-primary" onClick={agregarFila} style={{ marginLeft: 'auto' }}>
+              + Agregar fila
+            </button>
+          )}
+          {esAdmin && (
+            <button
+              className="btn-cancel"
+              onClick={limpiarDuplicados}
+              title="Borra recibos con el mismo no_recibo, conservando el de menor id"
+            >
+              Limpiar duplicados
+            </button>
+          )}
           <button
             className="btn-primary"
-            onClick={() => setCierreModal({ fecha: new Date().toISOString().slice(0,10) })}
+            onClick={() => setCierreModal({ fecha: hoyStr() })}
             style={{
               background: cierreHoy?.cierre?.estado === 'revisado' ? '#2e7d32'
                         : cierreHoy?.cierre ? '#e65100' : '#1a237e',
+              // Sin los botones de edición, este es el primero de la derecha.
+              marginLeft: puedeEditar || esAdmin ? undefined : 'auto',
             }}
             title={
               cierreHoy?.cierre?.estado === 'revisado' ? 'Cierre de hoy revisado' :
@@ -424,7 +456,7 @@ export default function Recibos() {
                       <th style={{ minWidth: 110, textAlign: 'center', color: '#1a237e' }}>Cierre</th>
                       <th style={{ minWidth: 130 }}>No. Depósito</th>
                       <th style={{ minWidth: 190 }}>Observaciones</th>
-                      <th style={{ minWidth: 90, textAlign: 'center' }}>Acción</th>
+                      <th style={{ minWidth: 150, textAlign: 'center' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -442,31 +474,31 @@ export default function Recibos() {
                         <tr key={r.id} style={rowStyle} className={esAnulado ? 'rec-anulado' : ''}>
                           <td className="rc-no">{inicio + idx + 1}</td>
                           <td>
-                            <input className="recibo-input" type="text"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="text"
                               value={getVal(r, 'no_recibo')}
                               onChange={e => setEdit(r.id, 'no_recibo', e.target.value)}
                               placeholder="—" />
                           </td>
                           <td>
-                            <input className="recibo-input" type="text"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="text"
                               list="rec-alumnos"
                               value={getVal(r, 'alumno_txt')}
                               onChange={e => handleAlumnoEdit(r.id, e.target.value)}
                               placeholder="Buscar alumno..." />
                           </td>
                           <td>
-                            <input className="recibo-input" type="text"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="text"
                               value={getVal(r, 'meses')}
                               onChange={e => setEdit(r.id, 'meses', e.target.value)}
                               placeholder="Ene, Feb..." />
                           </td>
                           <td>
-                            <input className="recibo-input" type="date"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="date"
                               value={getVal(r, 'fecha')}
                               onChange={e => setEdit(r.id, 'fecha', e.target.value)} />
                           </td>
                           <td>
-                            <input className="recibo-input" type="number" step="0.01" min="0"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="number" step="0.01" min="0"
                               value={getVal(r, 'total')}
                               onChange={e => setEdit(r.id, 'total', e.target.value)}
                               placeholder="0.00" style={{ textAlign: 'right' }} />
@@ -508,18 +540,32 @@ export default function Recibos() {
                             })() : null}
                           </td>
                           <td>
-                            <input className="recibo-input" type="text"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="text"
                               value={getVal(r, 'no_deposito')}
                               onChange={e => setEdit(r.id, 'no_deposito', e.target.value)}
                               placeholder="—" />
                           </td>
                           <td>
-                            <input className="recibo-input" type="text"
+                            <input className="recibo-input" readOnly={!puedeEditar} type="text"
                               value={getVal(r, 'observaciones')}
                               onChange={e => setEdit(r.id, 'observaciones', e.target.value)}
                               placeholder="—" />
                           </td>
                           <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                            <button
+                              type="button"
+                              onClick={() => setReimprimir(r)}
+                              title={puedeExportar
+                                ? 'Ver y descargar una copia de este recibo'
+                                : 'Ver este recibo en pantalla (tu rol no permite descargarlo)'}
+                              style={{
+                                background: '#e8eaf6', color: '#1a237e', border: 'none',
+                                padding: '3px 8px', borderRadius: 5, marginRight: 5,
+                                cursor: 'pointer', verticalAlign: 'middle',
+                              }}
+                            >
+                              <Printer size={13} />
+                            </button>
                             {esAnulado ? (
                               <span style={{
                                 background: '#c62828', color: '#fff',
@@ -552,35 +598,35 @@ export default function Recibos() {
                       );
                     })}
 
-                    {esUltimaPag && drafts.map((d) => (
+                    {puedeEditar && esUltimaPag && drafts.map((d) => (
                       <tr key={d._key} style={{ background: '#f3f8ff', borderTop: '2px solid #c5cae9' }}>
                         <td className="rc-no" style={{ color: '#1a237e' }}>+</td>
                         <td>
-                          <input className="recibo-input" type="text"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="text"
                             value={d.no_recibo}
                             onChange={e => updateDraft(d._key, { no_recibo: e.target.value })}
                             placeholder="Nuevo recibo..." />
                         </td>
                         <td>
-                          <input className="recibo-input" type="text"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="text"
                             list="rec-alumnos"
                             value={d.alumno_txt}
                             onChange={e => handleDraftAlumno(d._key, e.target.value)}
                             placeholder="Buscar alumno..." />
                         </td>
                         <td>
-                          <input className="recibo-input" type="text"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="text"
                             value={d.meses}
                             onChange={e => updateDraft(d._key, { meses: e.target.value })}
                             placeholder="Ene, Feb..." />
                         </td>
                         <td>
-                          <input className="recibo-input" type="date"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="date"
                             value={d.fecha}
                             onChange={e => updateDraft(d._key, { fecha: e.target.value })} />
                         </td>
                         <td>
-                          <input className="recibo-input" type="number" step="0.01" min="0"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="number" step="0.01" min="0"
                             value={d.total}
                             onChange={e => updateDraft(d._key, { total: e.target.value })}
                             placeholder="0.00" style={{ textAlign: 'right' }} />
@@ -588,13 +634,13 @@ export default function Recibos() {
                         <td />
                         <td />
                         <td>
-                          <input className="recibo-input" type="text"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="text"
                             value={d.no_deposito}
                             onChange={e => updateDraft(d._key, { no_deposito: e.target.value })}
                             placeholder="—" />
                         </td>
                         <td>
-                          <input className="recibo-input" type="text"
+                          <input className="recibo-input" readOnly={!puedeEditar} type="text"
                             value={d.observaciones}
                             onChange={e => updateDraft(d._key, { observaciones: e.target.value })}
                             placeholder="—" />
@@ -639,6 +685,15 @@ export default function Recibos() {
           fecha={cierreModal.fecha}
           onClose={() => setCierreModal(null)}
           onSaved={recargarCierre}
+        />
+      )}
+
+      {reimprimir && (
+        <ReciboPreviewModal
+          recibo={reimprimir}
+          puedeExportar={puedeExportar}
+          usuarioNombre={usuario?.nombre}
+          onClose={() => setReimprimir(null)}
         />
       )}
 

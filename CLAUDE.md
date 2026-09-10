@@ -185,6 +185,31 @@ para encontrar a quien le falta el dato.
 - **Captura**: dos combos en el formulario de Alumnos. El anio sale de
   `useAniosFiltros()` (rango configurable), no de una lista fija.
 
+## Recibos: reimpresión y niveles de permiso
+
+Los recibos se emiten **una sola vez** desde Nuevo Pago / Otros Pagos (ambos
+insertan en la tabla `recibos`; el PDF se descarga y se sube a Drive en ese
+momento). El módulo **Recibos** permite volver a obtener uno ya emitido:
+
+- `client/src/components/ReciboPreviewModal.jsx` reconstruye el recibo a partir
+  de la fila del listado — por eso `getRecibos` devuelve también `descuento`,
+  que el PDF necesita. **No re-sube nada a Drive**: el original ya está ahí.
+- `generarReciboPDF(data, ctx, { copia: { fecha, usuario } })` marca la copia
+  con un renglón al pie alineado a la derecha, en la **misma línea** que el
+  texto legal, para no robarle alto al detalle de meses (la hoja son 100mm y
+  el detalle ya se auto-encoge para no invadir el pie).
+- `POST /recibos/:id/reimpresion` no genera nada: solo deja el rastro en
+  bitácora (`accion = 'reimprimir'`) de quién descargó la copia.
+
+Los tres niveles del módulo `recibos` se usan de verdad en `Recibos.jsx`:
+`view` entra y reimprime en pantalla, `export` además descarga el PDF, `edit`
+además modifica las celdas. **Anular (solo el mismo día) y el cierre del día
+NO dependen de `edit`**: son tareas de caja de quien cobra. El backend sigue
+validando solo el rol base (`verifyRole('admin','oficina')`), así que un rol
+personalizado que deba anular o cuadrar tiene que heredar de **oficina**, no de
+maestro. El check de "revisado" del cierre sí es exclusivo de `admin`
+(`POST /cierres/:id/revisar`).
+
 ## Convenciones
 
 - Comentarios y mensajes de usuario en **español**.

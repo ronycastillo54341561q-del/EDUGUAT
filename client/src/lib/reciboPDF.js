@@ -53,7 +53,10 @@ export function totalEnLetras(total) {
 }
 
 export async function generarReciboPDF(reciboData, ctx = null, opts = {}) {
-  const { skipQR = false, returnBase64 = false, skipDownload = false } = opts;
+  // `copia`: cuando viene { usuario }, el PDF es una REIMPRESIÓN. Sale idéntico
+  // al original salvo una línea al pie que identifica quién y cuándo la generó,
+  // para que una copia nunca se confunda con el recibo emitido en caja.
+  const { skipQR = false, returnBase64 = false, skipDownload = false, copia = null } = opts;
   const descuento = parseFloat(reciboData.descuento) || 0;
   const { jsPDF }  = await import('jspdf');
   const QRCode     = skipQR ? null : await import('qrcode');
@@ -176,7 +179,28 @@ export async function generarReciboPDF(reciboData, ctx = null, opts = {}) {
   doc.text(`Código de validación: ${codVal}`, ML, pieY + 5);
   doc.text('Documento válido como comprobante oficial de pago.', ML, pieY + 10);
 
-  const filename = `Recibo-${reciboData.no_recibo}-${reciboData.alumno.clave}.pdf`;
+  // La marca de copia va alineada a la derecha, en el mismo renglón del pie:
+  // así no consume alto y el detalle de meses conserva todo su espacio.
+  if (copia) {
+    const sello = copia.fecha instanceof Date ? copia.fecha : new Date();
+    const dd = String(sello.getDate()).padStart(2, '0');
+    const mm = String(sello.getMonth() + 1).padStart(2, '0');
+    const hh = String(sello.getHours()).padStart(2, '0');
+    const mi = String(sello.getMinutes()).padStart(2, '0');
+    // Recorte defensivo: un nombre muy largo empujaría la marca hacia la
+    // izquierda hasta chocar con el texto del pie.
+    const quien = copia.usuario ? ` por ${String(copia.usuario).slice(0, 40)}` : '';
+    doc.setFont('helvetica', 'bold');
+    doc.text(
+      `COPIA · Reimpreso ${dd}/${mm}/${sello.getFullYear()} ${hh}:${mi}${quien}`,
+      MR, pieY + 10, { align: 'right' }
+    );
+    doc.setFont('helvetica', 'normal');
+  }
+
+  const filename = copia
+    ? `Recibo-${reciboData.no_recibo}-${reciboData.alumno.clave}-COPIA.pdf`
+    : `Recibo-${reciboData.no_recibo}-${reciboData.alumno.clave}.pdf`;
   if (!skipDownload) doc.save(filename);
 
   if (returnBase64) {

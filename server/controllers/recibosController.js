@@ -14,6 +14,7 @@ const fmt = (r) => ({
   ...r,
   fecha: r.fecha ? String(r.fecha).slice(0, 10) : null,
   total: r.total != null ? parseFloat(r.total) : null,
+  descuento: r.descuento != null ? parseFloat(r.descuento) : 0,
 });
 
 const getRecibos = async (req, res) => {
@@ -22,7 +23,7 @@ const getRecibos = async (req, res) => {
       SELECT r.id, r.no_recibo, r.alumno_id,
              COALESCE(CONCAT(a.nombre, ' ', a.apellido), r.alumno_texto) AS alumno_nombre,
              a.clave, a.codigo_estudiante,
-             r.meses, r.fecha, r.total, r.observaciones, r.created_at,
+             r.meses, r.fecha, r.total, r.descuento, r.observaciones, r.created_at,
              r.anulado, r.anulado_at, r.no_deposito
       FROM recibos r
       LEFT JOIN alumnos a ON r.alumno_id = a.id
@@ -54,7 +55,7 @@ const crearRecibo = async (req, res) => {
       SELECT r.id, r.no_recibo, r.alumno_id,
              COALESCE(CONCAT(a.nombre, ' ', a.apellido), r.alumno_texto) AS alumno_nombre,
              a.clave, a.codigo_estudiante,
-             r.meses, r.fecha, r.total, r.observaciones, r.created_at
+             r.meses, r.fecha, r.total, r.descuento, r.observaciones, r.created_at
       FROM recibos r
       LEFT JOIN alumnos a ON r.alumno_id = a.id
       WHERE r.id = ?
@@ -172,6 +173,29 @@ const anularRecibo = async (req, res) => {
   }
 };
 
+// ─── POST /:id/reimpresion ───────────────────────────────────────────────────
+// No genera nada: el PDF de la copia se arma en el cliente con los mismos
+// datos que ya trae el listado. Este endpoint solo deja el rastro en bitácora
+// de quién descargó una reimpresión y de cuál recibo, que es lo que interesa
+// auditar (el original se emite una sola vez desde Nuevo Pago / Otros Pagos).
+const registrarReimpresion = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.query(
+      'SELECT id, no_recibo, alumno_id, fecha, total FROM recibos WHERE id = ?',
+      [id]
+    );
+    if (!rows.length) return res.status(404).json({ message: 'Recibo no encontrado' });
+    const r = rows[0];
+    log(req, 'reimprimir', 'Recibos',
+      `Copia del recibo ${r.no_recibo || `ID ${r.id}`} (${String(r.fecha).slice(0, 10)}, Q${r.total}) descargada.`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('registrarReimpresion:', err);
+    res.status(500).json({ message: 'Error al registrar la reimpresión' });
+  }
+};
+
 // Sube un recibo PDF (generado en el cliente) a la carpeta de Drive
 // configurada en GOOGLE_DRIVE_RECIBOS_FOLDER_ID. El cliente envía el
 // PDF como base64. Si Drive no está configurado se devuelve un 503.
@@ -269,4 +293,4 @@ const limpiarDuplicadosRecibos = async (req, res) => {
   }
 };
 
-module.exports = { getRecibos, crearRecibo, actualizarRecibo, eliminarRecibo, anularRecibo, subirReciboDrive, limpiarDuplicadosRecibos };
+module.exports = { getRecibos, crearRecibo, actualizarRecibo, eliminarRecibo, anularRecibo, registrarReimpresion, subirReciboDrive, limpiarDuplicadosRecibos };
