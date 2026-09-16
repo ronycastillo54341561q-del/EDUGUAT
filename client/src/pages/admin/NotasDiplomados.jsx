@@ -45,6 +45,7 @@ export default function NotasDiplomados() {
   const [pending,      setPending]      = useState({});
   const [guardando,    setGuardando]    = useState(false);
   const [msg,          setMsg]          = useState('');
+  const [msgErr,       setMsgErr]       = useState('');
 
   useEffect(() => { localStorage.setItem('dip_anio',    anio);         }, [anio]);
   useEffect(() => { localStorage.setItem('dip_estado',  fEstado);      }, [fEstado]);
@@ -162,7 +163,11 @@ export default function NotasDiplomados() {
       }));
       setPending({});
       setMsg('ok'); setTimeout(() => setMsg(''), 3000);
-    } catch { setMsg('err'); setTimeout(() => setMsg(''), 3000); }
+    } catch (err) {
+      // Mostramos el motivo real (p. ej. falta de permisos) en vez de un error genérico.
+      setMsgErr(err?.response?.data?.message || 'Error al guardar cambios');
+      setMsg('err'); setTimeout(() => setMsg(''), 5000);
+    }
     finally { setGuardando(false); }
   };
 
@@ -229,7 +234,7 @@ export default function NotasDiplomados() {
               </div>
             )}
             {msg === 'ok'  && <div className="msg-ok"  style={{ marginBottom: '0.75rem' }}>Cambios guardados correctamente</div>}
-            {msg === 'err' && <div className="msg-err" style={{ marginBottom: '0.75rem' }}>Error al guardar cambios</div>}
+            {msg === 'err' && <div className="msg-err" style={{ marginBottom: '0.75rem' }}>{msgErr || 'Error al guardar cambios'}</div>}
 
             <div className="table-container">
               {cargando ? <div style={{ textAlign: 'center', padding: '3rem', color: '#999' }}>Cargando...</div> :
