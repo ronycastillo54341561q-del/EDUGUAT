@@ -232,13 +232,87 @@ export const canExport = (rol, modulo) => {
   return Boolean(_customExports[rol]?.[modulo]);
 };
 
-export const defaultRoute = (rol) => {
-  if (rol === 'admin')   return '/admin/dashboard';
-  if (rol === 'oficina') return '/admin/alumnos';
-  if (rol === 'maestro') return '/admin/alumnos';
-  if (rol === 'alumno')  return '/alumno/dashboard';
-  // Custom: redirige al panel admin (su PrivateRoute filtra módulos).
-  return rol ? '/admin/alumnos' : '/login';
+// Módulos con ruta propia, en el MISMO orden del Sidebar.  Sirve para elegir
+// la pantalla de inicio de un rol: la primera que realmente puede ver.
+// Mantener sincronizado con NAV en components/Sidebar.jsx.
+export const RUTAS_MODULO = [
+  ['dashboard', '/admin/dashboard'],
+  ['alumnos', '/admin/alumnos'],
+  ['diplomados', '/admin/diplomados'],
+  ['asistencia', '/admin/asistencia'],
+  ['horarios', '/admin/horarios'],
+  ['planificaciones', '/admin/planificaciones'],
+  ['mecanografia', '/admin/mecanografia'],
+  ['notasTac', '/admin/notas-tac'],
+  ['inscritosTac', '/admin/inscritos-tac'],
+  ['notasDiplomados', '/admin/notas-diplomados'],
+  ['reporteAlumno', '/admin/reporte-alumno'],
+  ['consultas', '/admin/consultas'],
+  ['impresion', '/admin/impresion'],
+  ['constancias', '/admin/constancias'],
+  ['misTablas', '/admin/mis-tablas'],
+  ['nuevoPago', '/admin/nuevo-pago'],
+  ['otrosPagos', '/admin/otros-pagos'],
+  ['pagos', '/admin/pagos'],
+  ['recibos', '/admin/recibos'],
+  ['papeleria', '/admin/papeleria'],
+  ['nominas', '/admin/nominas'],
+  ['avisos', '/admin/avisos'],
+  ['usuarios', '/admin/usuarios'],
+  ['roles', '/admin/roles'],
+  ['configuracion', '/admin/configuracion'],
+  ['importar', '/admin/importar'],
+  ['bitacora', '/admin/bitacora'],
+  ['backups', '/admin/backups'],
+  ['manual', '/admin/manual'],
+];
+
+// Pantalla para un rol que no puede ver NINGÚN módulo.  Sin esto el usuario
+// caía en una ruta prohibida y PrivateRoute lo reenviaba a sí misma en bucle
+// (pantalla en blanco).
+export const SIN_ACCESO_RUTA = '/admin/sin-acceso';
+
+// Módulos exclusivos de inquilinos tipo 'institucion'.  Espejo de la misma
+// constante en Sidebar.jsx y PrivateRoute.jsx.
+const INSTITUCION_MODULES = new Set(['nominas', 'horarios']);
+
+// ¿El rol puede aterrizar en este módulo?  Replica los filtros de
+// PrivateRoute: permiso del rol + módulos habilitados de la sede + módulos
+// que sólo existen en instituciones.
+const moduloDisponible = (rol, modulo, sede) => {
+  if (!can(rol, modulo, 'view')) return false;
+  const sedeModulos = Array.isArray(sede?.modulos) && sede.modulos.length ? sede.modulos : null;
+  if (sedeModulos && !sedeModulos.includes(modulo)) return false;
+  if (INSTITUCION_MODULES.has(modulo) && sede?.tipo !== 'institucion') return false;
+  return true;
+};
+
+// Primer módulo (en orden de Sidebar) al que el rol sí tiene acceso.
+export const primeraRutaPermitida = (rol, sede = null) => {
+  for (const [modulo, ruta] of RUTAS_MODULO) {
+    if (moduloDisponible(rol, modulo, sede)) return ruta;
+  }
+  return null;
+};
+
+// Ruta preferida de cada rol base, siempre que el permiso siga vigente (un
+// override puede haberle quitado la vista de ese módulo).
+const RUTA_PREFERIDA = {
+  admin:   ['dashboard', '/admin/dashboard'],
+  oficina: ['alumnos',   '/admin/alumnos'],
+  maestro: ['alumnos',   '/admin/alumnos'],
+};
+
+// Pantalla de inicio de un rol.  Antes los roles personalizados iban SIEMPRE a
+// /admin/alumnos; si el rol no tenía ese módulo, PrivateRoute lo reenviaba a la
+// misma ruta una y otra vez y la pantalla quedaba en blanco.  Ahora se elige el
+// primer módulo que el rol puede ver de verdad.
+export const defaultRoute = (rol, sede = null) => {
+  if (!rol) return '/login';
+  if (rol === 'alumno') return '/alumno/dashboard';
+  const pref = RUTA_PREFERIDA[rol];
+  if (pref && moduloDisponible(rol, pref[0], sede)) return pref[1];
+  return primeraRutaPermitida(rol, sede) || SIN_ACCESO_RUTA;
 };
 
 // Roles autorizados para rutas tipo "admin/*" (todo el panel administrativo).

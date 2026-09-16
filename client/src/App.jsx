@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import SinAcceso from './pages/admin/SinAcceso';
 import Login from './pages/Login';
 import SedeSelector from './pages/SedeSelector';
 import InstitucionSelector from './pages/InstitucionSelector';
@@ -61,7 +62,7 @@ const RootGate = () => {
   const { usuario, sede, cargando } = useAuth();
   if (cargando) return <div>Cargando...</div>;
   if (!sede || !usuario) return <SedeSelector />;
-  return <Navigate to={defaultRoute(usuario.rol)} replace />;
+  return <Navigate to={defaultRoute(usuario.rol, sede)} replace />;
 };
 
 // "/" muestra siempre la landing pública; el flujo de selección de sede
@@ -113,6 +114,8 @@ function App() {
           <Route path="/admin/backups"          element={<PrivateRoute modulo="backups"><Backups /></PrivateRoute>} />
           {/* Módulo "Relaciones BD" desactivado: ruta deshabilitada. */}
           <Route path="/admin/manual"           element={<PrivateRoute modulo="manual"><Manual /></PrivateRoute>} />
+          {/* Sin `modulo`: sólo exige sesión, así nunca puede rebotar en bucle. */}
+          <Route path="/admin/sin-acceso"       element={<PrivateRoute><SinAcceso /></PrivateRoute>} />
 
           {/* Alumno */}
           <Route path="/alumno/dashboard"    element={<PrivateRoute rol="alumno"><AlumnoDashboard /></PrivateRoute>} />

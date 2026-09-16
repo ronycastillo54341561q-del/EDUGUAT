@@ -48,7 +48,7 @@ const Login = () => {
         sede: sede.id,
       });
       login(data.token, data.usuario);
-      navigate(defaultRoute(data.usuario.rol));
+      navigate(defaultRoute(data.usuario.rol, sede));
     } catch (err) {
       setError(err.response?.data?.message || 'Error al iniciar sesión');
     } finally {
