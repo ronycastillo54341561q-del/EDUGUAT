@@ -44,7 +44,6 @@ const PERMS = {
     academias:        { view: true,  edit: true  },
     constancias:      { view: true,  edit: true  },
     importar:         { view: true,  edit: true  },
-    backups:          { view: true,  edit: true  },
     relaciones:       { view: false, edit: false },   // módulo desactivado
     manual:           { view: true,  edit: false },
   },
@@ -263,7 +262,6 @@ export const RUTAS_MODULO = [
   ['configuracion', '/admin/configuracion'],
   ['importar', '/admin/importar'],
   ['bitacora', '/admin/bitacora'],
-  ['backups', '/admin/backups'],
   ['manual', '/admin/manual'],
 ];
 

@@ -41,7 +41,6 @@ import Academias from './pages/admin/Academias';
 import Constancias from './pages/admin/Constancias';
 import Importar from './pages/admin/Importar';
 import InscritosTac from './pages/admin/InscritosTac';
-import Backups from './pages/admin/Backups';
 // Módulo "Relaciones BD" desactivado.
 // import Relaciones from './pages/admin/Relaciones';
 import Manual from './pages/admin/Manual';
@@ -111,7 +110,6 @@ function App() {
           <Route path="/admin/academias"        element={<PrivateRoute modulo="academias"><Academias /></PrivateRoute>} />
           <Route path="/admin/constancias"      element={<PrivateRoute modulo="constancias"><Constancias /></PrivateRoute>} />
           <Route path="/admin/importar"         element={<PrivateRoute modulo="importar"><Importar /></PrivateRoute>} />
-          <Route path="/admin/backups"          element={<PrivateRoute modulo="backups"><Backups /></PrivateRoute>} />
           {/* Módulo "Relaciones BD" desactivado: ruta deshabilitada. */}
           <Route path="/admin/manual"           element={<PrivateRoute modulo="manual"><Manual /></PrivateRoute>} />
           {/* Sin `modulo`: sólo exige sesión, así nunca puede rebotar en bucle. */}

@@ -44,7 +44,6 @@ const institucionesRoutes = require('./routes/institucionesRoutes');
 const nominasRoutes       = require('./routes/nominasRoutes');
 const horariosRoutes      = require('./routes/horariosRoutes');
 const configPagosRoutes   = require('./routes/configPagosRoutes');
-const backupsRoutes       = require('./routes/backupsRoutes');
 const rolesRoutes         = require('./routes/rolesRoutes');
 const relacionesRoutes    = require('./routes/relacionesRoutes');
 
@@ -113,7 +112,6 @@ app.use('/api/instituciones',    institucionesRoutes);
 app.use('/api/nominas',          nominasRoutes);
 app.use('/api/horarios',         horariosRoutes);
 app.use('/api/config-pagos',     configPagosRoutes);
-app.use('/api/backups',          backupsRoutes);
 app.use('/api/roles',            rolesRoutes);
 app.use('/api/relaciones',       relacionesRoutes);
 

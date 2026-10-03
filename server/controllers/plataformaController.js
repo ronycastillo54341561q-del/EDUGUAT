@@ -240,10 +240,6 @@ const editar = async (req, res) => {
 const cambiarActivo = async (req, res) => {
   const { id } = req.params;
   if (!pools[id]) return res.status(404).json({ message: 'Sede no encontrada' });
-  // `sistema_escolar` aloja el módulo Academias original; no se apaga desde aquí.
-  if (id === 'sistema_escolar' && !req.body?.activo) {
-    return res.status(400).json({ message: 'La sede Sistema no se puede desactivar' });
-  }
   try {
     await actualizarActivo(id, !!req.body?.activo);
     res.json({ id, activo: !!req.body?.activo });

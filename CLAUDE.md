@@ -59,6 +59,11 @@ Panel del dueño para gestionar inquilinos, **separado de las sedes**:
   inicial vía `bootstrapSede`, y restablecer contraseña de un admin).
 - Al crear, rechaza IDs que ya existan como BD en MySQL (servidor compartido).
 - Convive con el módulo Academias original (admin de `sistema_escolar`).
+- **Respaldos** (`/api/plataforma/backups`, reusa `backupsController`): el dump cubre
+  TODAS las sedes, así que **ninguna sede tiene módulo backups** (no hay `/api/backups`,
+  ni ruta SPA, ni entrada en roles). No lo reintroduzcas en las sedes.
+- Desactivar una sede (`sedes.activo=0`) bloquea el login **y** las sesiones abiertas
+  (`verifyToken` responde 401 `SEDE_INACTIVA`).
 
 ## Auth y permisos
 
@@ -231,6 +236,7 @@ maestro. El check de "revisado" del cierre sí es exclusivo de `admin`
   (ver `parseExtras` en `institucionesController.js`).
 - Toda acción mutante se registra en **bitácora** (`utils/bitacora.log`).
 - Backups: `utils/backupRunner.js` + `backupCleanup.js`, scripts `npm run db:dump` / `db:restore`.
+  Sólo accesibles desde el panel de plataforma.
 
 ## Índice de módulos (API ↔ ruta SPA)
 
@@ -238,7 +244,7 @@ maestro. El check de "revisado" del cierre sí es exclusivo de `admin`
 `diplomados`, `mensualidades`/`pagos`, `nuevo-pago`, `otros-pagos`, `recibos`, `papeleria`,
 `config-pagos`, `cierres`, `dashboard`, `reporte`/`reporte-financiero`, `consultas-reportes`,
 `constancias`, `avisos`, `bitacora`, `mis-tablas`, `relaciones`, `catalogos`, `importacion`,
-`backups`, `usuarios`, `roles`, `academias`, `sedes`, `instituciones` (nuevo),
+`usuarios`, `roles`, `academias`, `sedes`, `instituciones` (nuevo),
 `nominas` y `horarios` (solo instituciones), `alumno` (self-service).
 
 Listado autoritativo de wiring: `server/index.js` (API) y `client/src/App.jsx` (SPA).

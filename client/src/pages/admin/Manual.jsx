@@ -208,7 +208,6 @@ const Manual = () => {
               <li><strong>Academias:</strong> sólo super-admin. Crea, edita y desactiva sedes.</li>
               <li><strong>Importar Datos:</strong> carga masiva desde Excel/CSV.</li>
               <li><strong>Bitácora:</strong> registro de acciones del sistema.</li>
-              <li><strong>Backups:</strong> respaldos manuales y programados.</li>
             </ul>
           </section>
 
@@ -320,11 +319,8 @@ const Manual = () => {
             <h2>10. Buenas prácticas</h2>
             <ul>
               <li>
-                Programa <strong>backups</strong> regulares desde el módulo
-                Backups.
-              </li>
-              <li>
-                Antes de importar, haz un backup manual.
+                Antes de una importación grande, pide a soporte de EduGuat
+                un respaldo de tus datos.
               </li>
               <li>
                 Crea roles personalizados en lugar de compartir la cuenta

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { runWithSede, pools, getPool } = require('../config/db');
+const { runWithSede, pools, getPool, sedesMeta } = require('../config/db');
 
 const ROLES_BASE = new Set(['admin','alumno','oficina','maestro']);
 
@@ -25,6 +25,12 @@ const verifyToken = (req, res, next) => {
   // traen "sede".  Los tratamos como Sistec Flores (sistema_escolar).
   const sede = decoded.sede && pools[decoded.sede] ? decoded.sede : 'sistema_escolar';
   req.user.sede = sede;
+
+  // Sede desactivada desde el panel: también expulsa sesiones ya abiertas
+  // (el login ya la rechazaba).
+  if (sedesMeta[sede]?.activo === false) {
+    return res.status(401).json({ message: 'Esta sede está desactivada', code: 'SEDE_INACTIVA' });
+  }
 
   // Ejecuta el resto del pipeline dentro del contexto de la sede.
   // Cualquier `db.query(...)` en controllers aterriza en el pool correcto.

@@ -5,7 +5,7 @@ import {
   Keyboard, FileEdit, ListChecks, Award, BarChart3, Search, Printer,
   ScrollText, Table2, CreditCard, Calculator, Wallet, Receipt, Paperclip,
   Briefcase, Megaphone, Users, Shield, Settings, Building2, Download,
-  BookOpen, HardDrive, Link2, LogOut, BookMarked,
+  BookOpen, Link2, LogOut, BookMarked,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { can, ROLE_LABEL, isSuperAdmin } from '../lib/permissions';
@@ -66,7 +66,6 @@ const NAV = [
     { to: '/admin/academias',       icon: <Building2 size={NAV_ICON_SIZE} />, label: 'Academias',     modulo: 'academias' },
     { to: '/admin/importar',        icon: <Download size={NAV_ICON_SIZE} />,  label: 'Importar Datos', modulo: 'importar' },
     { to: '/admin/bitacora',        icon: <BookMarked size={NAV_ICON_SIZE} />, label: 'Bitácora',     modulo: 'bitacora' },
-    { to: '/admin/backups',         icon: <HardDrive size={NAV_ICON_SIZE} />, label: 'Backups',       modulo: 'backups' },
     // Módulo "Relaciones BD" desactivado: no debe mostrarse.
     // { to: '/admin/relaciones',      icon: <Link2 size={NAV_ICON_SIZE} />,     label: 'Relaciones BD', modulo: 'relaciones' },
     { to: '/admin/manual',          icon: <BookOpen size={NAV_ICON_SIZE} />,  label: 'Manual',        modulo: 'manual' },

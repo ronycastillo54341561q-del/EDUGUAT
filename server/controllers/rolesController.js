@@ -9,7 +9,7 @@ const MODULOS = [
   'notasDiplomados','planificaciones','diplomados','pagos','nuevoPago',
   'otrosPagos','recibos','papeleria','reporteAlumno','reporteFinanciero',
   'consultas','impresion','misTablas','bitacora','configuracion','usuarios',
-  'roles','pagosInstitucion','avisos','academias','constancias','importar','backups',
+  'roles','pagosInstitucion','avisos','academias','constancias','importar',
 ];
 
 const ROLES_BASE = new Set(['admin','alumno','oficina','maestro']);

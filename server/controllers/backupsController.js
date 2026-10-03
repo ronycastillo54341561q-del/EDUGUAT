@@ -16,7 +16,12 @@ const path = require('path');
 
 const { getMetaPool } = require('../config/db');
 const { crearBackup } = require('../utils/backupRunner');
-const { log }         = require('../utils/bitacora');
+// Sólo lo usa el panel de plataforma (routes/plataformaRoutes.js): el backup
+// incluye TODAS las sedes, así que ninguna sede tiene acceso.  Sin bitácora de
+// sede — queda en el log del servidor.
+const log = async (req, accion, _modulo, descripcion) => {
+  console.log(`[plataforma backups] ${req.plataforma?.nombre || '?'} ${accion}: ${descripcion}`);
+};
 
 /**
  * POST /api/backups
@@ -27,7 +32,7 @@ const crear = async (req, res) => {
   try {
     const r = await crearBackup({
       tipo: 'manual',
-      usuario: req.user,
+      usuario: { id: null, nombre: `${req.plataforma.nombre} (plataforma)` },
     });
 
     // Bitácora — nota que esta entrada queda en la sede del usuario que

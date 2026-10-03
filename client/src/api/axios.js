@@ -44,7 +44,7 @@ API.interceptors.response.use(
     const sesionMuerta = status === 401 || (status === 403 && SESION_MUERTA.includes(code));
     if (!isLogin && !isLogout && sesionMuerta) {
       const msg = err.response?.data?.message;
-      if (code === 'SESSION_REPLACED' || code === 'SESSION_IDLE' || code === 'SESSION_ENDED') {
+      if (code === 'SESSION_REPLACED' || code === 'SESSION_IDLE' || code === 'SESSION_ENDED' || code === 'SEDE_INACTIVA') {
         try { sessionStorage.setItem('session_msg', msg || ''); } catch {}
       }
       localStorage.removeItem('token');

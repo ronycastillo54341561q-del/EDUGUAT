@@ -65,7 +65,6 @@ const DEFAULTS_BASE = {
     academias:        { v: false, e: false },
     constancias:      { v: true,  e: true  },
     importar:         { v: false, e: false },
-    backups:          { v: false, e: false },
   },
   maestro: {
     dashboard:        { v: false, e: false },
@@ -96,7 +95,6 @@ const DEFAULTS_BASE = {
     academias:        { v: false, e: false },
     constancias:      { v: false, e: false },
     importar:         { v: false, e: false },
-    backups:          { v: false, e: false },
   },
 };
 

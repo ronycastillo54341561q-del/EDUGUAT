@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const c = require('../controllers/plataformaController');
+const backups = require('../controllers/backupsController');
 
 // Panel del dueño (academias.eduguat.com).  Auth propia, independiente de
 // las sedes: ver controllers/plataformaController.js.
@@ -17,5 +18,11 @@ router.put   ('/sedes/:id',                         c.editar);
 router.patch ('/sedes/:id/activo',                  c.cambiarActivo);
 router.get   ('/sedes/:id/admins',                  c.listarAdmins);
 router.post  ('/sedes/:id/admins/:userId/password', c.restablecerPassword);
+
+// Respaldos del servidor completo (todas las sedes): sólo desde el panel.
+router.get   ('/backups',                           backups.listar);
+router.post  ('/backups',                           backups.crear);
+router.get   ('/backups/:id/download',              backups.descargar);
+router.delete('/backups/:id',                       backups.eliminar);
 
 module.exports = router;

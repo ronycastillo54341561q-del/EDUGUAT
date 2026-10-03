@@ -24,3 +24,21 @@ export async function api(path, { method = 'GET', body } = {}) {
   if (!res.ok) throw new Error(data.message || `Error ${res.status}`)
   return data
 }
+
+// Descarga un archivo autenticado (el token va en el header, no en la URL).
+export async function descargar(path, nombre) {
+  const res = await fetch(`/api/plataforma${path}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    if (res.status === 401) { setToken(null); onUnauthorized() }
+    throw new Error(data.message || `Error ${res.status}`)
+  }
+  const url = URL.createObjectURL(await res.blob())
+  const a = Object.assign(document.createElement('a'), { href: url, download: nombre })
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}

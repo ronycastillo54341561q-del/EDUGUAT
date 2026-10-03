@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { api, getToken, setToken, setOnUnauthorized } from './api'
+import { api, descargar, getToken, setToken, setOnUnauthorized } from './api'
 
 const slugify = (s) => String(s || '')
   .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -66,6 +66,7 @@ function Panel({ onSalir }) {
   const [tipo, setTipo] = useState('todos')
   const [q, setQ] = useState('')
   const [modal, setModal] = useState(null) // {tipo:'nueva'|'editar'|'admins'|'credenciales', sede?, datos?}
+  const [vista, setVista] = useState('sedes')
 
   const cargar = useCallback(async () => {
     try {
@@ -114,9 +115,14 @@ function Panel({ onSalir }) {
     <div className="app">
       <header className="top">
         <div className="brand">Edu<b>Guat</b> <span>Plataforma</span></div>
+        <nav className="seg">
+          <button className={vista === 'sedes' ? 'on' : ''} onClick={() => setVista('sedes')}>Sedes</button>
+          <button className={vista === 'respaldos' ? 'on' : ''} onClick={() => setVista('respaldos')}>Respaldos</button>
+        </nav>
         <button className="btn btn--ghost" onClick={salir}>Cerrar sesión</button>
       </header>
 
+      {vista === 'respaldos' ? <Respaldos /> : (
       <main className="wrap">
         <div className="head">
           <div>
@@ -170,6 +176,7 @@ function Panel({ onSalir }) {
           {!visibles.length && <div className="vacio">No hay resultados.</div>}
         </div>
       </main>
+      )}
 
       {modal?.tipo === 'nueva' && (
         <NuevaSede catalogo={catalogo} onCerrar={() => setModal(null)}
@@ -381,5 +388,69 @@ function Credenciales({ datos, onCerrar }) {
       <Clave email={datos.email_admin} password={datos.password} />
       <div className="modal__foot"><button className="btn btn--primary" onClick={onCerrar}>Listo</button></div>
     </Modal>
+  )
+}
+
+// ── Respaldos (servidor completo: todas las sedes) ──────────────────────
+
+const tamano = (b) => (b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`)
+const fechaHora = (s) => new Date(String(s).replace(' ', 'T')).toLocaleString('es-GT', { dateStyle: 'medium', timeStyle: 'short' })
+
+function Respaldos() {
+  const [lista, setLista] = useState(null)
+  const [error, setError] = useState('')
+  const [creando, setCreando] = useState(false)
+
+  const cargar = useCallback(() => {
+    api('/backups').then(setLista).catch(err => setError(err.message))
+  }, [])
+  useEffect(() => { cargar() }, [cargar])
+
+  const crear = async () => {
+    setCreando(true); setError('')
+    try { await api('/backups', { method: 'POST' }); cargar() }
+    catch (err) { setError(err.message) }
+    finally { setCreando(false) }
+  }
+
+  const bajar = async (b) => {
+    try { await descargar(`/backups/${b.id}/download`, b.filename) }
+    catch (err) { setError(err.message) }
+  }
+
+  const eliminar = async (b) => {
+    if (!window.confirm(`¿Eliminar ${b.filename}? El archivo se borra del servidor.`)) return
+    try { await api(`/backups/${b.id}`, { method: 'DELETE' }); cargar() }
+    catch (err) { setError(err.message) }
+  }
+
+  return (
+    <main className="wrap">
+      <div className="head">
+        <div>
+          <h1>Respaldos</h1>
+          <p className="muted">Copia completa de todas las sedes. Sólo visible desde este panel.</p>
+        </div>
+        <button className="btn btn--primary" onClick={crear} disabled={creando}>{creando ? 'Generando… (puede tardar)' : 'Crear respaldo'}</button>
+      </div>
+      {error && <div className="alert">{error}</div>}
+      <div className="tabla">
+        <div className="fila fila--head fila--bk"><span>Fecha</span><span>Tamaño</span><span>Generado por</span><span>Estado</span><span /></div>
+        {lista?.map(b => (
+          <div className="fila fila--bk" key={b.id}>
+            <span><b>{fechaHora(b.created_at)}</b><small>{b.filename}</small></span>
+            <span>{b.size_bytes ? tamano(b.size_bytes) : '—'}</span>
+            <span className="trunc">{b.usuario_nombre || '—'}</span>
+            <span><i className={`dot ${b.estado === 'ok' ? 'dot--on' : ''}`} />{b.estado === 'ok' ? (b.filepath ? 'Disponible' : 'Purgado') : 'Error'}</span>
+            <span className="acciones">
+              {b.estado === 'ok' && b.filepath && <button className="btn btn--sm" onClick={() => bajar(b)}>Descargar</button>}
+              <button className="btn btn--sm btn--warn" onClick={() => eliminar(b)}>Eliminar</button>
+            </span>
+          </div>
+        ))}
+        {lista && !lista.length && <div className="vacio">Todavía no hay respaldos.</div>}
+        {!lista && !error && <div className="vacio">Cargando…</div>}
+      </div>
+    </main>
   )
 }
