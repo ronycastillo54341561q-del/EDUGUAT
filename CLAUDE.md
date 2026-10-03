@@ -47,6 +47,19 @@ El `admin` de la sede `sistema_escolar` es **super-admin**: única cuenta que pu
 gestionar sedes/academias. Validado en front (`lib/permissions.isSuperAdmin`, `SUPER_ADMIN_SEDE`)
 y duplicado en backend.
 
+### Panel de plataforma (`academias.eduguat.com`)
+Panel del dueño para gestionar inquilinos, **separado de las sedes**:
+- Front: `plataforma/` (Vite + React, build propio → `plataforma/dist`, servido por nginx).
+- API: `/api/plataforma/*` (`routes/plataformaRoutes.js`, `controllers/plataformaController.js`).
+- Cuentas en `eduguat_meta.plataforma_admins`; alta/cambio de clave con
+  `node scripts/plataforma-admin.js <correo>` (pide la contraseña sin eco).
+- JWT firmado con una clave **derivada** de `JWT_SECRET` (`scope: 'plataforma'`): no
+  sirve en `verifyToken` de las sedes ni al revés. Sesión única vía `session_jti`.
+- Sólo lee `eduguat_meta.sedes`; dentro de una sede sólo toca `usuarios` (admin
+  inicial vía `bootstrapSede`, y restablecer contraseña de un admin).
+- Al crear, rechaza IDs que ya existan como BD en MySQL (servidor compartido).
+- Convive con el módulo Academias original (admin de `sistema_escolar`).
+
 ## Auth y permisos
 
 - `server/middlewares/authMiddleware.js`:

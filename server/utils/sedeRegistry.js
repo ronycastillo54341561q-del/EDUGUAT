@@ -110,6 +110,21 @@ const bootstrapMeta = async () => {
     )
   `);
 
+  // Cuentas del panel de plataforma (academias.eduguat.com).  Separadas de
+  // los usuarios de las sedes; se crean con scripts/plataforma-admin.js.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS plataforma_admins (
+      id           INT AUTO_INCREMENT PRIMARY KEY,
+      nombre       VARCHAR(150) NOT NULL,
+      email        VARCHAR(150) NOT NULL UNIQUE,
+      password     VARCHAR(255) NOT NULL,
+      activo       TINYINT(1)   NOT NULL DEFAULT 1,
+      session_jti  VARCHAR(64)  NULL,
+      last_login   DATETIME     NULL,
+      created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Inserta las semillas si todavía no están en el registro
   for (const { id, nombre } of SEMILLAS) {
     await pool.query(
@@ -262,4 +277,5 @@ module.exports = {
   insertarSede,
   actualizarActivo,
   actualizarSede,
+  MODULOS_INSTITUCION_DEFAULT,
 };

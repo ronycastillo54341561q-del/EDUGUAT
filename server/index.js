@@ -36,6 +36,7 @@ const usuariosRoutes      = require('./routes/usuariosRoutes');
 const cierresRoutes       = require('./routes/cierresRoutes');
 const avisosRoutes        = require('./routes/avisosRoutes');
 const academiasRoutes     = require('./routes/academiasRoutes');
+const plataformaRoutes    = require('./routes/plataformaRoutes');
 const constanciasRoutes   = require('./routes/constanciasRoutes');
 const importacionRoutes   = require('./routes/importacionRoutes');
 const inscritosTacRoutes  = require('./routes/inscritosTacRoutes');
@@ -60,6 +61,7 @@ const ALLOWED_ORIGINS = [
   'https://eduguat.com',
   'https://www.eduguat.com',
   'https://eduguat.miguatemala.com',
+  'https://academias.eduguat.com',
   'https://eduguat-landing.vercel.app',
   'https://eduguat.vercel.app',
 ];
@@ -82,6 +84,7 @@ app.use(express.json({ limit: '20mb' }));
 app.use('/api/auth',             authRoutes);
 app.use('/api/sedes',            sedesRoutes);
 app.use('/api/academias',        academiasRoutes);
+app.use('/api/plataforma',       plataformaRoutes);
 app.use('/api/alumnos',          alumnosRoutes);
 app.use('/api/asistencia',       asistenciaRoutes);
 app.use('/api/mecanografia',     mecanografiaRoutes);
