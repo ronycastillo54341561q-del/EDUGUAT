@@ -6,6 +6,8 @@ import FiltroFinalizacion from '../../components/FiltroFinalizacion';
 import { useAuth } from '../../context/AuthContext';
 import { useAniosFiltros } from '../../lib/anios';
 import AsistenciaInstitucion from './AsistenciaInstitucion';
+import SelectorAsistenciaMovil from '../../components/SelectorAsistenciaMovil';
+import useEsTactil from '../../hooks/useEsTactil';
 import './admin.css';
 
 const MESES = [
@@ -155,6 +157,9 @@ function AsistenciaAcademia() {
   const [anioFin,   setAnioFin]   = useState(() => localStorage.getItem('asist_anio_fin') ?? '');
 
   const [pending,   setPending]   = useState({});
+  // Celda abierta en el selector móvil: { alumno, mes, semana }
+  const esTactil = useEsTactil();
+  const [celdaMovil, setCeldaMovil] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [msg,       setMsg]       = useState('');
   const [mesWidths, setMesWidths] = useState(
@@ -412,6 +417,15 @@ function AsistenciaAcademia() {
   return (
     <div className="admin-layout">
       <Sidebar />
+      {celdaMovil && (
+        <SelectorAsistenciaMovil
+          titulo={`${celdaMovil.alumno.nombre} ${celdaMovil.alumno.apellido}`}
+          subtitulo={`${celdaMovil.mes.label} · Semana ${celdaMovil.semana}`}
+          valor={getVal(celdaMovil.alumno.id, celdaMovil.mes.num, celdaMovil.semana, celdaMovil.alumno.asistencias)}
+          onElegir={v => { setVal(celdaMovil.alumno.id, celdaMovil.mes.num, celdaMovil.semana, v); setCeldaMovil(null); }}
+          onCerrar={() => setCeldaMovil(null)}
+        />
+      )}
       <div className="admin-content">
         <h1>Control de Asistencia</h1>
         <p className="subtitle">
@@ -630,6 +644,7 @@ function AsistenciaAcademia() {
                                   undefined
                                 }
                                 onKeyDown={e => handleKey(e, a.id, m.num, s)}
+                                onClick={esTactil ? () => setCeldaMovil({ alumno: a, mes: m, semana: s }) : undefined}
                                 onFocus={e => e.currentTarget.classList.add('ag-cell-focus')}
                                 onBlur={e => e.currentTarget.classList.remove('ag-cell-focus')}
                               >

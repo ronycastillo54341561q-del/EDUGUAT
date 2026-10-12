@@ -3,6 +3,8 @@ import Sidebar from '../../components/Sidebar';
 import ScrollableTable from '../../components/ScrollableTable';
 import API from '../../api/axios';
 import { useAniosFiltros } from '../../lib/anios';
+import SelectorAsistenciaMovil from '../../components/SelectorAsistenciaMovil';
+import useEsTactil from '../../hooks/useEsTactil';
 import './admin.css';
 
 const MESES = [
@@ -52,6 +54,9 @@ export default function AsistenciaInstitucion() {
   const [cargando, setCargando] = useState(false);
 
   const [pending, setPending]   = useState({});
+  // Celda abierta en el selector móvil: { alumno, col }
+  const esTactil = useEsTactil();
+  const [celdaMovil, setCeldaMovil] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [msg, setMsg]           = useState('');
 
@@ -225,6 +230,15 @@ export default function AsistenciaInstitucion() {
   return (
     <div className="admin-layout">
       <Sidebar />
+      {celdaMovil && (
+        <SelectorAsistenciaMovil
+          titulo={`${celdaMovil.alumno.apellido} ${celdaMovil.alumno.nombre}`}
+          subtitulo={`${ABREV[celdaMovil.col.dow]} ${celdaMovil.col.dia} de ${MESES[mes - 1].label}`}
+          valor={getVal(celdaMovil.alumno, celdaMovil.col.fecha)}
+          onElegir={v => { setVal(celdaMovil.alumno.id, celdaMovil.col.fecha, v); setCeldaMovil(null); }}
+          onCerrar={() => setCeldaMovil(null)}
+        />
+      )}
       <div className="admin-content">
         <h1>Asistencia Diaria</h1>
         <p className="subtitle">
@@ -389,7 +403,9 @@ export default function AsistenciaInstitucion() {
                               tabIndex={0}
                               className={`ag-cell${inicioSemana ? ' ag-mes-inicio' : ''}`}
                               style={{ background: col.bg || undefined, cursor: 'cell', outline: 'none' }}
-                              onClick={() => setVal(a.id, c.fecha, cicloClick(val))}
+                              onClick={() => esTactil
+                                ? setCeldaMovil({ alumno: a, col: c })
+                                : setVal(a.id, c.fecha, cicloClick(val))}
                               onKeyDown={e => handleKey(e, a, c)}
                               onFocus={e => e.currentTarget.classList.add('ag-cell-focus')}
                               onBlur={e => e.currentTarget.classList.remove('ag-cell-focus')}
