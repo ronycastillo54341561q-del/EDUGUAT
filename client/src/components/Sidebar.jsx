@@ -5,7 +5,7 @@ import {
   Keyboard, FileEdit, ListChecks, Award, BarChart3, Search, Printer,
   ScrollText, Table2, CreditCard, Calculator, Wallet, Receipt, Paperclip,
   Briefcase, Megaphone, Users, Shield, Settings, Building2, Download,
-  BookOpen, Link2, LogOut, BookMarked,
+  BookOpen, Link2, LogOut, BookMarked, UserCog,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { can, ROLE_LABEL, isSuperAdmin } from '../lib/permissions';
@@ -63,6 +63,7 @@ const NAV = [
     { to: '/admin/usuarios',        icon: <Users size={NAV_ICON_SIZE} />,     label: 'Usuarios',      modulo: 'usuarios' },
     { to: '/admin/roles',           icon: <Shield size={NAV_ICON_SIZE} />,    label: 'Roles',         modulo: 'roles' },
     { to: '/admin/configuracion',   icon: <Settings size={NAV_ICON_SIZE} />,  label: 'Configuración', modulo: 'configuracion' },
+    { to: '/admin/portal-alumno',   icon: <UserCog size={NAV_ICON_SIZE} />,  label: 'Portal del Alumno', modulo: 'configuracion' },
     { to: '/admin/academias',       icon: <Building2 size={NAV_ICON_SIZE} />, label: 'Academias',     modulo: 'academias' },
     { to: '/admin/importar',        icon: <Download size={NAV_ICON_SIZE} />,  label: 'Importar Datos', modulo: 'importar' },
     { to: '/admin/bitacora',        icon: <BookMarked size={NAV_ICON_SIZE} />, label: 'Bitácora',     modulo: 'bitacora' },

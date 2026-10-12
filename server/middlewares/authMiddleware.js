@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { runWithSede, pools, getPool, sedesMeta } = require('../config/db');
+const { getPortalConfig, estadoAlumnoDeUsuario } = require('../utils/portalAlumno');
 
 const ROLES_BASE = new Set(['admin','alumno','oficina','maestro']);
 
@@ -74,6 +75,25 @@ const verifyToken = (req, res, next) => {
             message: 'Sesión cerrada por inactividad',
             code: 'SESSION_IDLE',
           });
+        }
+      }
+
+      // Alumno dado de baja con la sesión abierta: se le cierra en el
+      // siguiente request (si la sede exige alumnos activos).
+      if (decoded.rol === 'alumno') {
+        const portal = await getPortalConfig(pool);
+        if (portal.soloActivos) {
+          const estado = await estadoAlumnoDeUsuario(pool, decoded.id);
+          if (estado && estado !== 'activo') {
+            await pool.query(
+              'UPDATE usuarios SET session_jti = NULL, last_activity = NULL WHERE id = ?',
+              [decoded.id]
+            );
+            return res.status(401).json({
+              message: 'Tu inscripción no está activa. Comunícate con la administración.',
+              code: 'ALUMNO_INACTIVO',
+            });
+          }
         }
       }
 

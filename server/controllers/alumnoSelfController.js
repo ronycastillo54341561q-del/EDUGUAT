@@ -1,4 +1,20 @@
 const db = require('../config/db');
+const { getPortalConfig, esSolvente } = require('../utils/portalAlumno');
+
+// Bloquea un endpoint del portal si el admin ocultó ese módulo.
+const requiereModulo = (modulo) => async (req, res, next) => {
+  const cfg = await getPortalConfig(db);
+  if (!cfg.modulos[modulo]) {
+    return res.status(403).json({ message: 'Este módulo no está disponible', code: 'MODULO_OCULTO' });
+  }
+  req.portal = cfg;
+  next();
+};
+
+// ¿Puede el alumno ver sus notas ahora?  Sólo depende de la regla de solvencia;
+// lo publicado se filtra aparte.
+const notasBloqueadas = async (cfg, alumno_id) =>
+  cfg.notasSoloSolventes && !(await esSolvente(db, alumno_id));
 
 // Devuelve el id del alumno asociado al usuario logueado.
 const helper = async (usuario_id) => {
@@ -69,18 +85,32 @@ const getMisNotas = async (req, res) => {
   const anio = parseInt(req.query.anio) || new Date().getFullYear();
   try {
     const alumno_id = await helper(req.user.id);
+    const cfg = req.portal;
+    const { publicar } = cfg;
+    if (await notasBloqueadas(cfg, alumno_id)) {
+      return res.json({ anio, bloqueado: 'solvencia', tac: null, diplomado: [], publicar });
+    }
     const [tacRows] = await db.query(
       'SELECT nota1, nota2, nota3, nota4 FROM notas_tac_anual WHERE alumno_id=? AND anio=?',
       [alumno_id, anio]
     );
-    const [dipRows] = await db.query(
-      'SELECT materia, nota FROM diplomado_notas WHERE alumno_id=? AND anio=? ORDER BY id',
-      [alumno_id, anio]
-    );
+    const [dipRows] = publicar.diplomado
+      ? await db.query(
+          'SELECT materia, nota FROM diplomado_notas WHERE alumno_id=? AND anio=? ORDER BY id',
+          [alumno_id, anio]
+        )
+      : [[]];
+    // Las notas TAC no publicadas no salen del servidor.
+    let tac = tacRows[0] || null;
+    if (tac) {
+      tac = { ...tac };
+      publicar.tac.forEach((ok, i) => { if (!ok) tac[`nota${i + 1}`] = null; });
+    }
     res.json({
-      tac:        tacRows[0] || null,
+      tac,
       diplomado:  dipRows,
       anio,
+      publicar,
     });
   } catch (err) {
     handleErr(err, res, 'Error al obtener notas');
@@ -92,6 +122,13 @@ const getMisMecanografia = async (req, res) => {
   const anio = parseInt(req.query.anio) || new Date().getFullYear();
   try {
     const alumno_id = await helper(req.user.id);
+    const cfg = req.portal;
+    if (!cfg.publicar.mecanografia) {
+      return res.json({ anio, notas: null, bloqueado: 'no_publicado' });
+    }
+    if (await notasBloqueadas(cfg, alumno_id)) {
+      return res.json({ anio, notas: null, bloqueado: 'solvencia' });
+    }
     const [rows] = await db.query(
       'SELECT * FROM mecanografia_notas WHERE alumno_id=? AND anio=?',
       [alumno_id, anio]
@@ -197,28 +234,64 @@ const getDashboard = async (req, res) => {
       : null;
     const mecExamen = mec?.examen != null ? Number(mec.examen) : null;
 
+    // Lo que el admin ocultó o no publicó no se manda (null = sección oculta).
+    const cfg = await getPortalConfig(db);
+    const { modulos, publicar } = cfg;
+    const sinNotas = (modulos.notas || modulos.mecanografia) && await notasBloqueadas(cfg, alumno_id);
+    const tacPublicada = tac
+      ? Object.fromEntries(['nota1','nota2','nota3','nota4'].map((k, i) => [k, publicar.tac[i] ? tac[k] : null]))
+      : null;
+    const tacPubVals = tacPublicada
+      ? Object.values(tacPublicada).filter(v => v !== null && v !== undefined && v !== '')
+      : [];
+    const tacPubProm = tacPubVals.length
+      ? +(tacPubVals.reduce((s, v) => s + Number(v), 0) / tacPubVals.length).toFixed(2)
+      : null;
+
     res.json({
       anio,
       perfil,
-      asistencia: asist,
-      pagos,
-      notas: {
-        tac:        { promedio: tacProm, notas: tac || null },
-        diplomado:  { promedio: dipProm, total_materias: dipVals.length },
+      asistencia: modulos.asistencia ? asist : null,
+      pagos: modulos.pagos ? pagos : null,
+      notas: !modulos.notas ? null : sinNotas ? { bloqueado: 'solvencia' } : {
+        tac:        { promedio: tacPubProm, notas: tacPublicada },
+        diplomado:  publicar.diplomado
+          ? { promedio: dipProm, total_materias: dipVals.length }
+          : { promedio: null, total_materias: 0, no_publicado: true },
       },
-      mecanografia: {
-        completadas: mecCompletadas,
-        total: mecCols.length,
-        promedio: mecProm,
-        examen: mecExamen,
-      },
+      mecanografia: !modulos.mecanografia ? null
+        : sinNotas ? { bloqueado: 'solvencia' }
+        : !publicar.mecanografia ? { bloqueado: 'no_publicado' }
+        : {
+            completadas: mecCompletadas,
+            total: mecCols.length,
+            promedio: mecProm,
+            examen: mecExamen,
+          },
     });
   } catch (err) {
     handleErr(err, res, 'Error al obtener dashboard');
   }
 };
 
+// Qué ve el alumno en su portal (para armar menú y avisos de bloqueo).
+const getPortal = async (req, res) => {
+  try {
+    const alumno_id = await helper(req.user.id);
+    const cfg = await getPortalConfig(db);
+    res.json({
+      modulos: cfg.modulos,
+      publicar: cfg.publicar,
+      notasBloqueadas: await notasBloqueadas(cfg, alumno_id),
+    });
+  } catch (err) {
+    handleErr(err, res, 'Error al obtener el portal');
+  }
+};
+
 module.exports = {
+  requiereModulo,
+  getPortal,
   getMiPerfil,
   getMiAsistencia,
   getMisMensualidades,

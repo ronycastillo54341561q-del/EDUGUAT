@@ -2,6 +2,7 @@ const { getPool, runWithSede, pools, SEDES, sedesMeta } = require('../config/db'
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { getPortalConfig, estadoAlumnoDeUsuario } = require('../utils/portalAlumno');
 
 const ROLES_BASE = new Set(['admin','alumno','oficina','maestro']);
 const BASE_OVERRIDABLE = new Set(['admin','oficina','maestro']);
@@ -132,6 +133,17 @@ const login = async (req, res) => {
 
     if (!passwordValido)
       return res.status(401).json({ message: 'Credenciales incorrectas' });
+
+    // Portal del alumno: si la sede lo exige, sólo entran alumnos activos.
+    if (usuario.rol === 'alumno') {
+      const portal = await getPortalConfig(pool);
+      if (portal.soloActivos) {
+        const estado = await estadoAlumnoDeUsuario(pool, usuario.id);
+        if (estado && estado !== 'activo') {
+          return res.status(403).json({ message: 'Tu inscripción no está activa. Comunícate con la administración.' });
+        }
+      }
+    }
 
     // Si el usuario tiene un rol personalizado (no base), validamos que
     // el rol exista, esté activo y que el login se intente dentro del

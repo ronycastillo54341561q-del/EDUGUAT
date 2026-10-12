@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
+import PortalBloqueo from '../../components/PortalBloqueo';
 import '../admin/admin.css';
 
 const anioActual = new Date().getFullYear();
@@ -43,6 +44,9 @@ const AlumnoNotas = () => {
 
   const tac = data?.tac;
   const dipl = data?.diplomado || [];
+  // Qué notas publicó la academia (sin dato = todas, como antes).
+  const pubTac = data?.publicar?.tac || [true, true, true, true];
+  const pubDip = data?.publicar?.diplomado !== false;
 
   const promedioTac = tac
     ? (() => {
@@ -74,22 +78,25 @@ const AlumnoNotas = () => {
 
         {cargando ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: '#999' }}>Cargando...</div>
+        ) : data?.bloqueado ? (
+          <PortalBloqueo motivo={data.bloqueado} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
 
             {/* Notas TAC */}
             <div className="card">
               <h3 style={{ color: '#1a237e', marginBottom: '1rem', fontSize: '0.95rem' }}>Notas TAC {anio}</h3>
-              {!tac ? (
+              {!pubTac.some(Boolean) ? (
+                <PortalBloqueo motivo="no_publicado" />
+              ) : !tac ? (
                 <p style={{ color: '#bbb', fontSize: '0.88rem', textAlign: 'center', padding: '1rem 0' }}>
                   Sin notas registradas
                 </p>
               ) : (
                 <>
-                  <FilaNota label="Nota 1" valor={tac.nota1} />
-                  <FilaNota label="Nota 2" valor={tac.nota2} />
-                  <FilaNota label="Nota 3" valor={tac.nota3} />
-                  <FilaNota label="Nota 4" valor={tac.nota4} />
+                  {[1, 2, 3, 4].filter(n => pubTac[n - 1]).map(n => (
+                    <FilaNota key={n} label={`Nota ${n}`} valor={tac[`nota${n}`]} />
+                  ))}
                   <div style={{
                     marginTop: '1rem', padding: '0.75rem', borderRadius: '10px',
                     background: '#e8eaf6', textAlign: 'center'
@@ -109,7 +116,9 @@ const AlumnoNotas = () => {
             {/* Notas Diplomado */}
             <div className="card">
               <h3 style={{ color: '#1a237e', marginBottom: '1rem', fontSize: '0.95rem' }}>Notas Diplomado {anio}</h3>
-              {dipl.length === 0 ? (
+              {!pubDip ? (
+                <PortalBloqueo motivo="no_publicado" />
+              ) : dipl.length === 0 ? (
                 <p style={{ color: '#bbb', fontSize: '0.88rem', textAlign: 'center', padding: '1rem 0' }}>
                   Sin notas registradas
                 </p>

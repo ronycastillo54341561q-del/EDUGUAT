@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import PortalModulo from './components/PortalModulo';
 import SinAcceso from './pages/admin/SinAcceso';
 import Login from './pages/Login';
 import SedeSelector from './pages/SedeSelector';
@@ -34,6 +35,7 @@ import MisTablas from './pages/admin/MisTablas';
 import Nominas from './pages/admin/Nominas';
 import Horarios from './pages/admin/Horarios';
 import Configuracion from './pages/admin/Configuracion';
+import PortalAlumno from './pages/admin/PortalAlumno';
 import Usuarios from './pages/admin/Usuarios';
 import Roles from './pages/admin/Roles';
 import Avisos from './pages/admin/Avisos';
@@ -104,6 +106,7 @@ function App() {
           <Route path="/admin/nominas"          element={<PrivateRoute modulo="nominas"><Nominas /></PrivateRoute>} />
           <Route path="/admin/horarios"         element={<PrivateRoute modulo="horarios"><Horarios /></PrivateRoute>} />
           <Route path="/admin/configuracion"    element={<PrivateRoute modulo="configuracion"><Configuracion /></PrivateRoute>} />
+          <Route path="/admin/portal-alumno"    element={<PrivateRoute modulo="configuracion"><PortalAlumno /></PrivateRoute>} />
           <Route path="/admin/usuarios"         element={<PrivateRoute modulo="usuarios"><Usuarios /></PrivateRoute>} />
           <Route path="/admin/roles"            element={<PrivateRoute modulo="roles"><Roles /></PrivateRoute>} />
           <Route path="/admin/avisos"           element={<PrivateRoute modulo="avisos"><Avisos /></PrivateRoute>} />
@@ -118,11 +121,11 @@ function App() {
           {/* Alumno */}
           <Route path="/alumno/dashboard"    element={<PrivateRoute rol="alumno"><AlumnoDashboard /></PrivateRoute>} />
           <Route path="/alumno/perfil"       element={<PrivateRoute rol="alumno"><AlumnoPerfil /></PrivateRoute>} />
-          <Route path="/alumno/asistencia"   element={<PrivateRoute rol="alumno"><AlumnoAsistencia /></PrivateRoute>} />
-          <Route path="/alumno/notas"        element={<PrivateRoute rol="alumno"><AlumnoNotas /></PrivateRoute>} />
-          <Route path="/alumno/pagos"        element={<PrivateRoute rol="alumno"><AlumnoPagos /></PrivateRoute>} />
-          <Route path="/alumno/mecanografia" element={<PrivateRoute rol="alumno"><AlumnoMecanografia /></PrivateRoute>} />
-          <Route path="/alumno/avisos"       element={<PrivateRoute rol="alumno"><AlumnoAvisos /></PrivateRoute>} />
+          <Route path="/alumno/asistencia"   element={<PrivateRoute rol="alumno"><PortalModulo modulo="asistencia"><AlumnoAsistencia /></PortalModulo></PrivateRoute>} />
+          <Route path="/alumno/notas"        element={<PrivateRoute rol="alumno"><PortalModulo modulo="notas"><AlumnoNotas /></PortalModulo></PrivateRoute>} />
+          <Route path="/alumno/pagos"        element={<PrivateRoute rol="alumno"><PortalModulo modulo="pagos"><AlumnoPagos /></PortalModulo></PrivateRoute>} />
+          <Route path="/alumno/mecanografia" element={<PrivateRoute rol="alumno"><PortalModulo modulo="mecanografia"><AlumnoMecanografia /></PortalModulo></PrivateRoute>} />
+          <Route path="/alumno/avisos"       element={<PrivateRoute rol="alumno"><PortalModulo modulo="avisos"><AlumnoAvisos /></PortalModulo></PrivateRoute>} />
 
           {/* Cualquier ruta desconocida vuelve al gate */}
           <Route path="*" element={<Navigate to="/seleccionar" replace />} />

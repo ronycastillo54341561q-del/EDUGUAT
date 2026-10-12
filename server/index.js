@@ -46,6 +46,7 @@ const horariosRoutes      = require('./routes/horariosRoutes');
 const configPagosRoutes   = require('./routes/configPagosRoutes');
 const rolesRoutes         = require('./routes/rolesRoutes');
 const relacionesRoutes    = require('./routes/relacionesRoutes');
+const portalAlumnoRoutes = require('./routes/portalAlumnoRoutes');
 
 const app = express();
 
@@ -114,6 +115,7 @@ app.use('/api/horarios',         horariosRoutes);
 app.use('/api/config-pagos',     configPagosRoutes);
 app.use('/api/roles',            rolesRoutes);
 app.use('/api/relaciones',       relacionesRoutes);
+app.use('/api/portal-alumno',    portalAlumnoRoutes);
 
 // Healthcheck para Railway. Debe ir ANTES de express.static y del
 // catch-all del SPA: ambos capturan "/" y, como en Railway no existe

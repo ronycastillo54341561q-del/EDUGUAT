@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BookOpen, CheckCircle2, Clock3, Star, Flag } from 'lucide-react';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
+import PortalBloqueo from '../../components/PortalBloqueo';
 import '../admin/admin.css';
 
 const anioActual = new Date().getFullYear();
@@ -47,6 +48,10 @@ const AlumnoMecanografia = () => {
           </select>
         </div>
 
+        {data?.bloqueado ? (
+          <PortalBloqueo motivo={data.bloqueado} />
+        ) : (
+        <>
         {/* Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {[
@@ -140,6 +145,8 @@ const AlumnoMecanografia = () => {
               </table>
             </div>
           </div>
+        )}
+        </>
         )}
       </div>
     </div>

@@ -3,6 +3,8 @@ import { User, Target, Award, CheckCircle2, Clock3, Coins, Banknote, PiggyBank, 
 import { Link } from 'react-router-dom';
 import AlumnoSidebar from '../../components/AlumnoSidebar';
 import API from '../../api/axios';
+import PortalBloqueo from '../../components/PortalBloqueo';
+import usePortalAlumno from '../../hooks/usePortalAlumno';
 import '../admin/admin.css';
 
 const fmtFecha = (s) => {
@@ -70,11 +72,14 @@ const AlumnoDashboard = () => {
   const [data,     setData]     = useState(null);
   const [avisos,   setAvisos]   = useState([]);
   const [cargando, setCargando] = useState(true);
+  const portal = usePortalAlumno();
+  const verAvisos = portal?.modulos?.avisos !== false;
 
   useEffect(() => {
     Promise.all([
       API.get('/alumno/dashboard'),
-      API.get('/alumno/avisos'),
+      // Si el admin ocultó Avisos, el backend responde 403: no rompe el dashboard.
+      API.get('/alumno/avisos').catch(() => ({ data: [] })),
     ])
       .then(([d, a]) => { setData(d.data); setAvisos(a.data); })
       .catch(console.error)
@@ -145,6 +150,7 @@ const AlumnoDashboard = () => {
         </div>
 
         {/* Avisos recientes */}
+        {verAvisos && (
         <div className="card" style={{ marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '.75rem' }}>
             <h3 style={{ color: '#1a237e', fontSize: '0.95rem', margin: 0 }}>Avisos recientes</h3>
@@ -185,8 +191,10 @@ const AlumnoDashboard = () => {
             </div>
           )}
         </div>
+        )}
 
         {/* Asistencia */}
+        {asistencia && (<>
         <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Asistencia</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
           <Card titulo="% Asistencia" valor={asistencia.pct != null ? `${asistencia.pct}%` : '—'} color="#2e7d32" icon={<BarChart3 size={20} />} />
@@ -195,9 +203,14 @@ const AlumnoDashboard = () => {
           <Card titulo="Permisos" valor={asistencia.p} color="#1565c0" icon="P" />
           <Card titulo="Faltas" valor={asistencia.f} color="#c62828" icon="F" />
         </div>
+        </>)}
 
         {/* Notas */}
+        {notas && (<>
         <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Notas {anio}</h3>
+        {notas.bloqueado ? (
+          <div style={{ marginBottom: '1.25rem' }}><PortalBloqueo motivo={notas.bloqueado} /></div>
+        ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
           <Card
             titulo="Promedio TAC"
@@ -208,13 +221,16 @@ const AlumnoDashboard = () => {
           <Card
             titulo="Promedio Diplomado"
             valor={notas.diplomado.promedio != null ? notas.diplomado.promedio : '—'}
-            sub={`${notas.diplomado.total_materias} materias con nota`}
+            sub={notas.diplomado.no_publicado ? 'Aún no publicadas' : `${notas.diplomado.total_materias} materias con nota`}
             color={(notas.diplomado.promedio || 0) >= 60 ? '#2e7d32' : '#c62828'}
             icon={<Award size={20} />}
           />
         </div>
+        )}
+        </>)}
 
         {/* Pagos */}
+        {pagos && (<>
         <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Pagos {anio}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
           <Card titulo="Pagadas" valor={pagos.pagadas} color="#2e7d32" icon={<CheckCircle2 size={20} />} />
@@ -224,9 +240,14 @@ const AlumnoDashboard = () => {
           <Card titulo="Total abonado" valor={`Q ${pagos.total_abonado.toFixed(2)}`} color="#1565c0" icon={<PiggyBank size={20} />} />
           <Card titulo="Pendiente Q" valor={`Q ${pagos.total_pendiente.toFixed(2)}`} color="#c62828" icon={<Pin size={20} />} />
         </div>
+        </>)}
 
         {/* Mecanografía */}
+        {mecanografia && (<>
         <h3 style={{ color: '#1a237e', fontSize: '0.95rem', marginBottom: '.5rem' }}>Mecanografía {anio}</h3>
+        {mecanografia.bloqueado ? (
+          <div style={{ marginBottom: '1rem' }}><PortalBloqueo motivo={mecanografia.bloqueado} /></div>
+        ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '.75rem', marginBottom: '1rem' }}>
           <Card titulo="Lecciones completadas" valor={`${mecanografia.completadas}/${mecanografia.total}`} color="#1a237e" icon={<BookOpen size={20} />} />
           <Card
@@ -242,6 +263,8 @@ const AlumnoDashboard = () => {
             icon={<Flag size={20} />}
           />
         </div>
+        )}
+        </>)}
       </div>
     </div>
   );

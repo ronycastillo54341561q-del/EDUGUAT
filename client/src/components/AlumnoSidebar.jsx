@@ -5,6 +5,7 @@ import {
   Megaphone, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import usePortalAlumno from '../hooks/usePortalAlumno';
 import logo from '../assets/eduguat-logo-blanco-transparente.png';
 import './Sidebar.css';
 
@@ -12,6 +13,9 @@ const AlumnoSidebar = () => {
   const { usuario, logout, sede, cambiarSede } = useAuth();
   const navigate = useNavigate();
   const [abierta, setAbierta] = useState(false);
+  // Módulos que el admin ocultó del portal (mientras carga se muestran todos).
+  const portal = usePortalAlumno();
+  const visible = (mod) => portal?.modulos?.[mod] !== false;
 
   const handleLogout = () => { logout(); navigate('/login'); };
   const handleCambiarSede = () => { cambiarSede(); navigate('/seleccionar', { replace: true }); };
@@ -57,26 +61,36 @@ const AlumnoSidebar = () => {
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
             <span className="nav-icon"><User size={17} /></span> Mi Perfil
           </NavLink>
-          <NavLink to="/alumno/asistencia" onClick={cerrar}
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-            <span className="nav-icon"><ClipboardList size={17} /></span> Mi Asistencia
-          </NavLink>
-          <NavLink to="/alumno/notas" onClick={cerrar}
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-            <span className="nav-icon"><FileEdit size={17} /></span> Mis Notas
-          </NavLink>
-          <NavLink to="/alumno/pagos" onClick={cerrar}
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-            <span className="nav-icon"><Wallet size={17} /></span> Mis Pagos
-          </NavLink>
-          <NavLink to="/alumno/mecanografia" onClick={cerrar}
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-            <span className="nav-icon"><Keyboard size={17} /></span> Mecanografía
-          </NavLink>
-          <NavLink to="/alumno/avisos" onClick={cerrar}
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-            <span className="nav-icon"><Megaphone size={17} /></span> Avisos
-          </NavLink>
+          {visible('asistencia') && (
+            <NavLink to="/alumno/asistencia" onClick={cerrar}
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              <span className="nav-icon"><ClipboardList size={17} /></span> Mi Asistencia
+            </NavLink>
+          )}
+          {visible('notas') && (
+            <NavLink to="/alumno/notas" onClick={cerrar}
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              <span className="nav-icon"><FileEdit size={17} /></span> Mis Notas
+            </NavLink>
+          )}
+          {visible('pagos') && (
+            <NavLink to="/alumno/pagos" onClick={cerrar}
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              <span className="nav-icon"><Wallet size={17} /></span> Mis Pagos
+            </NavLink>
+          )}
+          {visible('mecanografia') && (
+            <NavLink to="/alumno/mecanografia" onClick={cerrar}
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              <span className="nav-icon"><Keyboard size={17} /></span> Mecanografía
+            </NavLink>
+          )}
+          {visible('avisos') && (
+            <NavLink to="/alumno/avisos" onClick={cerrar}
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              <span className="nav-icon"><Megaphone size={17} /></span> Avisos
+            </NavLink>
+          )}
         </nav>
 
         <button className="logout-btn" onClick={handleLogout}>
