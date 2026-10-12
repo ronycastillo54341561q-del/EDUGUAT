@@ -203,6 +203,25 @@ para encontrar a quien le falta el dato.
 - **Captura**: dos combos en el formulario de Alumnos. El anio sale de
   `useAniosFiltros()` (rango configurable), no de una lista fija.
 
+## Portal del Alumno (qué ve el alumno)
+
+Pantalla del admin `client/src/pages/admin/PortalAlumno.jsx` (`/admin/portal-alumno`,
+menú Sistema, gating con el módulo `configuracion`). API `/api/portal-alumno`
+(GET/PUT, `verifyRole('admin')`). **Sin tablas nuevas**: JSON en
+`configuracion` clave `portal_alumno`, leído/normalizado por
+`server/utils/portalAlumno.js` (`getPortalConfig(pool)`; los defaults = comportamiento
+previo, todo visible y publicado). El PUT **reemplaza** la config completa.
+
+- `modulos`: asistencia/notas/pagos/mecanografia/avisos. El backend corta con
+  `requiereModulo()` en `alumnoSelfRoutes` (403 `MODULO_OCULTO`); el front oculta
+  el menú (`AlumnoSidebar`) y redirige (`PortalModulo` en `App.jsx`).
+- `publicar`: TAC nota por nota, diplomado y mecanografía. Lo no publicado no sale del servidor.
+- `notasSoloSolventes`: solvente = sin mensualidades pendientes del año hasta el mes
+  actual (hora Guatemala; anuladas y descuento 100% no cuentan). Respuesta `bloqueado: 'solvencia'`.
+- `soloActivos` (default **true**): alumno con `estado` ≠ `activo` no entra (login 403) y
+  su sesión abierta se cierra en `verifyToken` (401 `ALUMNO_INACTIVO`).
+- El alumno lee su vista con `GET /api/alumno/portal` (hook `usePortalAlumno`).
+
 ## Recibos: reimpresión y niveles de permiso
 
 Los recibos se emiten **una sola vez** desde Nuevo Pago / Otros Pagos (ambos
